@@ -7,20 +7,14 @@ import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 
-import com.modesteam.urutau.model.system.ArtifactType;
-
 @Entity
-public class Storie extends Artifact {
+public class Storie extends Requirement {
 	private String history;
 
 	@ManyToMany
 	@JoinTable(name = "User_Criteria", joinColumns = @JoinColumn(name = "storie_id") ,
 			inverseJoinColumns = @JoinColumn(name = "artifact_id") )
 	private List<AcceptanceCriteria> acceptanceCriteria;
-
-	public Storie() {
-		super.setArtifactType(ArtifactType.STORIE);
-	}
 
 	public String getHistory() {
 		return history;

@@ -1,4 +1,4 @@
-package com.modesteam.urutau.dao;
+package com.modesteam.urutau.dao.impl;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.dao.SettingDAO;
 import com.modesteam.urutau.model.system.setting.Setting;
 
 public class DefaultSettingDAO implements SettingDAO {

@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.View;
+import com.modesteam.urutau.controller.message.ErrorMessageHandler;
+import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.UserService;
 import com.modesteam.urutau.service.validator.RegisterValidator;
 
@@ -17,12 +20,10 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.I18nMessage;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
 
 /**
- * 
  * This controller have actions directly connect to user
  */
 @Controller
@@ -32,28 +33,28 @@ public class UserController {
 
 	private static final String LOGIN_ATTRIBUTE = "login";
 	private static final String EMAIL_ATTRIBUTE = "email";
-	private static final String REGISTER_VALIDATOR = "register";
-	private static final String LOGIN_VALIDATOR = "login";
 
 	private final Result result;
 	private final UserService userService;
 	private final UserSession userSession;
-	private final Validator validator;
+	private final MessageHandler messageHandler;
+	private final ErrorMessageHandler errorMessageHandler;
 
-	/*
-	 * CDI needs this
+	/**
+	 * @deprecated CDI eyes only
 	 */
 	public UserController() {
-		this(null, null, null, null);
+		this(null, null, null, null, null, null);
 	}
 
 	@Inject
 	public UserController(Result result, UserService userService, UserSession userSession,
-			Validator validator) {
+			Validator validator, MessageHandler messageHandler, ErrorMessageHandler errorMessageHandler) {
 		this.result = result;
 		this.userService = userService;
 		this.userSession = userSession;
-		this.validator = validator;
+		this.errorMessageHandler = errorMessageHandler;
+		this.messageHandler = messageHandler;
 	}
 
 	/**
@@ -106,11 +107,20 @@ public class UserController {
 	public void authenticate(String login, String password) throws Exception {
 		UrutaUser user = userService.authenticate(login, password);
 
-		validator.check(user != null,
-				new I18nMessage(LOGIN_VALIDATOR, "Senha ou login nao conferem"));
+		errorMessageHandler.validates(ContextPlace.LOGIN);
+
+		errorMessageHandler.when(user == null)
+			.show("invalid_authenticate");
+
+		// If have any error, include parameters login and password
+		// to user try authenticate again
+		if(errorMessageHandler.hasErrors()) {
+			result.include("login", login);
+			result.include("password", password);
+		}
 
 		// On error go to index
-		validator.onErrorRedirectTo(IndexController.class).index();
+		errorMessageHandler.redirectingTo(IndexController.class).index();
 
 		// put in session
 		userSession.login(user);
@@ -121,35 +131,43 @@ public class UserController {
 	@Get("/logout")
 	public void logout() {
 		userSession.logout();
-		result.redirectTo(IndexController.class).index();
+
+		messageHandler.use(ContextPlace.SUCCESS_MESSAGE).show("user_logout");
+
+		messageHandler.redirectTo(IndexController.class).index();
 	}
 
 	@View
 	public void showSignInSucess() {
 
 	}
-
+	
 	/**
-	 * Case of any error redirect to index with errors. This method considers
-	 * beans validation too
+	 * TODO treat model validations
+	 * 
+	 * Case of any error redirect to index with errors. 
+	 * This method considers beans validation too
 	 */
 	private void validateBeforeCreate(UrutaUser user) {
+		
+		errorMessageHandler.validates(ContextPlace.REGISTER_VALIDATOR);
+		
 		RegisterValidator registerValidator = new RegisterValidator(user);
 
-		validator.addIf(registerValidator.hasNullField(),
-				new I18nMessage(REGISTER_VALIDATOR, "all_fields_required"));
+		errorMessageHandler.when(registerValidator.hasNullField())
+			.show("all_fields_required");
 
-		validator.onErrorUsePageOf(IndexController.class).index();
+		errorMessageHandler.redirectingTo(IndexController.class).index();
 
-		validator.addIf(!registerValidator.validPasswordConfirmation(),
-				new I18nMessage(REGISTER_VALIDATOR, "password_are_not_equals"));
+		errorMessageHandler.when(!registerValidator.validPasswordConfirmation())
+			.show("password_are_not_equals");
 
-		validator.addIf(!userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin()),
-				new I18nMessage(REGISTER_VALIDATOR, "login_already_in_use"));
+		errorMessageHandler.when(!userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin()))
+			.show("login_already_in_use");
 
-		validator.addIf(!userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail()),
-				new I18nMessage(REGISTER_VALIDATOR, "email_already_in_use"));
+		errorMessageHandler.when(!userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail()))
+			.show("email_already_in_use");
 
-		validator.onErrorUsePageOf(IndexController.class).index();
+		errorMessageHandler.redirectingTo(IndexController.class).index();
 	}
 }

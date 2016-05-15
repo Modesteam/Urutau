@@ -1,5 +1,7 @@
 package com.modesteam.urutau.dao;
 
+import java.util.List;
+
 import com.modesteam.urutau.model.UrutaUser;
 
 /**
@@ -12,7 +14,7 @@ public interface UserDAO {
 	/**
 	 * Gets a object instance that have a field with certain value
 	 */
-	UrutaUser get(String field, Object value) throws Exception;
+	List<UrutaUser> get(String field, Object value) throws Exception;
 	
 	/**
 	 * Finds by id

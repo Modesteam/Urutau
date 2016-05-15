@@ -17,26 +17,33 @@
 var COLLECTOR = (function() {
 
   // loads elements that needs validate in JSON
-  var toValidate = {};
+  var hashToValidate = {};
 	
-  toValidate.elements = {};
+  hashToValidate.elements = {};
 	
-  toValidate.data = [];
+  hashToValidate.data = [];
 	
-  
-  // Save fields to verify
-  toValidate.validates = function(elements) {
-    console.log(elements);
+  /*
+   * It represents the relative path to current validation.
+   * Initialized above, this should be set in page of form.
+   */
+  hashToValidate.serverSideValidatePath = null;
 	
-    toValidate.elements = elements;
+  /*
+   * Save fields to verify
+   */
+  hashToValidate.validates = function(url, elements) {
+	  console.log("Validates >>" + elements + "\nURL:"+url);
+	  hashToValidate.serverSideValidatePath = url; 
+	  hashToValidate.elements = elements;
   }
 	
   // Update data with inputs to validates
-  toValidate.update = function() {
+  hashToValidate.update = function() {
 		
-    toValidate.data = [];
+    hashToValidate.data = [];
 		
-	var fields = toValidate.elements;
+	var fields = hashToValidate.elements;
 		
 	for(var key in fields) {
 	  var fieldToValidate = $('input[name="'+fields[key]+'"]');
@@ -45,21 +52,21 @@ var COLLECTOR = (function() {
 	    if (fieldToValidate.length) {
 		  var data = {};
 		  data[key] = parameterValue;
-		  toValidate.data.push(data);
+		  hashToValidate.data.push(data);
 		} else {
 		  alert("Invalid element to validation! Contact administrator...");
 		  window.location.reload(true);
 		}
 	}
 	
-	console.log(JSON.stringify(toValidate.data));
+	console.log(JSON.stringify(hashToValidate.data));
   };
 	
   // return data in JSON format
-  toValidate.getJSON = function() {
+  hashToValidate.getJSON = function() {
     var ajaxData = {};
 		
-	$.each(toValidate.data, function(index, element) {
+	$.each(hashToValidate.data, function(index, element) {
 		$.each(element, function(param, value){
 			ajaxData[param] = value;
 		})
@@ -71,9 +78,10 @@ var COLLECTOR = (function() {
   };
 	
   return {
-    getDataInJSON: toValidate.getJSON,
-	update : toValidate.update,
-	validates: toValidate.validates	
+    getDataInJSON: hashToValidate.getJSON,
+	update : hashToValidate.update,
+	validates: hashToValidate.validates,
+	url : hashToValidate.serverSideValidatePath
   };
 })(); 
 
@@ -89,9 +97,9 @@ function throwErrorMessages(data) {
 	    category = value;
 	  } else {
 		// render error
-		$('#' + category + '-error').show();
+		$('#' + category).show();
 	    
-		$('#' + category + '-error').html(value);
+		$('#' + category).html(value);
 	    		
 	    category = null;
 	  }
@@ -107,12 +115,13 @@ $(document).ready(function() {
 	COLLECTOR.update();
 		
 	$.ajax({
-		url: "requirement/validate",
+		url: COLLECTOR.url,
 		type: "POST",
 		data: COLLECTOR.getDataInJSON(),
 		// has some error
 		success: function(result) {
 			var data = JSON.stringify(result);
+			console.log(data);
 
 	    	throwErrorMessages(data);
 		},

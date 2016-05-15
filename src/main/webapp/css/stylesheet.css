@@ -22,6 +22,10 @@ h4 {
 	font-size: 16px;
 }
 
+.border-bottom {
+	border-bottom: solid 1px #CCC;
+}
+
 #wrap {
 	min-height: 80%;
 }
@@ -124,6 +128,7 @@ footer .copyright {
 }
 
 .list-projects a {
+	
 }
 
 .panel {
@@ -135,11 +140,15 @@ footer .copyright {
 }
 
 .form-error {
-	display: none;	
+	display: none;
+}
+
+.error-message {
+	margin-left: 20px;	
 }
 
 .error {
-	color: #FE2E2E;
+	color: #A94442;
 }
 
 .errors-list {
@@ -167,6 +176,6 @@ footer .copyright {
 	font-size: 18px;
 }
 
-.invalid-request ul{
+.invalid-request ul {
 	list-style: none;
 }

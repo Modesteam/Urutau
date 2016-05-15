@@ -2,29 +2,15 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 
-<script async="async" src="<c:url value='/js/form-validator.js'/>"></script>
+<%@ include file="/WEB-INF/layouts/errors.jsp"%>
 
-<script async="async" type="text/javascript">
-	COLLECTOR.validates({
-		'title' : 'feature.title',
-		'projectID' : 'feature.projectID'
-	});
-</script>
-
-<div class="modal-content" >
-	<div class="modal-header">
-    	<h4><i class="glyphicon glyphicon-plus"></i> Feature</h4>
-    </div> 
-	<div class="requirement-box">
-		<form action="requirement/createFeature" method="POST" class="requirement-form">
-			<input name="feature.projectID" type="hidden" value="${projectID}">
-			
-			<div class="alert alert-danger form-error" id="title-error" role="alert"></div>			
-			<input name="feature.title" class="form-control" placeholder="Title" type="text">
-			
-			<input name="feature.description" class="form-control" placeholder="Description" type="text">
-			<input name="feature.content" class="form-control" placeholder="Content" type="text">
-			<input type="submit" value="Add" class="btn btn-success btn-group-justified submit-create">
-		</form>
-	</div>
+<h4><i class="glyphicon glyphicon-plus"></i> Feature</h4>
+<div class="requirement-box">
+	<form action="<c:url value='/requirement/createFeature'/>" method="POST" class="requirement-form">
+		<input name="feature.projectID" type="hidden" value="${projectID}">
+		<input name="feature.title" class="form-control" placeholder="Title" type="text" value="${feature.title}">
+		<input name="feature.description" class="form-control" placeholder="Description" type="text" value="${feature.description}">
+		<input name="feature.content" class="form-control" placeholder="Content" type="text" value="${feature.content}">
+		<input type="submit" value="Add" class="btn btn-success pull-right submit-create">
+	</form>
 </div>

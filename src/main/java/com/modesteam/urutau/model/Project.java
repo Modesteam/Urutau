@@ -27,6 +27,8 @@ import com.modesteam.urutau.model.system.MetodologyEnum;
 
 @Entity
 public class Project implements Cloneable {
+	
+	public enum Searchable {TITLE, METODOLOGY}
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

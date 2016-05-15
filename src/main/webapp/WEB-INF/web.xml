@@ -20,7 +20,8 @@
 		<jsp-property-group>
 			<url-pattern>/WEB-INF/jsp/project/*</url-pattern>
 			<url-pattern>/WEB-INF/jsp/application/*</url-pattern>			
-			<url-pattern>/WEB-INF/jsp/kanban/*</url-pattern>			
+			<url-pattern>/WEB-INF/jsp/kanban/*</url-pattern>
+			<url-pattern>/WEB-INF/jsp/requirementCreator/*</url-pattern>			
 			<include-prelude>/WEB-INF/layouts/header.jsp</include-prelude>
 			<include-coda>/WEB-INF/layouts/footer.jsp</include-coda>
 		</jsp-property-group>

@@ -62,5 +62,12 @@ public class AdministratorCreatorFilter implements Filter {
 	@Override
 	public void destroy() {
 	}
+	
+	/**
+	 * @deprecated only to tests
+	 */
+	public void setAdministratorService(AdministratorService administratorService) {
+		this.administratorService = administratorService;
+	}
 
 }

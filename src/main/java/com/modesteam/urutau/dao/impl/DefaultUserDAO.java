@@ -1,9 +1,10 @@
-package com.modesteam.urutau.dao;
+package com.modesteam.urutau.dao.impl;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
 
+import com.modesteam.urutau.dao.UserDAO;
 import com.modesteam.urutau.model.UrutaUser;
 
 /**

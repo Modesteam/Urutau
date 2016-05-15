@@ -1,4 +1,4 @@
-package com.modesteam.urutau.dao;
+package com.modesteam.urutau.dao.impl;
 
 import javax.enterprise.context.Dependent;
 import javax.persistence.EntityManager;

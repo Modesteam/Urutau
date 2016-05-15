@@ -6,126 +6,70 @@ import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
 
+import org.jboss.weld.exceptions.IllegalArgumentException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.dao.ProjectDAO;
 import com.modesteam.urutau.exception.DataBaseCorruptedException;
+import com.modesteam.urutau.exception.NotImplementedError;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Project;
+import com.modesteam.urutau.model.Project.Searchable;
+import com.modesteam.urutau.service.persistence.Finder;
+import com.modesteam.urutau.service.persistence.Persistence;
 
-public class ProjectService {
-	
+public class ProjectService implements Persistence<Project>, Finder<Project> {
+
 	private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
 	private static final String TITLE_COLUMN = "title";
-	private static final int INVALID_ID = -1;
-	
+	private static final int FIRST = 0;
+
 	private final ProjectDAO projectDAO;
-	
+
 	@Inject
 	public ProjectService(ProjectDAO projectDAO) {
 		this.projectDAO = projectDAO;
 	}
-	
-	public void save(Project project) {
-		projectDAO.create(project);
+
+	/**
+	 * See if title can be used
+	 * 
+	 * @param projectTitle
+	 * @throws DataBaseCorruptedException
+	 */
+	public boolean titleAvaliable(final String projectTitle) 
+			throws DataBaseCorruptedException {
+		boolean avaliable = false;
+
+		try {
+			if (projectDAO.get(TITLE_COLUMN, projectTitle).isEmpty()) {
+				avaliable = true;
+			}
+		} catch (NoResultException noResultException) {
+			avaliable = true;
+		} catch (NonUniqueResultException exception) {
+			throw new DataBaseCorruptedException(this.getClass().getSimpleName()
+					+ " invokes canBeUsed and throw grave exception", exception);
+		}
+
+		return avaliable;
 	}
 
 	public List<Project> loadAll() {
 		return projectDAO.loadAll();
 	}
-	
-	/**
-	 * Method to communicate with the DAO
-	 * asking for the project exclusion from database.
-	 * @param project
-	 */
-	public void excludeProject(Long id) {
-		if( id != null ) {
-			Project project = projectDAO.find(id);
-			
-			if(project != null) {
-				projectDAO.destroy(project);
-			} else {
-				throw new SystemBreakException("This project not exist");
-			}
-		} else {
-			logger.info("RequirementService cant find requirementID");
-		}
-	}
-	
-	/**
-	 * Verifies the existence of a project by its id
-	 * 
-	 * @param Id of an project
-	 * @return true if the project exists
-	 * 
-	 */
-	public boolean exists(long id) {
-		logger.info("Verifying the requirement existence in database.");
-		
-		boolean projectExists = projectDAO.find(id) != null;
-		
-		return projectExists;
-	}
-
-	public Project show(Long id, String title) {
-		Project project = projectDAO.find(id);
-		 
-		Long idOfProject = new Long(INVALID_ID);
-		
-		try {
-			idOfProject = projectDAO.get(TITLE_COLUMN, title).getId();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		 
-		boolean validURL = project.getId() == idOfProject;
-		 
-		if(!validURL) {
-			project = null;
-		} else {
-			logger.debug("Valid url, should return project");
-		}
-		 
-		return project; 
-	}
-	
-	/**
-	 * See if title can be used
-	 * 
-	 * @param projectTitle
-	 * @throws DataBaseCorruptedException 
-	 */
-	public boolean canBeUsed(final String projectTitle) throws DataBaseCorruptedException {
-		boolean valueNotUsed = false;
-		
-		try {
-			if(projectDAO.get(TITLE_COLUMN, projectTitle) == null) {
-				valueNotUsed = true;
-			}
-		} catch (NoResultException noResultException) {
-		    valueNotUsed = true;
-		} catch (NonUniqueResultException exception) {
-			throw new DataBaseCorruptedException(this.getClass().getSimpleName() 
-					+ " invokes canBeUsed and throw grave exception", exception);
-		}
-
-		return valueNotUsed;
-	}
-
-	public Project find(Long projectID) {
-        return projectDAO.find(projectID);
-    }
 
 	/**
 	 * Update attributes passed by a detached object
 	 * 
-	 * @param detachedProject created in a page form
+	 * @param detachedProject
+	 *            created in a page form
 	 */
+	@Override
 	public void update(Project detachedProject) {
 		Project managedProject = projectDAO.find(detachedProject.getId());
-		
+
 		final String description = detachedProject.getDescription();
 		final String title = detachedProject.getTitle();
 		final Integer metodology = detachedProject.getMetodologyCode();
@@ -152,16 +96,76 @@ public class ProjectService {
 			managedProject.setPublic(isPublic);
 		}
 	}
-	
-	/**
-	 * TODO refactor this innocence
-	 * @throws Exception 
-	 */
-	public Project getByTitle(String title) throws Exception {
-		return projectDAO.get(TITLE_COLUMN, title);
+
+	@Override
+	public void save(Project project) {
+		projectDAO.create(project);
 	}
-	
-	public void refresh(Project project) {
-		projectDAO.refresh(project);
+
+	@Override
+	public void reload(Project entity) {
+		// TODO Auto-generated method stub
+		throw new NotImplementedError();
+	}
+
+	@Override
+	public void delete(Project entity) {
+		try {
+			Project project = find(entity.getId());
+
+			if (project != null) {
+				projectDAO.destroy(project);
+			} else {
+				throw new SystemBreakException("This project not exist");
+			}
+		} catch (NullPointerException npe) {
+			throw new IllegalArgumentException("Project id is null", npe);
+		}
+	}
+
+	@Override
+	public boolean exists(Long id) {
+		boolean projectExists = projectDAO.find(id) != null;
+
+		return projectExists;
+	}
+
+	@Override
+	public Project find(Long projectID) {
+		return projectDAO.find(projectID);
+	}
+
+	@Override
+	public List<Project> findBy(String field, Object value) {
+		throw new NotImplementedError();
+	}
+
+	@Override
+	public List<Project> where(String conditions) {
+		String sql = "SELECT project FROM " + Project.class.getName() + " project WHERE ";
+
+		sql = sql.concat(conditions);
+
+		return projectDAO.findUsing(sql);
+	}
+
+	/**
+	 * To find by a {@link Searchable} values
+	 * 
+	 * @param attributeName should be a {@link Searchable} of {@link Project}
+	 * @param value a string value
+	 * 
+	 * @return an unique Project 
+	 */
+	public Project find(Searchable attributeName, String value) {
+		List<Project> result = projectDAO.get(attributeName.name().toLowerCase(), value);
+		
+		if (result.size() > 1) {
+			throw new SystemBreakException("More than one result when requested by an unitary field");
+		} else {
+			
+		}
+		
+		return result.get(FIRST);
 	}
 }

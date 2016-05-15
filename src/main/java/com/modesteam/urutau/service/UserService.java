@@ -2,6 +2,8 @@ package com.modesteam.urutau.service;
 
 import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
 
+import java.util.List;
+
 import javax.enterprise.context.RequestScoped;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
@@ -43,23 +45,26 @@ public class UserService {
 	/**
 	 * Method to verify if exist a user with same email or same login
 	 * 
-	 * @param user
 	 * @return false if the verification fails
 	 */
 	public boolean canBeUsed(final String attributeName, final Object value) {
-		boolean valueNotUsed = false;
+		boolean available = false;
 		
 		try{
-			if(userDAO.get(attributeName, value) == null) {
-				valueNotUsed = true;
+			// if not exist a user with this attribute
+			if(userDAO.get(attributeName, value).isEmpty()) {
+				// so it is available
+				available = true;
 			}
 		} catch (NonUniqueResultException exception) {
 			throw new DataBaseCorruptedException("Duplicate register", exception, this.getClass());
 		} catch (Exception exception) {
 			exception.printStackTrace();
-		} 
-		
-		return valueNotUsed;
+		}
+
+		logger.debug(attributeName + " can be used? " + available);
+
+		return available;
 	}
 
 	
@@ -103,10 +108,20 @@ public class UserService {
 	public UrutaUser authenticate(String login, String password) throws Exception {
 		UrutaUser user = null;
 		
-		user = userDAO.get("login", login);
+		// Should return a unique register
+		List<UrutaUser> users = userDAO.get("login", login);
+
+		if (users.size() > 1) {
+			throw new DataBaseCorruptedException("Accept two or more users with the same login");
+		} else {
+			try {
+				user = users.get(0);
+			} catch (IndexOutOfBoundsException exception) {
+				exception.printStackTrace();
+			}
+		}
 		
-		// Case exists, login is true
-		// Verifies password
+		// Case exists, login is true and verifies password
 		if (user != null && !user.getPassword().equals(password)) {
 			// reset user
 			user = null;

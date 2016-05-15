@@ -11,8 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.model.Artifact;
-import com.modesteam.urutau.model.system.FieldMessage;
+import com.modesteam.urutau.controller.message.ErrorMessageHandler;
+import com.modesteam.urutau.controller.message.MessageHandler;
+import com.modesteam.urutau.model.Requirement;
+import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.RequirementService;
 
 import br.com.caelum.vraptor.Controller;
@@ -20,8 +22,6 @@ import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.I18nMessage;
-import br.com.caelum.vraptor.validator.Validator;
 
 /**
  * This class is responsible to manager simple operations of requirements! The
@@ -35,23 +35,26 @@ public class RequirementController {
 
 	private static final int DEFAULT_PAGINATION_SIZE = 5;
 
-	// Injected objects
 	private final Result result;
-
+	private final MessageHandler messageHandler;
+	private final ErrorMessageHandler errorMessageHandler;
 	private final RequirementService requirementService;
 
-	private final Validator validator;
-
+	/**
+	 * @deprecated CDI eyes only
+	 */
 	public RequirementController() {
-		this(null, null, null);
+		this(null, null, null, null);
 	}
 
 	@Inject
-	public RequirementController(Result result, RequirementService requirementService,
-			Validator validator) {
+	public RequirementController(Result result, MessageHandler messageHandler,
+			ErrorMessageHandler errorMessageHandler,
+			RequirementService requirementService) {
 		this.result = result;
+		this.messageHandler = messageHandler;
+		this.errorMessageHandler = errorMessageHandler;
 		this.requirementService = requirementService;
-		this.validator = validator;
 	}
 
 	/**
@@ -62,23 +65,26 @@ public class RequirementController {
 	 * @param title
 	 *            various requirement can have same title
 	 * 
-	 * @return {@link Artifact} requirement from database
+	 * @return {@link Requirement} requirement from database
 	 * 
 	 * @throws UnsupportedEncodingException
 	 *             invalid characters or decodes fails
 	 */
 	@Get
 	@Path("/show/{id}/{title}")
-	public void show(int id, String title) throws UnsupportedEncodingException {
+	public void show(Long id, String title) throws UnsupportedEncodingException {
 		String decodedTitle = URLDecoder.decode(title, StandardCharsets.UTF_8.name());
 
 		logger.info("Show requirement " + title);
 
-		Artifact requirement = requirementService.getRequirement(id, decodedTitle);
+		Requirement requirement = requirementService.getBy(id, decodedTitle);
 
-		validator.addIf(requirement == null,
-				new I18nMessage(FieldMessage.ERROR, "requirement_no_exist"));
-		validator.onErrorUsePageOf(ApplicationController.class).dificultError();
+		errorMessageHandler.validates(ContextPlace.PROJECT_PANEL);
+		
+		errorMessageHandler.when(requirement == null)
+			.show("requirement_no_exist")
+			.redirectingTo(ApplicationController.class)
+			.dificultError();
 
 		result.include(requirement);
 	}
@@ -89,17 +95,22 @@ public class RequirementController {
 	 * @param page,
 	 *            current page
 	 * 
-	 * @return List of {@link Artifact} to be easy display into home page of a
+	 * @return List of {@link Requirement} to be easy display into home page of a
 	 *         project
 	 */
 	@Get("{projectID}/paginate/{page}")
-	public void paginate(int projectID, int page) {
-		List<Artifact> requirements = requirementService.recover(projectID, DEFAULT_PAGINATION_SIZE,
-				page);
+	public void paginate(long projectID, long page) {
+		long upperLimit = page + DEFAULT_PAGINATION_SIZE;
+		List<Requirement> requirements = requirementService
+				.desc("dateOfCreation")
+				.between(page, upperLimit)
+				.find()
+				.where("project_id=" + projectID);
 
 		result.include("requirements", requirements);
 	}
 
+	// TODO throws a message when delete or not
 	/**
 	 * This method is used to delete one requirement
 	 */
@@ -108,12 +119,15 @@ public class RequirementController {
 
 		logger.info("The artifact with the id " + requirementID + " is solicitated for exclusion");
 
-		Artifact requirement = requirementService.getByID(requirementID);
+		Requirement requirement = requirementService.find(requirementID);
+
 		try {
 			requirementService.delete(requirement);
 		} catch (Exception exception) {
-			// TODO treat this
-			result.notFound();
+			// TODO Catch this in script request
+			errorMessageHandler.validates(ContextPlace.ERROR);
+
+			errorMessageHandler.add("operation_unsuccessful").sendAnJson();
 		}
 
 		result.nothing();
@@ -121,12 +135,10 @@ public class RequirementController {
 
 	@View
 	public void detailRequirement() {
-
 	}
 
 	@View
 	public void showExclusionResult() {
-
 	}
 
 }

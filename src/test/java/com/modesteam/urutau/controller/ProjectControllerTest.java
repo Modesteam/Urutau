@@ -4,134 +4,221 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+import javax.enterprise.event.Event;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import br.com.caelum.vraptor.util.test.MockResult;
-import br.com.caelum.vraptor.util.test.MockValidator;
-import br.com.caelum.vraptor.validator.ValidationException;
-
-import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.builder.ProjectBuilder;
 import com.modesteam.urutau.model.Project;
+import com.modesteam.urutau.model.Project.Searchable;
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.model.system.MetodologyEnum;
-import com.modesteam.urutau.service.KanbanService;
-import com.modesteam.urutau.service.ProjectService;
-import com.modesteam.urutau.service.UserService;
+import com.modesteam.urutau.test.UrutaUnitTest;
 
-public class ProjectControllerTest {
+import br.com.caelum.vraptor.validator.I18nMessage;
+import br.com.caelum.vraptor.validator.ValidationException;
 
-	private final Logger logger = Logger.getLogger(ProjectController.class);
+public class ProjectControllerTest extends UrutaUnitTest {
 
-	private MockResult result;
-	private UserSession userSession;
-	private MockValidator validator;
-	private ProjectService projectService;
-	private KanbanService kanbanService;
-	private UserService userService;
+	private Event<UrutaUser> reloadEvent;
 
 	@Before
+	@SuppressWarnings("unchecked")
 	public void setup() {
-		// Catch all!
-		logger.setLevel(Level.DEBUG);
-
-		// Mocks supported by vraptor
-		result = new MockResult();
-		validator = new MockValidator();
-
-		// System components
-		projectService = mock(ProjectService.class);
-
-		kanbanService = mock(KanbanService.class);
-
-		userService = mock(UserService.class);
-
-		userSession = mock(UserSession.class);
-
-		UrutaUser userLogged = mock(UrutaUser.class);
-
-		when(userSession.getUserLogged()).thenReturn(userLogged);
+		this.reloadEvent = mock(Event.class);
+		super.setup();
 	}
 
 	@Test
-	public void createValidProject()
-			throws UnsupportedEncodingException, CloneNotSupportedException {
+	public void createValidProject() {
 		ProjectBuilder projectBuilder = new ProjectBuilder();
 
-		Project project = projectBuilder.id(1L).title("Example Valid").description("test unit")
-				.metodology(MetodologyEnum.GENERIC.toString()).builProject();
+		Project project = projectBuilder
+				.id(1L)
+				.title("Example Valid")
+				.description("test unit")
+				.metodology(MetodologyEnum.GENERIC.toString())
+				.builProject();
 
-		mockCanBeUse(project.getTitle());
+		when(projectService.titleAvaliable(project.getTitle())).thenReturn(true);
+
 		mockGetDefaultLayers();
-		mockSave(project);
+
+		doNothing().when(projectService).save(project);
+
+		mockI18nMessages("title_already_in_used", ContextPlace.MODAL_ERROR);
+
+		when(i18nCreator.create(ContextPlace.MODAL_ERROR, "title_already_in_used"))
+				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, validator);
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
 
 		controllerMock.create(project);
 	}
 
 	@Test(expected = ValidationException.class)
-	public void createInvalidProject()
-			throws UnsupportedEncodingException, CloneNotSupportedException {
-
+	public void createInvalidProject() {
 		ProjectBuilder projectBuilder = new ProjectBuilder();
 
-		Project project = projectBuilder.id(1L).title(null).description("test unit").builProject();
+		Project project = projectBuilder
+				.id(1L)
+				.title(SOME_STRING)
+				.description(SOME_STRING)
+				.builProject();
 
-		mockSave(project);
+		when(projectService.titleAvaliable(SOME_STRING)).thenReturn(false);
+
+		mockI18nMessages("title_already_in_used", ContextPlace.MODAL_ERROR);
+
+		when(i18nCreator.create(ContextPlace.MODAL_ERROR, "title_already_in_used"))
+				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, validator);
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
 
 		controllerMock.create(project);
 	}
 
 	@Test
 	public void deleteValidProject() {
-		mockExistence(1L, true);
-		mockRemove(1L);
+		Project project = new Project();
+		project.setId(1L);
+
+		when(projectService.find(1L)).thenReturn(project);
+		doNothing().when(projectService).delete(project);
+
+		mockI18nMessages("project_already_deleted", ContextPlace.PROJECT);
+
+		when(i18nCreator.create(ContextPlace.PROJECT, "project_already_deleted"))
+				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, validator);
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
 
 		controllerMock.delete(1L);
 	}
 
 	@Test(expected = ValidationException.class)
 	public void deleteInvalidProject() {
+		Project project = new Project();
+		project.setId(1L);
 
-		mockExistence(1L, false);
-		mockRemove(1L);
+		when(projectService.find(1L)).thenReturn(null);
+		doNothing().when(projectService).delete(project);
+		
+		mockI18nMessages("project_already_deleted", ContextPlace.PROJECT);
+
+		when(i18nCreator.create(ContextPlace.PROJECT, "project_already_deleted"))
+				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, validator);
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
 
 		controllerMock.delete(1L);
 	}
 
-	private void mockSave(Project project) {
-		doNothing().when(projectService).save(project);
+	@Test
+	public void editProject() {
+		ProjectBuilder projectBuilder = new ProjectBuilder();
+
+		Project project = projectBuilder
+				.id(1L)
+				.title(SOME_STRING)
+				.builProject();
+
+		when(projectService.find(Searchable.TITLE, SOME_STRING)).thenReturn(project);
+
+		ProjectController controllerMock = new ProjectController(result, userSession,
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
+
+		controllerMock.edit(project);
 	}
 
-	private void mockRemove(Long id) {
-		doNothing().when(projectService).excludeProject(id);
+	@Test
+	public void updateProject() {
+		ProjectBuilder projectBuilder = new ProjectBuilder();
+
+		Project project = projectBuilder
+				.id(1L)
+				.title(SOME_STRING)
+				.builProject();
+
+		when(projectService.find(project.getId())).thenReturn(project);
+
+		doNothing().when(projectService).update(project);
+
+		ProjectController controllerMock = new ProjectController(result, userSession,
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
+
+		controllerMock.update(project);
 	}
 
-	private void mockExistence(Long id, boolean returnValue) {
-		when(projectService.exists(id)).thenReturn(returnValue);
+	@Test
+	public void showProject() {
+		ProjectBuilder projectBuilder = new ProjectBuilder();
+
+		Project project = projectBuilder
+				.id(1L)
+				.title("title+should+be+like+that")
+				.builProject();
+
+		when(projectService.find(Searchable.TITLE, "title should be like that"))
+				.thenReturn(project);
+
+		mockI18nMessages("invalid_link", ContextPlace.MODAL_ERROR);
+
+		when(i18nCreator.create(ContextPlace.MODAL_ERROR, "invalid_link"))
+				.thenReturn(mock(I18nMessage.class));
+
+		ProjectController controllerMock = new ProjectController(result, userSession,
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
+
+		Assert.assertEquals(controllerMock.show(project), project);
 	}
 
-	private void mockCanBeUse(String title) {
-		when(projectService.canBeUsed(title)).thenReturn(true);
+	@Test
+	public void showProjectByID() {
+		ProjectBuilder projectBuilder = new ProjectBuilder();
+
+		Project project = projectBuilder
+				.id(1L)
+				.title(SOME_STRING)
+				.builProject();
+
+		when(projectService.find(1L)).thenReturn(project);
+
+		ProjectController controllerMock = new ProjectController(result, userSession,
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
+
+		controllerMock.show(1L);
+	}
+
+	@Test
+	public void indexProject() {
+		ProjectBuilder projectBuilder = new ProjectBuilder();
+
+		Project project = projectBuilder
+				.id(1L)
+				.title(SOME_STRING)
+				.builProject();
+
+		List<Project> projects = new ArrayList<Project>();
+		projects.add(project);
+
+		when(userSession.getUserLogged().getProjects()).thenReturn(projects);
+
+		ProjectController controllerMock = new ProjectController(result, userSession,
+				projectService, userService, kanbanService, reloadEvent, errorHandler);
+
+		controllerMock.index();
 	}
 
 	private void mockGetDefaultLayers() {

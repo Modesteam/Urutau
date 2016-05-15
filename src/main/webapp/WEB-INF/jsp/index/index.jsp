@@ -45,16 +45,23 @@
 	            	<c:if test="${error.category eq 'login'}">
 		            	<!-- Show only login errors -->
 		            	<div class="alert alert-danger text-center" role="alert">
-		            			${error.message}
+		            		${error.message}
 		            	</div>
 	            	</c:if>
 				</c:forEach>
+				<c:if test="${success_message ne null}">
+   		       		<div class="alert alert-success text-center" role="alert">
+   		       			${success_message}
+   		       		</div>
+   		       	</c:if>
 			                 
 	           <form action="user/authenticate" class="form-signin" method="POST">
 					<input name="login" class="form-control" 
-						placeholder="<fmt:message key='user.login'/>" required autofocus>
+						placeholder="<fmt:message key='user.login'/>" 
+						value="${login}" required autofocus>
 					<input name="password" type="password" class="form-control" 
-						placeholder="<fmt:message key='user.password'/>" required>
+						placeholder="<fmt:message key='user.password'/>" 
+						value="${password}" required>
 					<button class="btn btn-lg btn-primary btn-block" 
 						type="submit"><fmt:message key='sign_up'/></button>
 				</form>
@@ -69,10 +76,10 @@
 			 	
 			 	<c:forEach var="error" items="${errors}">
 			 		<c:set var= "errorCategory" value="${error.category}"/>
-	            	<c:if test="${fn:contains(errorCategory, 'user.') || errorCategory.equals('register')}">
+	            	<c:if test="${fn:contains(errorCategory, 'user.') || errorCategory.equals('register_validator')}">
 		            	<!-- Show only register errors -->
 		            	<div class="alert alert-danger" role="alert">
-		            			${error.message}
+		            		${error.message}
 		            	</div>
 	            	</c:if>
 				</c:forEach>

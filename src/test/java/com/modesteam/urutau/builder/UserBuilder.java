@@ -9,6 +9,12 @@ public class UserBuilder {
 	private String lastName;
 	private String password;
 	private String passwordVerify;
+	private Long id;
+
+	public UserBuilder id(Long id) {
+		this.id = id;
+		return this;
+	}
 
 	public UserBuilder email(String email) {
 		this.email = email;
@@ -42,6 +48,7 @@ public class UserBuilder {
 
 	public UrutaUser build() {
 		UrutaUser user = new UrutaUser();
+		user.setUserID(id);
 		user.setEmail(email);
 		user.setLogin(login);
 		user.setName(name);

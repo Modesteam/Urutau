@@ -61,7 +61,9 @@
 							<input name="project.description" type="text" class="form-control" 
 								placeholder="<fmt:message key="project.description"/>">
 							<br/> 
-							<input type="submit" class="btn btn-success btn-group-justified" value="<fmt:message key="add"/>"/>					
+							<input type="submit" 
+								class="btn btn-success btn-group-justified submit-modal" 
+								value="<fmt:message key="add"/>"/>					
 						</form>
 					</div>
 				</div>

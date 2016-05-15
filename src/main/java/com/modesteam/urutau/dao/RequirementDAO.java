@@ -2,29 +2,29 @@ package com.modesteam.urutau.dao;
 
 import java.util.List;
 
-import com.modesteam.urutau.model.Artifact;
+import com.modesteam.urutau.model.Requirement;
 
 /**
  *
- * Data access object for Artifacts
+ * Data access object for Requirements
  *
  */
 public interface RequirementDAO {
-	void create(Artifact artifact);
+	void create(Requirement artifact);
 	
 	/**
 	 * Gets a object instance that have a field with certain value
 	 */
-	Artifact get(String field, Object value) throws Exception;
+	List<Requirement> get(String field, Object value);
 	
 	/**
 	 * Finds by id
 	 */
-	Artifact find(Long id);
+	Requirement find(Long id);
 	
-	Artifact update(Artifact artifact);
+	Requirement update(Requirement artifact);
 	
-	void destroy(Artifact artifact);
+	void destroy(Requirement artifact);
 	
-	List<Artifact> getRequirementBetweenInterval(Long projectID, int firstResult, int maxResult);
+	List<Requirement> findUsing(String sql);
 }
