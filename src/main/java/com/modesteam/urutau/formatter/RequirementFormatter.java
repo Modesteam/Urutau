@@ -94,8 +94,6 @@ public class RequirementFormatter {
 	private UrutaUser getCurrentAuthor() {
 		UrutaUser logged = userSession.getUserLogged();
 
-		assert (logged == null);
-
 		return logged;
 	}
 
@@ -108,7 +106,7 @@ public class RequirementFormatter {
 	 */
 	private Project getCurrentProject(final Long projectID) {
 
-		assert (projectID == null);
+		assert (projectID != null);
 
 		// Load by id
 		Project referedProject = projectService.find(projectID);
