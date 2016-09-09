@@ -1,55 +1,26 @@
 package com.modesteam.urutau.controller;
 
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.junit.Before;
 import org.junit.Test;
 
-import br.com.caelum.vraptor.util.test.MockResult;
-import br.com.caelum.vraptor.util.test.MockValidator;
-
-import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.builder.ArtifactBuilder;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
 import com.modesteam.urutau.model.Generic;
 import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.Storie;
-import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.model.UseCase;
-import com.modesteam.urutau.service.RequirementService;
+import com.modesteam.urutau.test.UrutaUnitTest;
 
-public class RequirementEditorTest {
+public class RequirementEditorTest extends UrutaUnitTest {
 
-	private final Logger logger = Logger.getLogger(ProjectController.class);
-
-	private MockResult result;
-	private UserSession userSession;
-	private MockValidator validator;
-	private RequirementService requirementService;
 	private ArtifactBuilder requirementBuilder = new ArtifactBuilder();
 
 	@Before
 	public void setUp() {
-		// Catch all!
-		logger.setLevel(Level.DEBUG);
-
-		// Mocks supported by vraptor
-		result = new MockResult();
-		validator = new MockValidator();
-
-		// System components
-		requirementService = mock(RequirementService.class);
-
-		userSession = mock(UserSession.class);
-
-		UrutaUser userMock = mock(UrutaUser.class);
-
-		when(userSession.getUserLogged()).thenReturn(userMock);
+		super.setup();
 	}
 
 	/**
@@ -59,7 +30,10 @@ public class RequirementEditorTest {
 	public void testValidEpicEdition() {
 
 		// Creating an hypothetical epic
-		Epic epic = requirementBuilder.id(10L).title("Valid Title").description("Valid Description")
+		Epic epic = requirementBuilder
+				.id(10L)
+				.title("Valid Title")
+				.description("Valid Description")
 				.buildEpic();
 
 		doNothingWhenEdit(epic);
@@ -77,8 +51,11 @@ public class RequirementEditorTest {
 	public void testValidGenericEdition() {
 
 		// Creating an hypothetical generic requirement
-		Generic generic = requirementBuilder.id(10L).title("Valid Title")
-				.description("Valid Description").buildGeneric();
+		Generic generic = requirementBuilder
+				.id(10L)
+				.title("Valid Title")
+				.description("Valid Description")
+				.buildGeneric();
 
 		doNothingWhenEdit(generic);
 
@@ -96,8 +73,11 @@ public class RequirementEditorTest {
 	public void testValidFeatureEdition() {
 
 		// Creating an hypothetical feature
-		Feature feature = requirementBuilder.id(15L).title("Valid Title")
-				.description("Valid Description").buildFeature();
+		Feature feature = requirementBuilder
+				.id(15L)
+				.title("Valid Title")
+				.description("Valid Description")
+				.buildFeature();
 
 		doNothingWhenEdit(feature);
 
@@ -115,8 +95,11 @@ public class RequirementEditorTest {
 	public void testValidUseCaseEdition() {
 
 		// Creating an hypothetical use case
-		UseCase useCase = requirementBuilder.id(100L).title("Valid Title")
-				.description("Valid Description").buildUseCase();
+		UseCase useCase = requirementBuilder
+				.id(100L)
+				.title("Valid Title")
+				.description("Valid Description")
+				.buildUseCase();
 
 		doNothingWhenEdit(useCase);
 
@@ -134,8 +117,11 @@ public class RequirementEditorTest {
 	public void testValidStorieEdition() {
 
 		// Creating an hypothetical storie
-		Storie storie = requirementBuilder.id(50L).title("Valid Title")
-				.description("Valid Description").buildStorie();
+		Storie storie = requirementBuilder
+				.id(50L)
+				.title("Valid Title")
+				.description("Valid Description")
+				.buildStorie();
 
 		doNothingWhenEdit(storie);
 
