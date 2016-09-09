@@ -10,10 +10,8 @@ import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Transient;
 
-import com.modesteam.urutau.model.system.ArtifactType;
-
 @Entity
-public class UseCase extends Artifact {
+public class UseCase extends Requirement {
 	@ManyToMany(cascade = CascadeType.PERSIST)
 	@JoinTable(name = "Actors", joinColumns = @JoinColumn(name = "useCaseID") ,
 			inverseJoinColumns = @JoinColumn(name = "actorID") )
@@ -21,10 +19,6 @@ public class UseCase extends Artifact {
 
 	@Transient
 	private String fakeActors;
-
-	public UseCase() {
-		super.setArtifactType(ArtifactType.USECASE);
-	}
 
 	public List<Actor> getActors() {
 		return actors;

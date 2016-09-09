@@ -1,8 +1,10 @@
 package com.modesteam.urutau.controller;
 
-import java.io.IOException;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-import static org.mockito.Mockito.*;
+import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.RequestDispatcher;
@@ -32,15 +34,33 @@ public class AdministratorCreatorFilterTest {
 		this.request = mock(ServletRequest.class);
 		this.response = mock(ServletResponse.class);
 
-		when(request.getRequestDispatcher("/administrator/changeFirstSettings"))
+		when(request.getRequestDispatcher("/administrator/createFirstAdministrator"))
 				.thenReturn(EasyMock.createMock(RequestDispatcher.class));
 
 		this.chain = mock(FilterChain.class);
 		this.administratorService = mock(AdministratorService.class);
 	}
 
-	private void mockExistenceOfAdministratorWith(boolean condition) {
-		when(administratorService.existAdministrator()).thenReturn(condition);
+	@Test
+	public void doFilterWhenExistAdmin() throws IOException, ServletException {
+		AdministratorCreatorFilter filter = new AdministratorCreatorFilter();
+		
+		when(administratorService.existAdministrator()).thenReturn(true);
+		doNothing().when(chain).doFilter(request, response);
+		
+		filter.setAdministratorService(administratorService);
+		filter.doFilter(request, response, chain);
+	}
+	
+	@Test
+	public void doFilterWhenNotExistAdmin() throws IOException, ServletException {
+		AdministratorCreatorFilter filter = new AdministratorCreatorFilter();
+		
+		when(administratorService.existAdministrator()).thenReturn(false);
+		doNothing().when(chain).doFilter(request, response);
+		
+		filter.setAdministratorService(administratorService);
+		filter.doFilter(request, response, chain);
 	}
 
 }

@@ -1,11 +1,11 @@
-package com.modesteam.urutau.dao;
+package com.modesteam.urutau.dao.impl;
 
 import java.lang.reflect.ParameterizedType;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.persistence.EntityExistsException;
 import javax.persistence.EntityManager;
-import javax.persistence.NonUniqueResultException;
 import javax.persistence.Query;
 
 import org.hibernate.Session;
@@ -40,6 +40,34 @@ public abstract class GenericDAO<Entity> {
 	}
 
 	/**
+	 * Runs a select SQL
+	 * 
+	 * @return {@link List} of entities
+	 */
+	@SuppressWarnings("unchecked")
+	public List<Entity> findUsing(final String sql) {
+		logger.trace("Finding by: " + sql);
+
+		List<Entity> results = null;
+
+		try {
+			Query query = entityManager.createQuery(sql);
+
+			results = query.getResultList();
+		} catch (IllegalArgumentException illegalArgumentException) {
+			throw new SystemBreakException("SQL was not mounted rightly..",
+					illegalArgumentException);
+		}
+
+		return results;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Entity find(Long id){
+		return (Entity) entityManager.find(entityClass, id);
+	}
+
+	/**
 	 * Gets a Entity by a field with certain value
 	 * 
 	 * @param field
@@ -49,28 +77,24 @@ public abstract class GenericDAO<Entity> {
 	 * @return Object correspondent to Entity defined by DAO
 	 */
 	@SuppressWarnings("unchecked")
-	public Entity get(String field, Object value) {
-		Entity result = null;
+	public List<Entity> get(String field, Object value) {
+		List<Entity> results = null;
 
-		if (daoHelper.isValidParameter(value)) {
-			try {
-				final String sql = daoHelper.getSelectQuery(entityClass, field);
-				Query query = entityManager.createQuery(sql);
-				query.setParameter(PARAMETER_NAME, value);
+		if (value != null && daoHelper.isValidParameter(value)) {
+			final String sql = daoHelper.getSelectQuery(entityClass, field);
+			Query query = entityManager.createQuery(sql);
+			query.setParameter(PARAMETER_NAME, value);
 
-				result = (Entity) query.getSingleResult();
-			} catch (NonUniqueResultException exception) {
-				throw new NonUniqueResultException("Get more than one results when get a field");
-			}
+			results = query.getResultList();
 		} else {
 			throw new IllegalArgumentException(
 					"An invalid parameter has been passed to get method in GenericDAO");
 		}
 
-		logger.debug(field + " in table " + entityClass.getName() + " has returned?-"
-				+ (result != null));
+		logger.debug(field + " in table " + entityClass.getName() + " has returned? - "
+				+ (results.size() + " results"));
 
-		return result;
+		return results;
 	}
 
 	/**

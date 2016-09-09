@@ -16,8 +16,14 @@ public class DataBaseCorruptedException extends RuntimeException {
 	private Class<?> targetClass;
 
 	/**
-	 * This exception should not be used without your cause
-	 * 
+	 * @param message
+	 * 		explain context or simple description
+	 */
+	public DataBaseCorruptedException(String message) {
+		super(message);
+	}
+
+	/**
 	 * @param message
 	 *            explain context or simple description
 	 * @param throwable

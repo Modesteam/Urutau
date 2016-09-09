@@ -1,6 +1,6 @@
 package com.modesteam.urutau.controller;
 
-import java.io.UnsupportedEncodingException;
+import java.util.concurrent.Callable;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
@@ -9,15 +9,16 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.controller.message.ErrorMessageHandler;
+import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.formatter.RequirementFormatter;
-import com.modesteam.urutau.model.Artifact;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
 import com.modesteam.urutau.model.Generic;
+import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.Storie;
 import com.modesteam.urutau.model.UseCase;
-import com.modesteam.urutau.model.system.ArtifactType;
-import com.modesteam.urutau.model.system.FieldMessage;
+import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.RequirementService;
 
 import br.com.caelum.vraptor.Controller;
@@ -25,10 +26,6 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.I18nMessage;
-import br.com.caelum.vraptor.validator.SimpleMessage;
-import br.com.caelum.vraptor.validator.Validator;
-import br.com.caelum.vraptor.view.Results;
 
 /**
  * This is a implementation of {@link EntityCreator}, part of pattern abstract
@@ -45,61 +42,104 @@ public class RequirementCreator {
 
 	// Objects to be injected
 	private final Result result;
-	private final Validator validator;
+	private final MessageHandler messageHandler;
+	private final ErrorMessageHandler errorHandler;
 	private final RequirementService service;
 	private final RequirementFormatter formatter;
+	private Callable<RequirementCreator> callable;
 
 	/**
 	 * CDI only eye
 	 */
 	public RequirementCreator() {
-		this(null, null, null, null);
+		this(null, null, null, null, null);
 	}
 
 	@Inject
-	public RequirementCreator(Result result, Validator validator, RequirementService service,
+	public RequirementCreator(Result result, MessageHandler messageHandler,
+			ErrorMessageHandler errorHandler, RequirementService service,
 			RequirementFormatter formatter) {
 		this.result = result;
-		this.validator = validator;
+		this.messageHandler = messageHandler;
+		this.errorHandler = errorHandler;
 		this.service = service;
 		this.formatter = formatter;
 	}
 
-	/**
-	 * Server side validation
-	 * 
-	 * @param title
-	 *            to validate
-	 */
 	@Post
-	public void validate(String title) {
-		validator.addIf(title == null || title.isEmpty(),
-				new I18nMessage("title", "artifact.title.empty"));
-		validator.onErrorUse(Results.json()).withoutRoot().from(validator.getErrors()).serialize();
+	public void createGeneric(@NotNull @Valid final Generic generic) {
+		callable = new Callable<RequirementCreator>() {
+			@Override
+			public RequirementCreator call() throws Exception {
+				result.include(generic);
+				errorHandler.redirectingTo(RequirementCreator.class)
+					.generic(generic.getProjectID().toString());
+				return null;
+			}
+		};
+
+		try {
+			save(generic, callable);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Post
-	public void createGeneric(@NotNull @Valid Generic generic) {
-		generic.setArtifactType(ArtifactType.GENERIC);
-		save(generic);
+	public void createFeature(@NotNull @Valid final Feature feature) {
+		callable = new Callable<RequirementCreator>() {	
+			@Override
+			public RequirementCreator call() throws Exception {
+				result.include(feature);
+				errorHandler.redirectingTo(RequirementCreator.class)
+					.feature(feature.getProjectID().toString());
+				return null;
+			}
+		};
+
+		try {
+			save(feature, callable);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Post
-	public void createFeature(@NotNull @Valid Feature feature) {
-		feature.setArtifactType(ArtifactType.FEATURE);
-		save(feature);
+	public void createUserStory(@NotNull @Valid final Storie storie) {
+		callable = new Callable<RequirementCreator>() {	
+			@Override
+			public RequirementCreator call() throws Exception {
+				result.include(storie);
+				errorHandler.redirectingTo(RequirementCreator.class)
+					.feature(storie.getProjectID().toString());
+				return null;
+			}
+		};
+
+		try {
+			save(storie, callable);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Post
-	public void createUserStory(@NotNull @Valid Storie storie) {
-		storie.setArtifactType(ArtifactType.STORIE);
-		save(storie);
-	}
-
-	@Post
-	public void createEpic(@NotNull @Valid Epic epic) {
-		epic.setArtifactType(ArtifactType.EPIC);
-		save(epic);
+	public void createEpic(@NotNull @Valid final Epic epic) {
+		callable = new Callable<RequirementCreator>() {	
+			@Override
+			public RequirementCreator call() throws Exception {
+				result.include(epic);
+				errorHandler.redirectingTo(RequirementCreator.class)
+					.feature(epic.getProjectID().toString());
+				return null;
+			}
+		};
+		
+		try {
+			save(epic, callable);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -107,15 +147,30 @@ public class RequirementCreator {
 	 * robust than the others
 	 */
 	@Post
-	public void createUseCase(@NotNull @Valid UseCase useCase) {
+	public void createUseCase(@NotNull @Valid final UseCase useCase) {
+		callable = new Callable<RequirementCreator>() {	
+			@Override
+			public RequirementCreator call() throws Exception {
+				result.include(useCase);
+				errorHandler.redirectingTo(RequirementCreator.class)
+					.useCase(useCase.getProjectID().toString());
+				return null;
+			}
+		};
 
 		if (useCase.getFakeActors() != null) {
 			useCase.formatToRealActors();
 		} else {
-			validator.add(new SimpleMessage(FieldMessage.ERROR, "needs_author"));
+			// This will be thrown the save method
+			errorHandler.validates(ContextPlace.REQUIREMENT_CREATE);
+			errorHandler.add("actor_is_required");
 		}
 
-		save(useCase);
+		try {
+			save(useCase, callable);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -174,53 +229,52 @@ public class RequirementCreator {
 	 * @param requirement
 	 *            that will be verifies
 	 */
-	private void validates(final Artifact requirement) {
-		validator.addIf(requirement.getAuthor() == null,
-				new SimpleMessage(FieldMessage.ERROR, "needs_author"));
+	private void validates(final Requirement requirement) {
+		errorHandler.validates(ContextPlace.REQUIREMENT_CREATE);
 
-		validator.addIf(requirement.getProject() == null,
-				new SimpleMessage(FieldMessage.ERROR, "project_not_exist"));
+		errorHandler.when(requirement.getTitle() == null)
+			.show("requirement.title.empty");
 
-		validator.onErrorRedirectTo(ApplicationController.class).dificultError();
+		errorHandler.when(!service.findBy("title", requirement.getTitle()).isEmpty())
+			.show("requirement.title.already_used");
+
+		errorHandler.when(requirement.getAuthor() == null)
+			.show("needs_author");
+
+		errorHandler.when(requirement.getProject() == null)
+			.show("project_not_exist");
 	}
 
 	/**
-	 * Generic method to save a artifact, it can be
+	 * Generic method to save an artifact
 	 * 
 	 * @param requirement
 	 *            is a user output that will be verified and saved
+	 * @param callable
+	 * 			  if validation not approved call redirect method
+	 * @throws Exception 
 	 */
-	private void save(final Artifact requirement) {
-		validator.onErrorUsePageOf(ApplicationController.class).invalidRequest();
-
+	private void save(final Requirement requirement, Callable<RequirementCreator> callable) {
 		// insert some data like author, date and project
 		formatter.format(requirement);
 		// verify if above format work fine
 		validates(requirement);
+
 		// only to protect the invoke of create requirement
-		createIfThereIsNoErrors(requirement);
-
-		result.include(FieldMessage.SUCCESS, "requirement_add_with_success");
-
-		try {
-			// Now project are loaded
-			result.redirectTo(ProjectController.class).show(requirement.getProject());
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * If validator does not has any error, invokes persistence method
-	 * 
-	 * @param requirement
-	 *            instance created by user
-	 */
-	private void createIfThereIsNoErrors(final Artifact requirement) {
-		if (!validator.hasErrors()) {
-			service.create(requirement);
+		if (!errorHandler.hasErrors()) {
+			service.save(requirement);
 		} else {
 			logger.error("Some errors was found");
+			try {
+				callable.call();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
+
+		messageHandler.use(ContextPlace.PROJECT_PANEL).show("requirement_add_with_success");
+
+		messageHandler.redirectTo(ProjectController.class).show(requirement.getProject());
 	}
+
 }

@@ -1,16 +1,24 @@
 package com.modesteam.urutau.controller;
 
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.doThrow;
 
+import java.util.ResourceBundle;
+
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.modesteam.urutau.model.Artifact;
+import com.modesteam.urutau.controller.message.ErrorMessageHandler;
+import com.modesteam.urutau.controller.message.MessageHandler;
+import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Project;
+import com.modesteam.urutau.model.Requirement;
+import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
+import com.modesteam.urutau.service.I18nMessageCreator;
 import com.modesteam.urutau.service.KanbanService;
 import com.modesteam.urutau.service.ProjectService;
 import com.modesteam.urutau.service.RequirementService;
@@ -18,7 +26,7 @@ import com.modesteam.urutau.service.RequirementService;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.util.test.MockResult;
 import br.com.caelum.vraptor.util.test.MockValidator;
-import br.com.caelum.vraptor.validator.ValidationException;
+import br.com.caelum.vraptor.validator.I18nMessage;
 import br.com.caelum.vraptor.validator.Validator;
 
 public class KanbanControllerTest {
@@ -26,22 +34,30 @@ public class KanbanControllerTest {
 	private static final Long STUB_LONG_NUMBER = 1L;
 	private static final Long VALID_PROJECT_ID = 1L;
 
-	private Result mockResult;
-	private Validator mockValidator;
-	private KanbanService mockKanbanService;
-	private ProjectService mockProjectService;
-	private RequirementService mockRequirementService;
+	private Result result;
+	private Validator validator;
+	private KanbanService kanbanService;
+	private ProjectService projectService;
+	private RequirementService requirementService;
+	private I18nMessageCreator i18nCreator;
+	private MessageHandler messageHandler;
+	private ErrorMessageHandler errorHandler;
 
 	@Before
 	public void setUp() {
 		// Mocks supported by vraptor
-		mockResult = new MockResult();
-		mockValidator = new MockValidator();
+		result = new MockResult();
+		validator = new MockValidator();
 
 		// System components
-		mockRequirementService = mock(RequirementService.class);
-		mockKanbanService = mock(KanbanService.class);
-		mockProjectService = mock(ProjectService.class);
+		requirementService = mock(RequirementService.class);
+		kanbanService = mock(KanbanService.class);
+		projectService = mock(ProjectService.class);
+
+		// Messages
+		i18nCreator = mock(I18nMessageCreator.class);
+		errorHandler = new ErrorMessageHandler(validator, i18nCreator);
+		messageHandler = new MessageHandler(result, i18nCreator);
 	}
 
 	@Test
@@ -49,81 +65,94 @@ public class KanbanControllerTest {
 		Project project = new Project();
 		project.setId(VALID_PROJECT_ID);
 
-		whenFind(project);
+		when(projectService.find(project.getId())).thenReturn(mock(Project.class));
 
-		KanbanController controller = new KanbanController(mockResult, mockValidator,
-				mockKanbanService, mockProjectService, mockRequirementService);
+		KanbanController controller = new KanbanController(kanbanService, projectService, 
+				requirementService, result, messageHandler, errorHandler);
 
 		controller.load(project);
 	}
 
 	@Test
 	public void testValidMove() throws Exception {
-		Artifact requirement = createAnMockRequirement();
+		Requirement requirement = createAnMockRequirement();
 
-		whenGetRequirementByID(STUB_LONG_NUMBER, requirement);
-		whenGetLayerByID(STUB_LONG_NUMBER);
+		when(requirementService.find(STUB_LONG_NUMBER)).thenReturn(requirement);
 
-		doNothingWhenRequirementServiceUpdate(requirement);
+		when(kanbanService.getLayerByID(STUB_LONG_NUMBER)).thenReturn(mock(Layer.class));
 
-		KanbanController controller = new KanbanController(mockResult, mockValidator,
-				mockKanbanService, mockProjectService, mockRequirementService);
+		doNothing().when(requirementService).update(requirement);
+
+		when(i18nCreator.create(ContextPlace.KANBAN, "successfully_moved_requirement"))
+				.thenReturn(mock(I18nMessage.class));
+
+		mockI18nMessages("successfully_moved_requirement", ContextPlace.KANBAN);
+
+		KanbanController controller = new KanbanController(kanbanService, projectService, 
+				requirementService, result, messageHandler, errorHandler);
+
+		controller.move(STUB_LONG_NUMBER, STUB_LONG_NUMBER);
+	}
+
+	@Test
+	public void testInvalidMove() throws Exception {
+		Requirement requirement = createAnMockRequirement();
+
+		when(requirementService.find(STUB_LONG_NUMBER)).thenReturn(requirement);
+		when(kanbanService.getLayerByID(STUB_LONG_NUMBER)).thenReturn(mock(Layer.class));
+
+		doThrow(IllegalArgumentException.class).when(requirementService).update(requirement);
+
+		when(i18nCreator.create(ContextPlace.ERROR, "invalid_request"))
+				.thenReturn(mock(I18nMessage.class));
+
+		mockI18nMessages("invalid_request", ContextPlace.ERROR);
+
+		KanbanController controller = new KanbanController(kanbanService, projectService, 
+				requirementService, result, messageHandler, errorHandler);
 
 		controller.move(STUB_LONG_NUMBER, STUB_LONG_NUMBER);
 	}
 
 	@Test
 	public void testCreateValidLayer() throws Exception {
-		Layer mockLayer = createAnValidMockLayer();
-
-		Project mockProject = mock(Project.class);
-		mockProject.add(mockLayer);
-
-		mockProjectToAddNewLayer(mockProject, mockLayer);
-
-		shouldReturnWhenCreateLayer(mockLayer);
-		doNothingWhenUpdateProject(mockProject);
-
-		KanbanController controller = new KanbanController(mockResult, mockValidator,
-				mockKanbanService, mockProjectService, mockRequirementService);
-
-		controller.createLayer(VALID_PROJECT_ID, mockLayer);
-	}
-
-	@Test(expected = ValidationException.class)
-	public void testCreateInvalidLayer() {
-		Layer mockLayer = createAnValidMockLayer();
-
-		Project mockProject = mock(Project.class);
-		mockProject.add(mockLayer);
-
-		mockProjectToAddNewLayer(mockProject, mockLayer);
-
-		shouldThrowExceptionWhenCreate(mockLayer);
-
-		doNothingWhenUpdateProject(mockProject);
-
-		KanbanController controller = new KanbanController(mockResult, mockValidator,
-				mockKanbanService, mockProjectService, mockRequirementService);
-
-		controller.createLayer(VALID_PROJECT_ID, mockLayer);
-	}
-
-	private void shouldThrowExceptionWhenCreate(Layer mockLayer) {
-		doThrow(IllegalArgumentException.class).when(mockKanbanService).create(mockLayer);
-	}
-
-	private void shouldReturnWhenCreateLayer(Layer mockLayer) {
-		doNothing().when(mockKanbanService).create(mockLayer);
-	}
-
-	private Layer createAnValidMockLayer() {
 		Layer mockLayer = mock(Layer.class);
-		return mockLayer;
+
+		Project mockProject = mock(Project.class);
+		mockProject.add(mockLayer);
+
+		when(projectService.find(VALID_PROJECT_ID)).thenReturn(mockProject);
+
+		doNothing().when(kanbanService).create(mockLayer);
+		doNothing().when(projectService).update(mockProject);
+
+		KanbanController controller = new KanbanController(kanbanService, projectService, 
+				requirementService, result, messageHandler, errorHandler);
+
+		controller.createLayer(VALID_PROJECT_ID, mockLayer);
 	}
 
-	private Artifact createAnMockRequirement() {
-		Artifact requirement = mock(Artifact.class);
+	@Test
+	public void testCreateInvalidLayer() {
+		Layer mockLayer = mock(Layer.class);
+
+		Project mockProject = mock(Project.class);
+		mockProject.add(mockLayer);
+
+		when(projectService.find(VALID_PROJECT_ID)).thenReturn(mockProject);
+
+		doThrow(SystemBreakException.class).when(kanbanService).create(mockLayer);
+
+		KanbanController controller = new KanbanController(kanbanService, projectService, 
+				requirementService, result, messageHandler, errorHandler);
+
+		controller.createLayer(VALID_PROJECT_ID, mockLayer);
+
+		Assert.assertTrue(result.used());
+	}
+
+	private Requirement createAnMockRequirement() {
+		Requirement requirement = mock(Requirement.class);
 
 		Project mockProject = mock(Project.class);
 
@@ -135,28 +164,13 @@ public class KanbanControllerTest {
 
 		return requirement;
 	}
+	
+	private void mockI18nMessages(String message, ContextPlace place) {
+		when(i18nCreator.translate(message)).thenReturn(i18nCreator);
+		
+		I18nMessage i18n = new I18nMessage(place.name(), message);
+		i18n.setBundle(ResourceBundle.getBundle("messages"));
 
-	private void doNothingWhenRequirementServiceUpdate(Artifact artifact) {
-		when(mockRequirementService.update(artifact)).thenReturn(true);
-	}
-
-	private void whenGetLayerByID(Long id) {
-		when(mockKanbanService.getLayerByID(id)).thenReturn(mock(Layer.class));
-	}
-
-	private void whenGetRequirementByID(Long id, Artifact mockReturned) {
-		when(mockRequirementService.getByID(id)).thenReturn(mockReturned);
-	}
-
-	private void whenFind(Project project) {
-		when(mockProjectService.find(project.getId())).thenReturn(mock(Project.class));
-	}
-
-	private void mockProjectToAddNewLayer(Project project, Layer layer) {
-		when(mockProjectService.find(VALID_PROJECT_ID)).thenReturn(project);
-	}
-
-	private void doNothingWhenUpdateProject(Project project) {
-		doNothing().when(mockProjectService).update(project);
+		when(i18nCreator.to(place)).thenReturn(i18n);
 	}
 }

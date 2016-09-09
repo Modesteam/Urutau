@@ -13,9 +13,9 @@ public interface LayerDAO {
 	void create(Layer layer);
 	
 	/**
-	 * Gets a object instance that have a field with certain value
+	 * Gets layers that have a field with certain value
 	 */
-	Layer get(String field, Object value) throws Exception;
+	List<Layer> get(String field, Object value) throws Exception;
 	
 	/**
 	 * Finds by id

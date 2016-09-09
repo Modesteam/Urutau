@@ -1,4 +1,4 @@
-package com.modesteam.urutau.dao;
+package com.modesteam.urutau.dao.impl;
 
 import java.util.List;
 
@@ -9,6 +9,7 @@ import javax.persistence.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.dao.LayerDAO;
 import com.modesteam.urutau.model.system.Layer;
 
 public class DefaultLayerDAO extends GenericDAO<Layer> implements LayerDAO {
