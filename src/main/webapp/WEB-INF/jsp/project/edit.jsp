@@ -4,14 +4,10 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
 <div class="row">
-	<div class="navbar-default sidebar" role="navigation">
-		<div class="col-md-3">
-		
-		</div>
-	</div>
-
-	<div class="col-md-5">
+	<div class="col-md-6 col-md-offset-3 border-bottom">
 		<h1>${project.title} Settings</h1>
+		
+		<h3>Basic information</h3>
 		<form action="<c:url value="/${project.id}/setting"/>" method="POST" class="form-group">
 			<label for="title">Title</label>
 			<input type="text" name="project.title" value="${project.title}"
@@ -30,10 +26,36 @@
 			</div>
 			
 			<a href="<c:url value="/${project.id}-${project.title}"/>" class="btn btn-default">Cancel</a>
-			<button type="submit" name="_method" value="PUT" class="btn btn-success">Update</button>
+			<button type="submit" name="_method" value="PUT" class="btn btn-success pull-right">Update</button>
 		</form>
 	</div>
 </div>
 
+<div class="row">
+	<div class="col-md-6 col-md-offset-3 border-bottom">
+		<h3>Critical area</h3>
+		<div>
+			<form>
+				<label>Assign new owner</label>
+				<input type="text" class="form-control" placeholder="Add new owner"/>
+				<p class="text-info">*Grants privileges to another member of this project</p>
+			</form>
+		</div>
+
+		<br/>
+
+		<div>
+			<label>Delete this project</label>
+			<br/>
+			<form action="<c:url value="/project"/>" method="POST">
+				<input name="project.id" value="${project.id}" type="hidden"/>
+				<button type="submit" class="btn btn-danger" name="_method" value="DELETE">Delete Project</button>
+			</form>
+			<p class="pull-right text-danger">
+				*Make sure about this, because this operation is irreversible!
+			</p>
+		</div>
+	</div>
+</div>
 </body>
 </html>

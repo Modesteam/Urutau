@@ -47,7 +47,7 @@ public class Project implements Cloneable {
 
 	private int metodologyCode;
 
-	@OneToMany(mappedBy = "project")
+	@OneToMany(mappedBy = "project", cascade=CascadeType.REMOVE)
 	private List<Artifact> requirements = new ArrayList<Artifact>();
 
 	@ManyToOne
@@ -57,7 +57,7 @@ public class Project implements Cloneable {
 	/* Artifact can be delegated to one or more persons */
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "User_Project", joinColumns = @JoinColumn(name = "projectID") ,
-			inverseJoinColumns = @JoinColumn(name = "userID") )
+			inverseJoinColumns = @JoinColumn(name = "userID"))
 	private List<UrutaUser> members = new ArrayList<UrutaUser>();
 
 	/* Should be generate automatically */

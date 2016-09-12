@@ -59,7 +59,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		controllerMock.create(project);
 	}
@@ -82,7 +82,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		controllerMock.create(project);
 	}
@@ -95,15 +95,18 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(project);
 		doNothing().when(projectService).delete(project);
 
-		mockI18nMessages("project_already_deleted", ContextPlace.PROJECT);
+		mockI18nMessages("project_already_deleted", ContextPlace.INDEX_PANEL);
+		mockI18nMessages("project_deleted", ContextPlace.INDEX_PANEL);
 
-		when(i18nCreator.create(ContextPlace.PROJECT, "project_already_deleted"))
+		when(i18nCreator.create(ContextPlace.INDEX_PANEL, "project_already_deleted"))
 				.thenReturn(mock(I18nMessage.class));
+		when(i18nCreator.create(ContextPlace.INDEX_PANEL, "project_deleted"))
+		.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
-		controllerMock.delete(1L);
+		controllerMock.delete(project);
 	}
 
 	@Test(expected = ValidationException.class)
@@ -114,15 +117,15 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(null);
 		doNothing().when(projectService).delete(project);
 		
-		mockI18nMessages("project_already_deleted", ContextPlace.PROJECT);
+		mockI18nMessages("project_already_deleted", ContextPlace.INDEX_PANEL);
 
-		when(i18nCreator.create(ContextPlace.PROJECT, "project_already_deleted"))
+		when(i18nCreator.create(ContextPlace.INDEX_PANEL, "project_already_deleted"))
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
-		controllerMock.delete(1L);
+		controllerMock.delete(project);
 	}
 
 	@Test
@@ -137,7 +140,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(Searchable.TITLE, SOME_STRING)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		controllerMock.edit(project);
 	}
@@ -156,7 +159,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		doNothing().when(projectService).update(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		controllerMock.update(project);
 	}
@@ -179,7 +182,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		Assert.assertEquals(controllerMock.show(project), project);
 	}
@@ -196,7 +199,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		controllerMock.show(1L);
 	}
@@ -216,7 +219,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(userSession.getUserLogged().getProjects()).thenReturn(projects);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler);
+				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
 
 		controllerMock.index();
 	}

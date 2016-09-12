@@ -7,7 +7,7 @@ import br.com.caelum.vraptor.i18n.Message;
  * This enum have name of fields which contains category of {@link Message}
  */
 public enum ContextPlace {
-    PROJECT,
+    INDEX_PANEL,
     PROJECT_PANEL,
     PROJECT_CREATE,
     KANBAN,
