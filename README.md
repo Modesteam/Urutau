@@ -1,6 +1,6 @@
 # Urutau
 
-[![Build Status](https://travis-ci.org/tainarareis/Urutau.svg?branch=entrega2)](https://travis-ci.org/tainarareis/Urutau) 
+[![Build Status](https://travis-ci.org/Modesteam/Urutau.svg?branch=submaster)](https://travis-ci.org/Modesteam/Urutau) 
 
 ## Synopsis
 
