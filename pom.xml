@@ -135,13 +135,6 @@
 			<version>3.3.1</version>
 
 		</dependency>
-		
-		<dependency>
-             <groupId>org.mockito</groupId>
-             <artifactId>mockito-all</artifactId>
-             <version>1.9.0</version>
-             <scope>test</scope>
-    	</dependency>
 
 	</dependencies>
 
@@ -191,7 +184,7 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
+			<!-- plugin>
 				<artifactId>maven-antrun-plugin</artifactId>
 				<version>1.7</version>
 				<executions>
@@ -240,7 +233,7 @@
 						</goals>
 					</execution>
 				</executions>
-			</plugin>
+			</plugin>-->
 		</plugins>
 	</build>
 

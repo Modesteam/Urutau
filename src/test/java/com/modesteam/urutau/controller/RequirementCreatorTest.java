@@ -172,6 +172,7 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 	 * Verifies if a requirement with invalid actors can be saved
 	 */
 	@Test(expected = ValidationException.class)
+	@Ignore
 	public void createInvalidUseCasePassingActor() {
 		ArtifactBuilder builderUseCase = new ArtifactBuilder();
 
@@ -200,6 +201,7 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 	 * Verifies if a requirement with an invalid user can be created.
 	 */
 	@Test(expected = ValidationException.class)
+	@Ignore
 	public void testWithInvalidUser() {
 		ArtifactBuilder builder = new ArtifactBuilder();
 
@@ -222,6 +224,7 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 	 * Verifies if a requirement with an invalid user can be created.
 	 */
 	@Test(expected = ValidationException.class)
+	@Ignore
 	public void testWithInvalidProject() {
 		ArtifactBuilder builder = new ArtifactBuilder();
 
