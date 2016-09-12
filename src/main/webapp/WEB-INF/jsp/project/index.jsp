@@ -3,7 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-<div class="row">	
+<div class="row">
 	<div class="navbar-default sidebar" role="navigation">
 		<div class="col-md-4">
         	<div class="sidebar-nav">
@@ -31,6 +31,18 @@
    				        </li>            
 			        </ul>
 			    </div>
+			</div>
+			
+			<div class="col-md-8">
+				<%@ include file="/WEB-INF/layouts/errors.jsp"%>
+				<c:if test="${index_panel ne null}">
+					<div class="alert alert-success" role="alert">
+						${index_panel}
+						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+					</div>
+				</c:if>
 			</div>
 		</div>
 

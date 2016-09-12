@@ -19,6 +19,7 @@ import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.Updater;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.controller.message.ErrorMessageHandler;
+import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
 import com.modesteam.urutau.model.UrutaUser;
@@ -30,6 +31,7 @@ import com.modesteam.urutau.service.ProjectService;
 import com.modesteam.urutau.service.UserService;
 
 import br.com.caelum.vraptor.Controller;
+import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
@@ -48,6 +50,7 @@ public class ProjectController {
     private final UserService userService;
     private final KanbanService kanbanService;
     private final ErrorMessageHandler errorHandler;
+    private final MessageHandler messageHandler;
 
     @Updater
     private Event<UrutaUser> reloadEvent;
@@ -56,14 +59,14 @@ public class ProjectController {
      * @deprecated CDI eye only
      */
     public ProjectController() {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     @Inject
     public ProjectController(Result result, UserSession userSession,
     		ProjectService projectService, UserService userService,
     		KanbanService kanbanService, Event<UrutaUser> reloadEvent,
-    		ErrorMessageHandler errorHandler) {
+    		ErrorMessageHandler errorHandler, MessageHandler messageHandler) {
         this.result = result;
         this.userSession = userSession;
         this.userService = userService;
@@ -71,6 +74,7 @@ public class ProjectController {
         this.kanbanService = kanbanService;
         this.reloadEvent = reloadEvent;
         this.errorHandler = errorHandler;
+        this.messageHandler = messageHandler;
     }
 
     /**
@@ -86,8 +90,7 @@ public class ProjectController {
     @Post
     public void create(final @Valid Project project) {
     	errorHandler.validates(ContextPlace.MODAL_ERROR);
-    	errorHandler
-    		.when(!projectService.titleAvaliable(project.getTitle()))
+    	errorHandler.when(!projectService.titleAvaliable(project.getTitle()))
     		.show("title_already_in_used")
     		.redirectingTo(ProjectController.class)
     		.index();
@@ -122,22 +125,28 @@ public class ProjectController {
      * @param id
      *            primary key of Project
      */
-    @Post
-    public void delete(final Long id) {
-        logger.info("The project with id " + id + " was solicitated for exclusion");
+    @Delete("/project")
+    public void delete(final Project project) {
+        logger.info("The project with id " + project.getId() + " was solicitated for exclusion");
 
-        Project projectToDelete = projectService.find(id);
+        Project projectToDelete = projectService.find(project.getId());
 
         if (projectToDelete == null) {
             logger.debug("The project already deleted or inexistent!");
 
-            errorHandler.validates(ContextPlace.PROJECT);
+            errorHandler.validates(ContextPlace.INDEX_PANEL);
             errorHandler.add("project_already_deleted");
         } else {
+        	logger.info("Deleting project name " + projectToDelete.getTitle());
+
             projectService.delete(projectToDelete);
         }
 
         errorHandler.redirectingTo(ProjectController.class).index();
+        
+        messageHandler.use(ContextPlace.INDEX_PANEL)
+        	.show("project_deleted")
+        	.redirectTo(ProjectController.class).index();
     }
 
     /**

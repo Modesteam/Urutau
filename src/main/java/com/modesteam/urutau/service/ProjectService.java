@@ -16,6 +16,8 @@ import com.modesteam.urutau.exception.NotImplementedError;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
+import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.service.persistence.Finder;
 import com.modesteam.urutau.service.persistence.Persistence;
 
@@ -109,12 +111,13 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 	}
 
 	@Override
-	public void delete(Project entity) {
+	public void delete(Project project) {
 		try {
-			Project project = find(entity.getId());
-
-			if (project != null) {
-				projectDAO.destroy(project);
+			Project projectToDelete = find(project.getId());
+			
+			if (projectToDelete != null) {
+				removeRelationships(projectToDelete);
+				projectDAO.destroy(projectToDelete);
 			} else {
 				throw new SystemBreakException("This project not exist");
 			}
@@ -167,5 +170,21 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 		}
 		
 		return result.get(FIRST);
+	}
+	
+	/**
+	 * This method is required to delete a project
+	 * 
+	 * @param projectToDelete project that will be deleted
+	 */
+	private void removeRelationships(Project projectToDelete) {
+		// Removing all associated members
+		for(UrutaUser member : projectToDelete.getMembers()) {
+			member.getProjects().remove(projectToDelete);
+		}
+		// Removing all associated layers
+		for(Layer layer : projectToDelete.getLayers()) {
+			layer.getProjectsInvolved().remove(projectToDelete);
+		}
 	}
 }
