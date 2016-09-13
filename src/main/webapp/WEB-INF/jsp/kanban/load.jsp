@@ -2,8 +2,8 @@
     pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 
-<script type="text/javascript" src="<c:url value='/js/kanban.js'/>"></script>
-<link href="<c:url value='/css/kanban.css'/>" rel="stylesheet">
+<script type="text/javascript" src="<c:url value="/js/kanban.js"/>"></script>
+<link href="<c:url value="/css/kanban.css"/>" rel="stylesheet">
 	
 <div class="row">
 	<!--
@@ -14,22 +14,17 @@
 		<input type="submit" value="Create layer">
 	</form>
 	-->
-	
+
 	<h1>${project.title} Kanban</h1>
 
 	<section class="kanban">
-		<c:forEach var="error" items="${errors}">
-	    	<!-- Show only login errors -->
-	       	<c:if test="${error.category == 'loginError'}">
-				<span class="error">${error.message}</span> <br />
-	  		</c:if>
-		</c:forEach>
-		
+		<br/>
+		<%@ include file="/WEB-INF/layouts/errors.jsp"%>
 		<div class="alert alert-success" role="alert">
 			<a href="#" class="close" onclick="closeAlert()" aria-label="close">x</a>
 			<span class="alert-message"></span>
 		</div>
-		
+
 		<c:forEach items="${project.layers}" var="layer">
 			<div class="layer" ondrop="drop(event, ${layer.layerID})"
 				ondragover="allowDrop(event)" id="div1">

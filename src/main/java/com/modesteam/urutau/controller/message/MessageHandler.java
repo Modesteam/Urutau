@@ -61,8 +61,9 @@ public class MessageHandler {
 	/**
 	 * Send a result in JSON format
 	 */
-	public void sendViaJSON() {
-		result.use(Results.json()).withoutRoot().from(result).serialize();
+	public void sendViaJSON(String message) {
+		String translatedMessage = i18n.translate(message).to(currentContext).getMessage();
+		result.use(Results.json()).withoutRoot().from(translatedMessage).serialize();
 	}
 
 	/**

@@ -58,10 +58,6 @@ public class KanbanController {
 	@Get
 	@Path("/kanban/{project.id}")
 	public void load(final Project project) {
-		// TODO specific error
-		messageHandler.whenCatch(UserActionException.class)
-			.redirectTo(ApplicationController.class)
-			.invalidRequest();
 
 		Project currentProject = projectService.find(project.getId());
 
@@ -95,13 +91,13 @@ public class KanbanController {
 		} catch (IllegalArgumentException exception) {
 			// Sends via JSON the current exception
 			messageHandler.use(ContextPlace.ERROR)
-				.show("invalid_request").sendViaJSON();
+				.sendViaJSON("invalid_request");
 		}
 
 		// If not are used, shows success message 
 		if(!result.used()) {
 			messageHandler.use(ContextPlace.KANBAN)
-				.show("successfully_moved_requirement").sendViaJSON();
+				.sendViaJSON("successfully_moved_requirement");
 		}
 	}
 
