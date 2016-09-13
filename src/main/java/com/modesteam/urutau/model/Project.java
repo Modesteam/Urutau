@@ -63,7 +63,7 @@ public class Project implements Cloneable {
 	/* Should be generate automatically */
 	private Calendar dateOfCreation;
 
-	@ManyToMany(cascade = CascadeType.ALL)
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "Project_Layer", joinColumns = @JoinColumn(name = "project_id") ,
 			inverseJoinColumns = @JoinColumn(name = "layer_id") )
 	private List<Layer> layers = new ArrayList<Layer>();
