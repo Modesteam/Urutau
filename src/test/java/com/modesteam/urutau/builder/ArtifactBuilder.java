@@ -3,6 +3,7 @@ package com.modesteam.urutau.builder;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
 import com.modesteam.urutau.model.Generic;
+import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Storie;
 import com.modesteam.urutau.model.UseCase;
 
@@ -10,6 +11,7 @@ public class ArtifactBuilder {
 	private String title;
 	private String description;
 	private Long id;
+	private Project project;
 	private Long projectID;
 
 	public ArtifactBuilder title(String title) {
@@ -28,6 +30,8 @@ public class ArtifactBuilder {
 	}
 
 	public ArtifactBuilder projectID(Long projectID) {
+		this.project = new Project();
+		this.project.setId(projectID);
 		this.projectID = projectID;
 		return this;
 	}
@@ -38,6 +42,7 @@ public class ArtifactBuilder {
 		generic.setTitle(title);
 		generic.setDescription(description);
 		generic.setProjectID(projectID);
+		generic.setProject(project);
 		return generic;
 	}
 
@@ -47,6 +52,7 @@ public class ArtifactBuilder {
 		epic.setTitle(title);
 		epic.setDescription(description);
 		epic.setProjectID(projectID);
+		epic.setProject(project);
 		return epic;
 	}
 
@@ -56,6 +62,7 @@ public class ArtifactBuilder {
 		feature.setTitle(title);
 		feature.setDescription(description);
 		feature.setProjectID(projectID);
+		feature.setProject(project);
 		return feature;
 	}
 
@@ -65,6 +72,7 @@ public class ArtifactBuilder {
 		storie.setTitle(title);
 		storie.setDescription(description);
 		storie.setProjectID(projectID);
+		storie.setProject(project);
 		return storie;
 	}
 
@@ -74,6 +82,7 @@ public class ArtifactBuilder {
 		useCase.setTitle(title);
 		useCase.setDescription(description);
 		useCase.setProjectID(projectID);
+		useCase.setProject(project);
 		return useCase;
 	}
 

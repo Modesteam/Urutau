@@ -1,6 +1,8 @@
 package com.modesteam.urutau.service;
 
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -8,10 +10,12 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.dao.RequirementDAO;
 import com.modesteam.urutau.dao.impl.GenericDAO;
 import com.modesteam.urutau.exception.NotImplementedError;
 import com.modesteam.urutau.model.Requirement;
+import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.service.persistence.DuplicateSortException;
 import com.modesteam.urutau.service.persistence.Finder;
 import com.modesteam.urutau.service.persistence.FinderAdapter;
@@ -24,19 +28,22 @@ public class RequirementService
 		implements Persistence<Requirement>, Finder<Requirement>, Order<Requirement> {
 	private static final Logger logger = LoggerFactory.getLogger(RequirementService.class);
 
-	private RequirementDAO requirementDAO;
+	private final RequirementDAO requirementDAO;
+	private final UserSession userSession;
+
 	private OrderOption orderOption;
 
 	/**
 	 * @deprecated CDI only
 	 */
 	public RequirementService() {
-		this(null);
+		this(null, null);
 	}
 
 	@Inject
-	public RequirementService(RequirementDAO requirementDAO) {
+	public RequirementService(RequirementDAO requirementDAO, UserSession session) {
 		this.requirementDAO = requirementDAO;
+		this.userSession = session;
 	}
 
 	/**
@@ -65,8 +72,23 @@ public class RequirementService
 	}
 
 	@Override
-	public void update(Requirement entity) {
-		requirementDAO.update(entity);
+	public Requirement update(Requirement entity) {
+        logger.info("Starting the function modifyRequirement");
+        
+        Requirement entityManaged = find(entity.getId());
+
+        // Setting the current date to last modification
+        Calendar lastModificationDate = getCurrentDate();
+        entityManaged.setLastModificationDate(lastModificationDate);
+
+        // Setting the last user to modify
+        UrutaUser loggedUser = userSession.getUserLogged();
+        entityManaged.setLastModificationAuthor(loggedUser);
+        
+        entityManaged.setTitle(entity.getTitle());
+        entityManaged.setDescription(entity.getDescription());
+        
+		return entityManaged;
 	}
 
 	@Override
@@ -172,4 +194,17 @@ public class RequirementService
 
 		return adapter;
 	}
+
+    /**
+     * Get an instance of current date through of {@link Calendar}
+     * 
+     * @return current date
+     */
+    private Calendar getCurrentDate() {
+        Date currentDate = new Date();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(currentDate);
+
+        return calendar;
+    }
 }

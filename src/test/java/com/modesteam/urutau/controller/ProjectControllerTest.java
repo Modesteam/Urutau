@@ -156,7 +156,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 
 		when(projectService.find(project.getId())).thenReturn(project);
 
-		doNothing().when(projectService).update(project);
+		when(projectService.update(project)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
 				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);

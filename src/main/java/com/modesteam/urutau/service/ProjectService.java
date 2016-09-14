@@ -69,7 +69,7 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 	 *            created in a page form
 	 */
 	@Override
-	public void update(Project detachedProject) {
+	public Project update(Project detachedProject) {
 		Project managedProject = projectDAO.find(detachedProject.getId());
 
 		final String description = detachedProject.getDescription();
@@ -97,6 +97,8 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 			logger.trace("update privacy");
 			managedProject.setPublic(isPublic);
 		}
+		
+		return managedProject;
 	}
 
 	@Override

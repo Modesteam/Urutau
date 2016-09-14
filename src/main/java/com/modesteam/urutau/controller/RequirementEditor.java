@@ -1,194 +1,204 @@
 package com.modesteam.urutau.controller;
 
-import java.util.Calendar;
-import java.util.Date;
-
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import br.com.caelum.vraptor.Controller;
-import br.com.caelum.vraptor.Get;
-import br.com.caelum.vraptor.Path;
-import br.com.caelum.vraptor.Post;
-import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.SimpleMessage;
-import br.com.caelum.vraptor.validator.Validator;
-
-import com.modesteam.urutau.UserSession;
+import com.modesteam.urutau.annotation.View;
+import com.modesteam.urutau.controller.message.ErrorMessageHandler;
+import com.modesteam.urutau.controller.message.MessageHandler;
+import com.modesteam.urutau.exception.SystemBreakException;
+import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
 import com.modesteam.urutau.model.Generic;
 import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.Storie;
-import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.UseCase;
 import com.modesteam.urutau.model.system.ArtifactType;
+import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.RequirementService;
+
+import br.com.caelum.vraptor.Controller;
+import br.com.caelum.vraptor.Get;
+import br.com.caelum.vraptor.Path;
+import br.com.caelum.vraptor.Put;
+import br.com.caelum.vraptor.Result;
 
 @Controller
 public class RequirementEditor {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequirementCreator.class);
+	private static final Logger logger = LoggerFactory.getLogger(RequirementCreator.class);
 
-    // Validation String
-    private static final String REQUIREMENT_MODIFICATION_ERROR = null;
+	private final Result result;
+	private final RequirementService requirementService;
+	private final MessageHandler messageHandler;
+	private final ErrorMessageHandler errorHandler;
 
-    // Objects to be injected
-    private final Result result;
-    private final Validator validator;
-    private final UserSession userSession;
-    private final RequirementService requirementService;
+	public RequirementEditor() {
+		this(null, null, null, null);
+	}
 
-    public RequirementEditor() {
-        this(null, null, null, null);
-    }
+	@Inject
+	public RequirementEditor(Result result, RequirementService requirementService,
+			MessageHandler messageHandler, ErrorMessageHandler errorHandler) {
+		this.result = result;
+		this.requirementService = requirementService;
+		this.messageHandler = messageHandler;
+		this.errorHandler = errorHandler;
+	}
 
-    @Inject
-    public RequirementEditor(Result result, Validator validator, UserSession userSession,
-            RequirementService requirementService) {
-        this.result = result;
-        this.validator = validator;
-        this.userSession = userSession;
-        this.requirementService = requirementService;
-    }
+	/**
+	 * Called to edit a requirement
+	 * 
+	 * @param requirementID
+	 *            identifier of requirement to edit
+	 */
+	@Get
+	@Path("/{projectID}/edit/{requirementID}")
+	public void edit(Long projectID, Long requirementID) {
 
-    /**
-     * Called when anyone wants edit an requirement
-     * 
-     * @param requirementID
-     *            identifier of requirement to edit
-     */
-    @Get
-    @Path("/edit/{requirementID}")
-    public void edit(Long requirementID) {
+		errorHandler.validates(ContextPlace.PROJECT_PANEL);
 
-        logger.trace("Starting the function edit. Requirement id is " + requirementID);
+		logger.trace("Starting the function edit. Requirement id is " + requirementID);
 
-        boolean requirementExistence = requirementService.exists(requirementID);
+		boolean requirementExistence = requirementService.exists(requirementID);
 
-        // Verifies the acceptance of the requirement to proceed the requisition
-        if (requirementExistence) {
-            logger.info("The requirement exists in database");
+		// Verifies the acceptance of the requirement to proceed the requisition
+		if (requirementExistence) {
+			logger.info("The requirement exists in database");
 
-            Requirement requirement = requirementService.find(requirementID);
+			Requirement requirement = requirementService.find(requirementID);
 
-            redirectToEditionPage(requirement);
-        } else {
-            logger.info("The requirement id informed is unknown.");
-            validator.add(new SimpleMessage(REQUIREMENT_MODIFICATION_ERROR,
-                    "It is not possible to " + " edit an unknown requirement."));
-        }
-        // TODO redirect to project page
-        validator.onErrorForwardTo(ProjectController.class).index();
-    }
+			if(requirement.getProject().getId().equals(projectID)) {
+				redirectToEditionPage(requirement);
+			} else {
+				result.redirectTo(ApplicationController.class).invalidRequest();
+			}
+		} else {
+			logger.info("The requirement id informed is unknown.");
 
-    /**
-     * Provides the redirecting to the requirement type edition page.
-     * 
-     * @param requirement
-     * @param artifactType
-     */
-    private void redirectToEditionPage(Requirement requirement) {
-        logger.info("Starting the function redirectToEditionPage.");
+			errorHandler.add("requirement_inexistent")
+				.redirectingTo(ProjectController.class)
+				.show(projectID);
+		}
+	}
 
-        final String artifactType = requirement.getType();
+	/**
+	 * Provides the redirecting to the requirement type edition page.
+	 * 
+	 * @param requirement
+	 * @param artifactType
+	 */
+	private void redirectToEditionPage(Requirement requirement) {
+		logger.info("Starting the function redirectToEditionPage.");
 
-        logger.trace(artifactType);
+		final String artifactType = requirement.getType();
 
-        result.include(artifactType, requirement);
+		logger.debug("Artifact is " + artifactType);
 
-        switch (ArtifactType.equivalentTo(artifactType)) {
-            case GENERIC:
-                result.redirectTo(this).editGeneric();
-                break;
-            case EPIC:
-                result.redirectTo(this).editEpic();
-                break;
-            case FEATURE:
-                result.redirectTo(this).editFeature();
-                break;
-            case STORIE:
-                result.redirectTo(this).editUserStory();
-                break;
-            case USECASE:
-                result.redirectTo(this).editUseCase();
-                break;
-            default:
-                // TODO redirect to project
-                result.redirectTo(ProjectController.class).index();
-                break;
-        }
-        validator.onErrorForwardTo(ProjectController.class).index();
-    }
+		result.include(artifactType, requirement);
+		
+		ArtifactType type = ArtifactType.equivalentTo(artifactType);
+		logger.debug("Equivalent type is " + type.name());
 
-    /**
-     * Allows the modification of an unique requirement
-     * 
-     * @param requirement
-     */
-    public void update(Requirement requirement) {
-        logger.info("Starting the function modifyRequirement");
+		switch (type) {
+			case GENERIC:
+				result.forwardTo(this).editGeneric();
+				break;
+			case EPIC:
+				result.forwardTo(this).editEpic();
+				break;
+			case FEATURE:
+				result.forwardTo(this).editFeature();
+				break;
+			case STORIE:
+				result.forwardTo(this).editUserStory();
+				break;
+			case USECASE:
+				result.forwardTo(this).editUseCase();
+				break;
+			default:
+				throw new SystemBreakException(
+						"RequirementEditor#redirectToEditionPage "
+						+ "could not found ArtifactType.");
+		}
+	}
 
-        // Setting the current date and current user
-        Calendar lastModificationDate = getCurrentDate();
-        requirement.setLastModificationDate(lastModificationDate);
-        UrutaUser loggedUser = userSession.getUserLogged();
-        requirement.setLastModificationAuthor(loggedUser);
+	@View
+	public void editEpic() {
 
-        requirementService.update(requirement);
+	}
 
-        // TODO redirect to project
-        result.redirectTo(ProjectController.class).index();
-    }
+	@View
+	public void editGeneric() {
 
-    @Get
-    public void editEpic() {
+	}
 
-    }
+	@View
+	public void editFeature() {
 
-    @Get
-    public void editGeneric() {
+	}
 
-    }
+	@View
+	public void editUseCase() {
 
-    @Get
-    public void editFeature() {
+	}
 
-    }
+	@View
+	public void editUserStory() {
 
-    @Get
-    public void editUseCase() {
+	}
 
-    }
+	@Put
+	public void generic(Generic generic) {
+		Generic requirementManaged = (Generic) requirementService.update(generic);
 
-    @Get
-    public void editUserStory() {
+		successfulUpdateOf(requirementManaged);
+	}
 
-    }
+	@Put
+	public void feature(Feature feature) {
+		Feature requirementManaged = (Feature) requirementService.update(feature);
+		requirementManaged.setContent(feature.getContent());
 
-    @Post
-    public void editFeature(Feature feature) {
-    }
+		successfulUpdateOf(requirementManaged);
+	}
 
-    @Post
-    public void editGeneric(Generic generic) {
-    }
+	@Put
+	public void storie(Storie storie) {
+		Storie requirementManaged = (Storie) requirementService.update(storie);
+		requirementManaged.setHistory(storie.getHistory());
 
-    @Post
-    public void editUserStory(Storie storie) {
-    }
+		successfulUpdateOf(requirementManaged);
+	}
 
-    /**
-     * Get an instance of current date through of {@link Calendar}
-     * 
-     * @return current date
-     */
-    private Calendar getCurrentDate() {
-        Date currentDate = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentDate);
+	@Put
+	public void epic(Epic epic) {
+		Epic requirementManaged = (Epic) requirementService.update(epic);
+		requirementManaged.setContent(epic.getContent());
 
-        return calendar;
-    }
+		successfulUpdateOf(requirementManaged);
+	}
 
+	@Put
+	public void useCase(UseCase useCase) {
+		UseCase requirementManaged = (UseCase) requirementService.update(useCase);
+		// TODO specific update
+
+		successfulUpdateOf(requirementManaged);
+	}
+
+	/**
+	 * Redirects to the same page of edit with a success message
+	 * 
+	 * @param requirement
+	 *            recently updated
+	 */
+	private void successfulUpdateOf(Requirement requirement) {
+		messageHandler.use(ContextPlace.SUCCESS_MESSAGE)
+			.show("requirement_updated")
+			.redirectTo(RequirementEditor.class)
+			.edit(requirement.getProject().getId(), requirement.getId());
+	}
 }

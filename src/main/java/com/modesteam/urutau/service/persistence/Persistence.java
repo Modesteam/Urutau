@@ -1,5 +1,7 @@
 package com.modesteam.urutau.service.persistence;
 
+import com.modesteam.urutau.model.Requirement;
+
 /**
  * All services of persistence should implement this contract
  * 
@@ -26,8 +28,9 @@ public interface Persistence<Entity> {
 	 * 
 	 * @param entity
 	 *            should be a managed bean in JPA
+	 * @return managed entity
 	 */
-	public void update(Entity entity);
+	public Entity update(Entity entity);
 
 	/**
 	 * Delete database instance

@@ -49,7 +49,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 
 		when(kanbanService.getLayerByID(STUB_LONG_NUMBER)).thenReturn(mock(Layer.class));
 
-		doNothing().when(requirementService).update(requirement);
+		when(requirementService.update(requirement)).thenReturn(requirement);
 
 		when(i18nCreator.create(ContextPlace.KANBAN, "successfully_moved_requirement"))
 				.thenReturn(mock(I18nMessage.class));
@@ -92,7 +92,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		when(projectService.find(VALID_PROJECT_ID)).thenReturn(mockProject);
 
 		doNothing().when(kanbanService).create(mockLayer);
-		doNothing().when(projectService).update(mockProject);
+		when(projectService.update(mockProject)).thenReturn(mockProject);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService, 
 				requirementService, result, messageHandler, errorHandler);

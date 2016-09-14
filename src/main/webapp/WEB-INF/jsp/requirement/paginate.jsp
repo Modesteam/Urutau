@@ -42,12 +42,10 @@
 				        	<!-- contains modal to show requirement -->
 		  					<%@ include file="show.jspf" %>
 			  			<td>
-			  				<a href="edit/${requirement.id}" title="Edit"
-			  				data-toggle="modal" data-target="#modal-edit-${requirement.id}">
+			  				<a href="<c:url value="/${requirement.project.id}/edit/${requirement.id}"/>" title="Edit">
 			  					<span class="glyphicon glyphicon-pencil"></span>
 			  				</a>
 			  			</td>
-			  				<%@ include file="edit.jspf" %>
 			  			<td>
 			  				<a href="#" id="${requirement.id}" class="delete-req" title="Delete">
 			  					<span class="glyphicon glyphicon-remove"></span>

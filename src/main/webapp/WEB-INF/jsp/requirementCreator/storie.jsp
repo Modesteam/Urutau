@@ -11,9 +11,7 @@
 		<input type="text" name="storie.title" placeholder="Title" class="form-control">
 
 		<label>Tell the Story:</label>
-		<textarea name="storie.history" class="form-control">
-
-		</textarea>
+		<textarea name="storie.history" class="form-control"></textarea>
 
 		<input type="text" name="acceptanceCriteria.content" class="form-control" placeholder="Acceptance criteria">
 		<button type="submit" class="btn btn-success pull-right submit-create">Add</button>
