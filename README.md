@@ -1,6 +1,6 @@
 # Urutau
 
-[![Build Status](https://travis-ci.org/SkyLizard/Urutau.svg?branch=submaster)](https://travis-ci.org/SkyLizard/Urutau) 
+[![Build Status](https://travis-ci.org/ProjectUrutau/Urutau.svg?branch=submaster)](https://travis-ci.org/ProjectUrutau/Urutau) 
 
 ## Synopsis
 
