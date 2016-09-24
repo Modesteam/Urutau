@@ -3,7 +3,6 @@ package com.modesteam.urutau.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
@@ -63,7 +62,7 @@ public class UrutaUser {
     /*
      * All projects that user is integrated
      */
-    @ManyToMany(mappedBy = "members", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "members", fetch = FetchType.EAGER)
     private List<Project> projects = new ArrayList<Project>();
 
     public Long getUserID() {

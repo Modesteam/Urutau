@@ -47,9 +47,12 @@
 			  				</a>
 			  			</td>
 			  			<td>
-			  				<a href="#" id="${requirement.id}" class="delete-req" title="Delete">
-			  					<span class="glyphicon glyphicon-remove"></span>
-			  				</a>
+			  				<form action="requirement" method="POST">
+				  				<input name="requirementID" value="${requirement.id}" type="hidden"/>
+				  				<button class="btn btn-default" type="submit" name="_method" value="DELETE">
+				  					<i class="glyphicon glyphicon-remove alert-danger"></i>
+				  				</button>
+			  				</form>
 			  			</td>		  				
 			  		</tr>
 		  		</c:forEach>

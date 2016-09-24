@@ -103,10 +103,8 @@ public class RequirementService
 	 */
 	@Override
 	public void delete(Requirement requirement) {
-		Requirement requirementToDelete = requirementDAO.find(requirement.getId());
-
-		if (requirementToDelete != null) {
-			requirementDAO.destroy(requirementToDelete);
+		if (requirement != null) {
+			requirementDAO.destroy(requirement);
 		} else {
 			throw new IllegalArgumentException("This requirement not exist");
 		}

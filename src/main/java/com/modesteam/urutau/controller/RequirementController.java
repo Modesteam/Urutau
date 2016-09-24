@@ -110,27 +110,33 @@ public class RequirementController {
 		result.include("requirements", requirements);
 	}
 
-	// TODO throws a message when delete or not
 	/**
 	 * This method is used to delete one requirement
 	 */
-	@Delete("/requirement/{requirementID}")
+	@Delete("/requirement")
 	public void delete(Long requirementID) {
-
 		logger.info("The artifact with the id " + requirementID + " is solicitated for exclusion");
 
 		Requirement requirement = requirementService.find(requirementID);
 
 		try {
-			requirementService.delete(requirement);
+			if(requirement != null) {
+				requirementService.delete(requirement);
+			} else {
+				result.redirectTo(ApplicationController.class).invalidRequest();
+			}
 		} catch (Exception exception) {
-			// TODO Catch this in script request
+			exception.printStackTrace();
 			errorMessageHandler.validates(ContextPlace.ERROR);
 
-			errorMessageHandler.add("operation_unsuccessful").sendAnJson();
+			errorMessageHandler
+				.add("operation_unsuccessful")
+				.redirectingTo(ProjectController.class).show(requirement.getProject().getId());
 		}
-
-		result.nothing();
+		
+		messageHandler.use(ContextPlace.PROJECT_PANEL)
+			.show("requirement_deleted")
+			.redirectTo(ProjectController.class).show(requirement.getProject().getId());;
 	}
 
 	@View

@@ -1,6 +1,7 @@
 package com.modesteam.urutau.controller;
 
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,6 +19,8 @@ import com.modesteam.urutau.service.persistence.FinderAdapter;
 import com.modesteam.urutau.service.persistence.Order;
 import com.modesteam.urutau.test.UrutaUnitTest;
 
+import br.com.caelum.vraptor.validator.ValidationException;
+
 public class RequirementControllerTest extends UrutaUnitTest {
 
 	private static final Long FAKE_REQUIREMENT_ID = 1L;
@@ -30,14 +33,17 @@ public class RequirementControllerTest extends UrutaUnitTest {
 	@Test
 	public void successfullyDeletedEpic() {
 		ArtifactBuilder builderEpic = new ArtifactBuilder();
-
+		
 		Epic epic = builderEpic
 				.id(FAKE_REQUIREMENT_ID)
+				.projectID(1L)
 				.title("Example")
 				.description("test unit")
 				.buildEpic();
-
+		
+		when(requirementService.find(FAKE_REQUIREMENT_ID)).thenReturn(epic);
 		doNothing().when(requirementService).delete(epic);
+		mockI18nMessages("requirement_deleted", ContextPlace.PROJECT_PANEL);
 
 		RequirementController controllerMock = new RequirementController(result,
 				messageHandler, errorHandler, requirementService);
@@ -45,17 +51,21 @@ public class RequirementControllerTest extends UrutaUnitTest {
 		controllerMock.delete(FAKE_REQUIREMENT_ID);
 	}
 
-	@Test
+	@Test(expected=ValidationException.class)
 	public void failedToDeletedEpic() {
 		ArtifactBuilder builderEpic = new ArtifactBuilder();
 
 		Epic epic = builderEpic
 				.id(FAKE_REQUIREMENT_ID)
+				.projectID(1L)
 				.title("Example")
 				.description("test unit")
 				.buildEpic();
 
-		doNothing().when(requirementService).delete(epic);
+		when(requirementService.find(epic.getId())).thenReturn(epic);
+		doThrow(new IllegalArgumentException()).when(requirementService).delete(epic);
+
+		mockI18nMessages("operation_unsuccessful", ContextPlace.ERROR);
 
 		RequirementController controllerMock = new RequirementController(result,
 				messageHandler, errorHandler, requirementService);

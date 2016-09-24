@@ -10,7 +10,7 @@ import com.modesteam.urutau.model.Requirement;
  *
  */
 public interface RequirementDAO {
-	void create(Requirement artifact);
+	void create(Requirement requirement);
 	
 	/**
 	 * Gets a object instance that have a field with certain value
@@ -22,9 +22,9 @@ public interface RequirementDAO {
 	 */
 	Requirement find(Long id);
 	
-	Requirement update(Requirement artifact);
+	Requirement update(Requirement requirement);
 	
-	void destroy(Requirement artifact);
+	void destroy(Requirement requirement);
 	
 	List<Requirement> findUsing(String sql);
 }

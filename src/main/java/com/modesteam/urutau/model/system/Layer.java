@@ -3,7 +3,6 @@ package com.modesteam.urutau.model.system;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -25,7 +24,7 @@ public class Layer {
 
 	private String description;
 
-	@ManyToMany(mappedBy = "layers", cascade = CascadeType.REFRESH)
+	@ManyToMany(mappedBy = "layers")
 	private List<Project> projectsInvolved = new ArrayList<Project>();
 
 	public Long getLayerID() {

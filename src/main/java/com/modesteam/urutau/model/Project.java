@@ -47,7 +47,7 @@ public class Project implements Cloneable {
 
 	private int metodologyCode;
 
-	@OneToMany(mappedBy = "project", cascade=CascadeType.REMOVE)
+	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	private List<Artifact> requirements = new ArrayList<Artifact>();
 
 	@ManyToOne
