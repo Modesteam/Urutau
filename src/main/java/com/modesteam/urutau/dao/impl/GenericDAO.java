@@ -63,7 +63,7 @@ public abstract class GenericDAO<Entity> {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Entity find(Long id){
+	public Entity find(Long id) {
 		return (Entity) entityManager.find(entityClass, id);
 	}
 

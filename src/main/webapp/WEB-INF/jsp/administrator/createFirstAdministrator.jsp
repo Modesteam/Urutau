@@ -23,7 +23,7 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-6 layout-gradient-col text-center">
-				<img src="<c:url value='/img/urutau.png'/>"  width="70px">
+				<img src="<c:url value='/img/urutau.png'/>">
 				<h2 class="text-center"><fmt:message key="urutau.admin.welcome.first"/></h2>
 				<br/>
 			</div>

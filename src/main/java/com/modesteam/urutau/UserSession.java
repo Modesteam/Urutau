@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.model.UrutaUser;
-import com.modesteam.urutau.service.UserService;
 
 @SessionScoped
 @Named("userSession")
@@ -25,9 +24,6 @@ public class UserSession implements Serializable {
 
 	@Inject
 	private Event<UrutaUser> loginEvent;
-
-	@Inject
-	private UserService userService;
 
 	/**
 	 * Saves user in session
@@ -68,16 +64,6 @@ public class UserSession implements Serializable {
 		}
 
 		return isLogged;
-	}
-
-	/**
-	 * Reload session
-	 * 
-	 * @param logged
-	 *            user to be reloaded
-	 */
-	public void reload() {
-		userService.reloadInstance(userLogged);
 	}
 
 	public UrutaUser getUserLogged() {

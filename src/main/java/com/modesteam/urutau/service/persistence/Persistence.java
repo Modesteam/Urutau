@@ -1,7 +1,5 @@
 package com.modesteam.urutau.service.persistence;
 
-import com.modesteam.urutau.model.Requirement;
-
 /**
  * All services of persistence should implement this contract
  * 

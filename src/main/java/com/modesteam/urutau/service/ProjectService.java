@@ -29,6 +29,13 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 
 	private final ProjectDAO projectDAO;
 
+	/*
+	 * CDI eye only
+	 */
+	public ProjectService() {
+		this(null);
+	}
+
 	@Inject
 	public ProjectService(ProjectDAO projectDAO) {
 		this.projectDAO = projectDAO;
