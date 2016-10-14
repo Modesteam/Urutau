@@ -1,29 +1,26 @@
 package com.modesteam.urutau.service;
 
-import static javax.enterprise.event.TransactionPhase.AFTER_SUCCESS;
-
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
-import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.modesteam.urutau.annotation.Updater;
 import com.modesteam.urutau.dao.UserDAO;
 import com.modesteam.urutau.exception.DataBaseCorruptedException;
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.service.persistence.Finder;
 
 @RequestScoped
-public class UserService {
+public class UserService implements Finder<UrutaUser> {
 	
 	private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 	
 	private final UserDAO userDAO;
-	
+
 	/**
 	 * @deprecated only CDI eye
 	 */
@@ -131,23 +128,26 @@ public class UserService {
 		
 		return user;
 	}
-	
-	/**
-	 * Get user reference
-	 *  
-	 * @param userID identifier
-	 * @return user logged, uses into userSession
-	 */
-	public UrutaUser getUserByID(Long userID) {
-		return userDAO.find(userID);
+
+	@Override
+	public boolean exists(Long id) {
+		return false;
 	}
-	
-	/**
-	 * Reload exclusive userLogged from database
-	 * @return 
-	 */
-	public void reloadInstance(@Observes(during=AFTER_SUCCESS) @Updater UrutaUser userLogged) {
-		logger.trace("Reload user session");
-		userDAO.reload(userLogged);
+
+	@Override
+	public UrutaUser find(Long id) {
+		return userDAO.find(id);
+	}
+
+	@Override
+	public List<UrutaUser> findBy(String field, Object value) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<UrutaUser> where(String conditions) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

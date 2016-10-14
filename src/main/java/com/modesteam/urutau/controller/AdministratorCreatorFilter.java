@@ -3,7 +3,6 @@ package com.modesteam.urutau.controller;
 import java.io.IOException;
 
 import javax.inject.Inject;
-import javax.persistence.EntityManager;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -21,10 +20,7 @@ import com.modesteam.urutau.service.AdministratorService;
 
 /**
  * Realizes an filter in index request to create an new {@link Administrator} if
- * no exist
- * 
- * It's an way to do this, the other needs create an static
- * {@link EntityManager} to initialize before of the servletContext.
+ * no exist.
  */
 @WebFilter("/")
 public class AdministratorCreatorFilter implements Filter {

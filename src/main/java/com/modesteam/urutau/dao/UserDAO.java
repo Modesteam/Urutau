@@ -29,9 +29,4 @@ public interface UserDAO {
 	 * Verifies if database have some User
 	 */
 	boolean hasAnyRegister();
-
-	/**
-	 * Reload user managed instance
-	 */
-	void reload(UrutaUser userLogged);
 }

@@ -7,8 +7,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.enterprise.event.Event;
-
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +14,6 @@ import org.junit.Test;
 import com.modesteam.urutau.builder.ProjectBuilder;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
-import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.model.system.MetodologyEnum;
@@ -27,12 +24,8 @@ import br.com.caelum.vraptor.validator.ValidationException;
 
 public class ProjectControllerTest extends UrutaUnitTest {
 
-	private Event<UrutaUser> reloadEvent;
-
 	@Before
-	@SuppressWarnings("unchecked")
 	public void setup() {
-		this.reloadEvent = mock(Event.class);
 		super.setup();
 	}
 
@@ -59,7 +52,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.create(project);
 	}
@@ -82,7 +75,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.create(project);
 	}
@@ -104,7 +97,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.delete(project);
 	}
@@ -123,7 +116,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.delete(project);
 	}
@@ -140,7 +133,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(Searchable.TITLE, SOME_STRING)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.edit(project);
 	}
@@ -159,7 +152,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.update(project)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.update(project);
 	}
@@ -182,7 +175,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		Assert.assertEquals(controllerMock.show(project), project);
 	}
@@ -199,7 +192,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.show(1L);
 	}
@@ -219,7 +212,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(userSession.getUserLogged().getProjects()).thenReturn(projects);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, reloadEvent, errorHandler, messageHandler);
+				projectService, userService, kanbanService, errorHandler, messageHandler);
 
 		controllerMock.index();
 	}

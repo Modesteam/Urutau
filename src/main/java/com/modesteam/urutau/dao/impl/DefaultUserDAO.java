@@ -30,16 +30,6 @@ public class DefaultUserDAO extends GenericDAO<UrutaUser> implements UserDAO {
 		super.setEntityManager(manager);
 	}
 	
-	/**
-	 * Gets user instance from DB
-	 * 
-	 * @param userID
-	 * @return
-	 */
-	public UrutaUser find(final Long userID) {
-		return manager.getReference(UrutaUser.class, userID);
-	}
-	
 	@Override
 	public boolean hasAnyRegister() {
 		String sql = "SELECT user FROM " + UrutaUser.class.getName() + " user";
@@ -48,8 +38,4 @@ public class DefaultUserDAO extends GenericDAO<UrutaUser> implements UserDAO {
 		return !query.getResultList().isEmpty();
 	}
 
-	@Override
-	public void reload(UrutaUser user) {
-		manager.refresh(user);
-	}
 }

@@ -23,12 +23,12 @@
 	<div class="container">
 		<div class="row">
 			<div class="col-md-6 layout-gradient-col text-center">
-				<img src="<c:url value='/img/urutau.png'/>"  width="70px">
+				<img src="<c:url value='/img/urutau.png'/>">
 				<h2 class="text-center"><fmt:message key="urutau.admin.welcome.first"/></h2>
 			</div>
 			<div class="col-md-6 layout-gradient-col">
 				<form action="<c:url value='/changeSystemSettings'/>" method="POST" class="form-group" >
-					<input name="settings[0].value" type="text" class="form-control" 
+					<input name="setting.systemEmail" type="text" class="form-control" 
 						placeholder="Email of system: example@email.com" required>
 					<button class="btn btn-primary btn-block" type="submit">Finalizar(2/2)</button>
 				</form>

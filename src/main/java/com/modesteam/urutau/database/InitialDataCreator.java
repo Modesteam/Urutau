@@ -4,26 +4,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.RollbackException;
-import javax.servlet.ServletContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.model.system.Layer;
-import com.modesteam.urutau.model.system.setting.SystemSetting;
-import com.modesteam.urutau.model.system.setting.SystemSettingContext;
+import com.modesteam.urutau.model.system.setting.ApplicationSetting;
 
-@ApplicationScoped
-public class BasicDataCreator {
+import br.com.caelum.vraptor.events.VRaptorInitialized;
 
-	private static final Logger logger = LoggerFactory.getLogger(BasicDataCreator.class);
+@Dependent
+public class InitialDataCreator {
+
+	private static final Logger logger = LoggerFactory.getLogger(InitialDataCreator.class);
 
 	@Inject
 	private EntityManagerFactory factory;
@@ -33,15 +33,14 @@ public class BasicDataCreator {
 	private List<Layer> defaultLayers = new ArrayList<Layer>();
 
 	/**
-	 * When {@link ServletContext} has loaded it needed whether not exists,
-	 * fills database with:
+	 * When {@link VRaptorInitialized} populates the database with:
 	 * 
 	 * <ul>
-	 * <li>Default system settings {@link SystemSetting}</li>
-	 * <li>Default layers</li>
+	 * 	<li>Default system settings {@link SystemSetting}</li>
+	 * 	<li>Default layers</li>
 	 * </ul>
 	 */
-	public void init(@Observes ServletContext context) {
+	public void init(@Observes VRaptorInitialized event) {
 
 		logger.info("Preparing database to support system...");
 
@@ -79,22 +78,23 @@ public class BasicDataCreator {
 	}
 
 	private void createSystemSettings() {
-		if (!existsSystemSettings()) {
-			for (SystemSettingContext context : SystemSettingContext.values()) {
-				manager.persist(new SystemSetting(context));
-			}
+		if (!settingsExists()) {
+			manager.persist(new ApplicationSetting());
 		} else {
 			logger.info("Settings already created...");
 		}
 	}
 
 	/**
-	 * TODO Search one by one
+	 * See if {@link ApplicationSetting} exists searching by 
+	 * {@link ApplicationSetting#APLICATION_SETTING_ID}
 	 * 
-	 * @return
+	 * @return true if found some register
 	 */
-	private boolean existsSystemSettings() {
-		return manager.find(SystemSetting.class, 1L) != null;
+	private boolean settingsExists() {
+		ApplicationSetting found = manager.find(ApplicationSetting.class, 
+				ApplicationSetting.APLICATION_SETTING_ID);
+		return  found != null;
 	}
 
 	private void createDefaultLayer() {

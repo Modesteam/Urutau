@@ -8,7 +8,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
@@ -16,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.UserSession;
-import com.modesteam.urutau.annotation.Updater;
+import com.modesteam.urutau.annotation.ReloadUser;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.controller.message.ErrorMessageHandler;
 import com.modesteam.urutau.controller.message.MessageHandler;
@@ -52,27 +51,23 @@ public class ProjectController {
     private final ErrorMessageHandler errorHandler;
     private final MessageHandler messageHandler;
 
-    @Updater
-    private Event<UrutaUser> reloadEvent;
-
     /**
      * @deprecated CDI eye only
      */
     public ProjectController() {
-        this(null, null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
     @Inject
     public ProjectController(Result result, UserSession userSession,
     		ProjectService projectService, UserService userService,
-    		KanbanService kanbanService, Event<UrutaUser> reloadEvent,
+    		KanbanService kanbanService,
     		ErrorMessageHandler errorHandler, MessageHandler messageHandler) {
         this.result = result;
         this.userSession = userSession;
         this.userService = userService;
         this.projectService = projectService;
         this.kanbanService = kanbanService;
-        this.reloadEvent = reloadEvent;
         this.errorHandler = errorHandler;
         this.messageHandler = messageHandler;
     }
@@ -125,6 +120,7 @@ public class ProjectController {
      * @param id
      *            primary key of Project
      */
+    @ReloadUser
     @Delete("/project")
     public void delete(final Project project) {
         logger.info("The project with id " + project.getId() + " was solicitated for exclusion");
@@ -155,8 +151,8 @@ public class ProjectController {
      * @param project
      *            to fill with modifications
      */
-    @Get("/{project.title}/edit")
     @View
+    @Get("/{project.title}/edit")
     public void edit(final Project project) {
         Project requestedProject = null;
 
@@ -177,6 +173,7 @@ public class ProjectController {
      * @param project
      *            with possible modifications
      */
+    @ReloadUser
     @Put("/{project.id}/setting")
     public void update(Project project) {
         // It is needed when project title has change
@@ -186,8 +183,6 @@ public class ProjectController {
         projectService.update(project);
 
         result.redirectTo(this).edit(project);
-
-        reloadEvent.fire(userSession.getUserLogged());
     }
 
     /**
@@ -246,21 +241,6 @@ public class ProjectController {
     }
 
     /**
-     * Gives all the existent projects in database.
-     * 
-     * @return projects
-     */
-    @Get
-    @Path("/project/showAll")
-    public List<? extends Project> showAll() {
-        List<? extends Project> projects = projectService.loadAll();
-
-        result.include("projects", projects);
-
-        return projects;
-    }
-
-    /**
      * Load an list of metodology to show in an select field. Result will
      * include {@link List} of metodology's names. Restricted to users, logic of
      * flux controll is into {@link IndexController}
@@ -280,14 +260,6 @@ public class ProjectController {
         logger.info("Have " + projects.size() + " projects");
 
         result.include("projects", projects);
-    }
-
-    /**
-     * Called by ajax
-     */
-    @Get
-    public void reloadProjects() {
-        userSession.reload();
     }
 
     /**
@@ -366,7 +338,7 @@ public class ProjectController {
      */
     private UrutaUser getCurrentUser() {
         UrutaUser logged = userSession.getUserLogged();
-        return userService.getUserByID(logged.getUserID());
+        return userService.find(logged.getUserID());
     }
 
     /**
