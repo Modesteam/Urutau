@@ -17,12 +17,9 @@ import org.slf4j.LoggerFactory;
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.ReloadUser;
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
 import com.modesteam.urutau.model.UrutaUser;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.model.system.MetodologyEnum;
 import com.modesteam.urutau.service.KanbanService;
@@ -36,6 +33,8 @@ import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
+import br.com.caelum.vraptor.validator.Validator;
+import br.com.urutau.vraptor.handler.FlashMessage;
 
 @Controller
 public class ProjectController {
@@ -48,8 +47,8 @@ public class ProjectController {
     private final ProjectService projectService;
     private final UserService userService;
     private final KanbanService kanbanService;
-    private final ErrorMessageHandler errorHandler;
-    private final MessageHandler messageHandler;
+    private final FlashMessage flash;
+    private final Validator validator;
 
     /**
      * @deprecated CDI eye only
@@ -61,15 +60,14 @@ public class ProjectController {
     @Inject
     public ProjectController(Result result, UserSession userSession,
     		ProjectService projectService, UserService userService,
-    		KanbanService kanbanService,
-    		ErrorMessageHandler errorHandler, MessageHandler messageHandler) {
+    		KanbanService kanbanService, FlashMessage flash, Validator validator) {
         this.result = result;
         this.userSession = userSession;
         this.userService = userService;
         this.projectService = projectService;
         this.kanbanService = kanbanService;
-        this.errorHandler = errorHandler;
-        this.messageHandler = messageHandler;
+        this.flash = flash;
+        this.validator = validator;
     }
 
     /**
@@ -84,11 +82,12 @@ public class ProjectController {
      */
     @Post
     public void create(final @Valid Project project) {
-    	errorHandler.validates(ContextPlace.MODAL_ERROR);
-    	errorHandler.when(!projectService.titleAvaliable(project.getTitle()))
-    		.show("title_already_in_used")
+    	if(!projectService.titleAvaliable(project.getTitle())) {    		
+    		flash.use("modal_error")
+    		.toShow("title_already_in_used")
     		.redirectingTo(ProjectController.class)
     		.index();
+    	}
 
         Project basicProject;
 
@@ -106,10 +105,8 @@ public class ProjectController {
         } catch (CloneNotSupportedException exception) {
             logger.error("When create a project", exception);
 
-            errorHandler.validates(ContextPlace.ERROR);
-            errorHandler
-            	.add("critical_error")
-            	.redirectingTo((ApplicationController.class))
+            flash.use("error").toShow("critical_error")
+            	.redirectingTo(ApplicationController.class)
             	.dificultError();
         }
     }
@@ -130,19 +127,15 @@ public class ProjectController {
         if (projectToDelete == null) {
             logger.debug("The project already deleted or inexistent!");
 
-            errorHandler.validates(ContextPlace.INDEX_PANEL);
-            errorHandler.add("project_already_deleted");
+            flash.use("index_panel").toShow("project_already_deleted");
         } else {
         	logger.info("Deleting project name " + projectToDelete.getTitle());
 
             projectService.delete(projectToDelete);
         }
-
-        errorHandler.redirectingTo(ProjectController.class).index();
         
-        messageHandler.use(ContextPlace.INDEX_PANEL)
-        	.show("project_deleted")
-        	.redirectTo(ProjectController.class).index();
+        flash.use("index").toShow("project_deleted")
+        	.redirectingTo(ProjectController.class).index();
     }
 
     /**
@@ -178,11 +171,13 @@ public class ProjectController {
     public void update(Project project) {
         // It is needed when project title has change
         Project currentProject = projectService.find(project.getId());
-        errorHandler.redirectingTo(ProjectController.class).edit(currentProject);
+
+        validator.onErrorRedirectTo(ProjectController.class).edit(currentProject);
 
         projectService.update(project);
 
-        result.redirectTo(this).edit(project);
+        flash.use("success").toShow("project_updated")
+        	.redirectingTo(ProjectController.class).edit(project);
     }
 
     /**
@@ -214,15 +209,13 @@ public class ProjectController {
 
         Project targetProject = projectService.find(Searchable.TITLE, titleDecoded);
 
-        // TODO rewrite this error message
-        errorHandler.validates(ContextPlace.ERROR);
-        errorHandler
-        	.when(!(targetProject.getId().equals(project.getId())))
-        	.show("invalid_link")
-        	.redirectingTo(ProjectController.class)
-        	.index();;
-
-        return targetProject;
+        if((!targetProject.getId().equals(project.getId()))){
+        	flash.use("error").toShow("invalid_link")
+        		.redirectingTo(ProjectController.class).index();
+        	return null;
+        } else {        	
+        	return targetProject;
+        }
     }
 
     /**

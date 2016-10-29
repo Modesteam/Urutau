@@ -8,10 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.model.UrutaUser;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.UserService;
 import com.modesteam.urutau.service.validator.RegisterValidator;
 
@@ -22,6 +19,8 @@ import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
+import br.com.urutau.vraptor.handler.FlashError;
+import br.com.urutau.vraptor.handler.FlashMessage;
 
 /**
  * This controller have actions directly connect to user
@@ -37,24 +36,24 @@ public class UserController {
 	private final Result result;
 	private final UserService userService;
 	private final UserSession userSession;
-	private final MessageHandler messageHandler;
-	private final ErrorMessageHandler errorMessageHandler;
+	private final FlashMessage flash;
+	private final FlashError flashError;
 
 	/**
 	 * @deprecated CDI eyes only
 	 */
 	public UserController() {
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null);
 	}
 
 	@Inject
 	public UserController(Result result, UserService userService, UserSession userSession,
-			Validator validator, MessageHandler messageHandler, ErrorMessageHandler errorMessageHandler) {
+			FlashMessage flash, FlashError flashError) {
 		this.result = result;
 		this.userService = userService;
 		this.userSession = userSession;
-		this.errorMessageHandler = errorMessageHandler;
-		this.messageHandler = messageHandler;
+		this.flash = flash;
+		this.flashError = flashError;
 	}
 
 	/**
@@ -106,35 +105,30 @@ public class UserController {
 	@Post
 	public void authenticate(String login, String password) throws Exception {
 		UrutaUser user = userService.authenticate(login, password);
-
-		errorMessageHandler.validates(ContextPlace.LOGIN);
-
-		errorMessageHandler.when(user == null)
-			.show("invalid_authenticate");
-
+		
+		boolean userFound = user != null;
+		
 		// If have any error, include parameters login and password
 		// to user try authenticate again
-		if(errorMessageHandler.hasErrors()) {
+		if(!userFound) {
+			flash.use("login").toShow("invalid_authenticate");
+
 			result.include("login", login);
 			result.include("password", password);
+		} else {			
+			// put in session
+			userSession.login(user);
+			
+			result.use(Results.referer()).redirect();
 		}
-
-		// On error go to index
-		errorMessageHandler.redirectingTo(IndexController.class).index();
-
-		// put in session
-		userSession.login(user);
-
-		result.use(Results.referer()).redirect();
 	}
 
 	@Get("/logout")
 	public void logout() {
 		userSession.logout();
 
-		messageHandler.use(ContextPlace.SUCCESS_MESSAGE).show("user_logout");
-
-		messageHandler.redirectTo(IndexController.class).index();
+		flash.use("success_message").toShow("user_logout")
+			.redirectingTo(IndexController.class).index();
 	}
 
 	@View
@@ -149,25 +143,28 @@ public class UserController {
 	 * This method considers beans validation too
 	 */
 	private void validateBeforeCreate(UrutaUser user) {
-		
-		errorMessageHandler.validates(ContextPlace.REGISTER_VALIDATOR);
+		flashError.validate("register_validator");
 		
 		RegisterValidator registerValidator = new RegisterValidator(user);
 
-		errorMessageHandler.when(registerValidator.hasNullField())
-			.show("all_fields_required");
+		if(registerValidator.hasNullField()) {
+			flashError.add("all_fields_required");
+		}
+		// Above error should redirect to index
+		flashError.getValidator().onErrorRedirectTo(IndexController.class).index();
 
-		errorMessageHandler.redirectingTo(IndexController.class).index();
+		if(!registerValidator.validPasswordConfirmation()) {
+			flashError.add("password_are_not_equals");
+		}
 
-		errorMessageHandler.when(!registerValidator.validPasswordConfirmation())
-			.show("password_are_not_equals");
+		if(!userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())) {
+			flashError.add("login_already_in_use");
+		}
 
-		errorMessageHandler.when(!userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin()))
-			.show("login_already_in_use");
+		if(!userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())) {
+			flashError.add("email_already_in_use");
+		}
 
-		errorMessageHandler.when(!userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail()))
-			.show("email_already_in_use");
-
-		errorMessageHandler.redirectingTo(IndexController.class).index();
+		flashError.getValidator().onErrorRedirectTo(IndexController.class).index();
 	}
 }

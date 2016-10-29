@@ -1,8 +1,5 @@
 package com.modesteam.urutau.model.system;
 
-import br.com.caelum.vraptor.i18n.Message;
-
-
 /**
  * This enum have name of fields which contains category of {@link Message}
  */

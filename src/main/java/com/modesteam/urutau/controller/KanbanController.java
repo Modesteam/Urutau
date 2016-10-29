@@ -7,13 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.exception.UserActionException;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Requirement;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.service.KanbanService;
 import com.modesteam.urutau.service.ProjectService;
@@ -24,6 +21,7 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
+import br.com.urutau.vraptor.handler.FlashMessage;
 
 @Controller
 public class KanbanController {
@@ -33,26 +31,24 @@ public class KanbanController {
 	private final ProjectService projectService;
 	private final RequirementService requirementService;
 	private final Result result;
-	private final MessageHandler messageHandler;
-	private final ErrorMessageHandler errorHandler;
+	private final FlashMessage flashMessage;
 	
 	/**
 	 * @deprecated CDI
 	 */
 	public KanbanController() {
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null);
 	}
 
 	@Inject
 	public KanbanController(KanbanService kanbanService, ProjectService projectService, 
 			RequirementService requirementService, Result result, 
-			MessageHandler messageHandler, ErrorMessageHandler errorHandler) {
+			FlashMessage flashMessage) {
 		this.kanbanService = kanbanService;
 		this.projectService = projectService;
 		this.requirementService = requirementService;
 		this.result = result;
-		this.messageHandler = messageHandler;
-		this.errorHandler = errorHandler;
+		this.flashMessage = flashMessage;
 	}
 
 	@Get
@@ -90,14 +86,13 @@ public class KanbanController {
 
 		} catch (IllegalArgumentException exception) {
 			// Sends via JSON the current exception
-			messageHandler.use(ContextPlace.ERROR)
-				.sendViaJSON("invalid_request");
+			flashMessage.use("error").toShow("invalid_request").sendJSON();
 		}
 
 		// If not are used, shows success message 
 		if(!result.used()) {
-			messageHandler.use(ContextPlace.KANBAN)
-				.sendViaJSON("successfully_moved_requirement");
+			flashMessage.use("kanban")
+				.toShow("successfully_moved_requirement").sendJSON();
 		}
 	}
 
@@ -135,11 +130,11 @@ public class KanbanController {
 	}
 
 	public void deleteLayer() {
-	    // TODO logo
+	    // TODO
 	}
 
 	public void updateLayer() {
-	    // TODO logo
+	    // TODO
 	}
 
 	@View

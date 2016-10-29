@@ -9,8 +9,6 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.formatter.RequirementFormatter;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
@@ -18,7 +16,6 @@ import com.modesteam.urutau.model.Generic;
 import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.Storie;
 import com.modesteam.urutau.model.UseCase;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.RequirementService;
 
 import br.com.caelum.vraptor.Controller;
@@ -26,6 +23,8 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
+import br.com.urutau.vraptor.handler.FlashError;
+import br.com.urutau.vraptor.handler.FlashMessage;
 
 /**
  * This is a implementation of {@link EntityCreator}, part of pattern abstract
@@ -42,11 +41,12 @@ public class RequirementCreator {
 
 	// Objects to be injected
 	private final Result result;
-	private final MessageHandler messageHandler;
-	private final ErrorMessageHandler errorHandler;
+	private final FlashMessage flash;
+	private final FlashError flashError;
 	private final RequirementService service;
 	private final RequirementFormatter formatter;
-	private Callable<RequirementCreator> callable;
+
+	private Callable<Void> callable;
 
 	/**
 	 * CDI only eye
@@ -56,24 +56,26 @@ public class RequirementCreator {
 	}
 
 	@Inject
-	public RequirementCreator(Result result, MessageHandler messageHandler,
-			ErrorMessageHandler errorHandler, RequirementService service,
-			RequirementFormatter formatter) {
+	public RequirementCreator(Result result, FlashMessage flash, FlashError flashError,
+			RequirementService service, RequirementFormatter formatter) {
 		this.result = result;
-		this.messageHandler = messageHandler;
-		this.errorHandler = errorHandler;
+		this.flash = flash;
+		this.flashError = flashError;
 		this.service = service;
 		this.formatter = formatter;
 	}
 
 	@Post
 	public void createGeneric(@NotNull @Valid final Generic generic) {
-		callable = new Callable<RequirementCreator>() {
+		callable = new Callable<Void>() {
+			/**
+			 * Only to redirect to current page
+			 */
 			@Override
-			public RequirementCreator call() throws Exception {
+			public Void call() throws Exception {
 				result.include(generic);
-				errorHandler.redirectingTo(RequirementCreator.class)
-					.generic(generic.getProjectID().toString());
+				flashError.getValidator().onErrorRedirectTo(RequirementCreator.class)
+						.generic(generic.getProjectID().toString());
 				return null;
 			}
 		};
@@ -87,12 +89,12 @@ public class RequirementCreator {
 
 	@Post
 	public void createFeature(@NotNull @Valid final Feature feature) {
-		callable = new Callable<RequirementCreator>() {	
+		callable = new Callable<Void>() {
 			@Override
-			public RequirementCreator call() throws Exception {
+			public Void call() throws Exception {
 				result.include(feature);
-				errorHandler.redirectingTo(RequirementCreator.class)
-					.feature(feature.getProjectID().toString());
+				flashError.getValidator().onErrorRedirectTo(RequirementCreator.class)
+						.feature(feature.getProjectID().toString());
 				return null;
 			}
 		};
@@ -106,12 +108,12 @@ public class RequirementCreator {
 
 	@Post
 	public void createUserStory(@NotNull @Valid final Storie storie) {
-		callable = new Callable<RequirementCreator>() {	
+		callable = new Callable<Void>() {
 			@Override
-			public RequirementCreator call() throws Exception {
+			public Void call() throws Exception {
 				result.include(storie);
-				errorHandler.redirectingTo(RequirementCreator.class)
-					.feature(storie.getProjectID().toString());
+				flashError.getValidator().onErrorRedirectTo(RequirementCreator.class)
+						.feature(storie.getProjectID().toString());
 				return null;
 			}
 		};
@@ -125,16 +127,16 @@ public class RequirementCreator {
 
 	@Post
 	public void createEpic(@NotNull @Valid final Epic epic) {
-		callable = new Callable<RequirementCreator>() {	
+		callable = new Callable<Void>() {
 			@Override
-			public RequirementCreator call() throws Exception {
+			public Void call() throws Exception {
 				result.include(epic);
-				errorHandler.redirectingTo(RequirementCreator.class)
-					.feature(epic.getProjectID().toString());
+				flashError.getValidator().onErrorRedirectTo(RequirementCreator.class)
+						.feature(epic.getProjectID().toString());
 				return null;
 			}
 		};
-		
+
 		try {
 			save(epic, callable);
 		} catch (Exception e) {
@@ -148,12 +150,12 @@ public class RequirementCreator {
 	 */
 	@Post
 	public void createUseCase(@NotNull @Valid final UseCase useCase) {
-		callable = new Callable<RequirementCreator>() {	
+		callable = new Callable<Void>() {
 			@Override
-			public RequirementCreator call() throws Exception {
+			public Void call() throws Exception {
 				result.include(useCase);
-				errorHandler.redirectingTo(RequirementCreator.class)
-					.useCase(useCase.getProjectID().toString());
+				flashError.getValidator().onErrorRedirectTo(RequirementCreator.class)
+						.useCase(useCase.getProjectID().toString());
 				return null;
 			}
 		};
@@ -162,8 +164,7 @@ public class RequirementCreator {
 			useCase.formatToRealActors();
 		} else {
 			// This will be thrown the save method
-			errorHandler.validates(ContextPlace.REQUIREMENT_CREATE);
-			errorHandler.add("actor_is_required");
+			flash.use("error").toShow("actor_is_required");
 		}
 
 		try {
@@ -226,23 +227,30 @@ public class RequirementCreator {
 	 * Server-side validates of basic information, it will be execute by method
 	 * save, right bellow
 	 * 
-	 * @param requirement
-	 *            that will be verifies
+	 * @param requirement that will be verifies
 	 */
 	private void validates(final Requirement requirement) {
-		errorHandler.validates(ContextPlace.REQUIREMENT_CREATE);
+		flashError.validate("requirement_create");
 
-		errorHandler.when(requirement.getTitle() == null)
-			.show("requirement.title.empty");
+		if (requirement.getTitle() == null) {
+			flashError.add("requirement.title.empty");
+		}
 
-		errorHandler.when(!service.findBy("title", requirement.getTitle()).isEmpty())
-			.show("requirement.title.already_used");
+		if (requirement.getTitle() == null) {
+			flashError.add("requirement.title.empty");
+		}
 
-		errorHandler.when(requirement.getAuthor() == null)
-			.show("needs_author");
+		if (!service.findBy("title", requirement.getTitle()).isEmpty()) {
+			flashError.add("requirement.title.already_used");
+		}
 
-		errorHandler.when(requirement.getProject() == null)
-			.show("project_not_exist");
+		if (requirement.getAuthor() == null) {
+			flashError.add("needs_author");
+		}
+
+		if (requirement.getProject() == null) {
+			flashError.add("project_not_exist");
+		}
 	}
 
 	/**
@@ -251,17 +259,17 @@ public class RequirementCreator {
 	 * @param requirement
 	 *            is a user output that will be verified and saved
 	 * @param callable
-	 * 			  if validation not approved call redirect method
-	 * @throws Exception 
+	 *            if validation not approved call redirect method
+	 * @throws Exception
 	 */
-	private void save(final Requirement requirement, Callable<RequirementCreator> callable) {
+	private void save(final Requirement requirement, Callable<Void> callable) {
 		// insert some data like author, date and project
 		formatter.format(requirement);
 		// verify if above format work fine
 		validates(requirement);
 
 		// only to protect the invoke of create requirement
-		if (!errorHandler.hasErrors()) {
+		if (!flashError.getValidator().hasErrors()) {
 			service.save(requirement);
 		} else {
 			logger.error("Some errors was found");
@@ -272,9 +280,8 @@ public class RequirementCreator {
 			}
 		}
 
-		messageHandler.use(ContextPlace.PROJECT_PANEL).show("requirement_add_with_success");
-
-		messageHandler.redirectTo(ProjectController.class).show(requirement.getProject());
+		flash.use("project_panel").toShow("requirement_add_with_success")
+				.redirectingTo(ProjectController.class).show(requirement.getProject());
 	}
 
 }

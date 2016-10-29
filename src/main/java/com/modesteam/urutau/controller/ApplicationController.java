@@ -1,9 +1,8 @@
 package com.modesteam.urutau.controller;
 
-import br.com.caelum.vraptor.Controller;
-
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.service.I18nMessageCreator;
+
+import br.com.caelum.vraptor.Controller;
 
 @Controller
 public class ApplicationController {
