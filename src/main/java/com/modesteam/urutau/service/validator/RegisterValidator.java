@@ -20,6 +20,6 @@ public class RegisterValidator {
 	public boolean validPasswordConfirmation() {
 		String original = user.getPassword();
 		String confirmation = user.getPasswordVerify();
-		return original.equals(confirmation);
+		return original == confirmation;
 	}
 }

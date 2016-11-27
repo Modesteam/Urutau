@@ -14,13 +14,9 @@ import org.junit.Test;
 import com.modesteam.urutau.builder.ProjectBuilder;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.model.system.MetodologyEnum;
 import com.modesteam.urutau.test.UrutaUnitTest;
-
-import br.com.caelum.vraptor.validator.I18nMessage;
-import br.com.caelum.vraptor.validator.ValidationException;
 
 public class ProjectControllerTest extends UrutaUnitTest {
 
@@ -46,18 +42,12 @@ public class ProjectControllerTest extends UrutaUnitTest {
 
 		doNothing().when(projectService).save(project);
 
-		mockI18nMessages("title_already_in_used", ContextPlace.MODAL_ERROR);
-
-		when(i18nCreator.create(ContextPlace.MODAL_ERROR, "title_already_in_used"))
-				.thenReturn(mock(I18nMessage.class));
-
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.create(project);
 	}
 
-	@Test(expected = ValidationException.class)
 	public void createInvalidProject() {
 		ProjectBuilder projectBuilder = new ProjectBuilder();
 
@@ -69,13 +59,8 @@ public class ProjectControllerTest extends UrutaUnitTest {
 
 		when(projectService.titleAvaliable(SOME_STRING)).thenReturn(false);
 
-		mockI18nMessages("title_already_in_used", ContextPlace.MODAL_ERROR);
-
-		when(i18nCreator.create(ContextPlace.MODAL_ERROR, "title_already_in_used"))
-				.thenReturn(mock(I18nMessage.class));
-
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.create(project);
 	}
@@ -88,35 +73,21 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(project);
 		doNothing().when(projectService).delete(project);
 
-		mockI18nMessages("project_already_deleted", ContextPlace.INDEX_PANEL);
-		mockI18nMessages("project_deleted", ContextPlace.INDEX_PANEL);
-
-		when(i18nCreator.create(ContextPlace.INDEX_PANEL, "project_already_deleted"))
-				.thenReturn(mock(I18nMessage.class));
-		when(i18nCreator.create(ContextPlace.INDEX_PANEL, "project_deleted"))
-		.thenReturn(mock(I18nMessage.class));
-
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.delete(project);
 	}
 
-	@Test(expected = ValidationException.class)
 	public void deleteInvalidProject() {
 		Project project = new Project();
 		project.setId(1L);
 
 		when(projectService.find(1L)).thenReturn(null);
 		doNothing().when(projectService).delete(project);
-		
-		mockI18nMessages("project_already_deleted", ContextPlace.INDEX_PANEL);
-
-		when(i18nCreator.create(ContextPlace.INDEX_PANEL, "project_already_deleted"))
-				.thenReturn(mock(I18nMessage.class));
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.delete(project);
 	}
@@ -133,7 +104,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(Searchable.TITLE, SOME_STRING)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.edit(project);
 	}
@@ -152,7 +123,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.update(project)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.update(project);
 	}
@@ -169,13 +140,8 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(Searchable.TITLE, "title should be like that"))
 				.thenReturn(project);
 
-		mockI18nMessages("invalid_link", ContextPlace.MODAL_ERROR);
-
-		when(i18nCreator.create(ContextPlace.MODAL_ERROR, "invalid_link"))
-				.thenReturn(mock(I18nMessage.class));
-
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		Assert.assertEquals(controllerMock.show(project), project);
 	}
@@ -192,7 +158,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.show(1L);
 	}
@@ -212,7 +178,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(userSession.getUserLogged().getProjects()).thenReturn(projects);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, errorHandler, messageHandler);
+				projectService, userService, kanbanService, flash, validator);
 
 		controllerMock.index();
 	}

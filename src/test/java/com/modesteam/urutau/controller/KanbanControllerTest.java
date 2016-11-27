@@ -12,11 +12,8 @@ import org.junit.Test;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Requirement;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.test.UrutaUnitTest;
-
-import br.com.caelum.vraptor.validator.I18nMessage;
 
 public class KanbanControllerTest extends UrutaUnitTest {
 
@@ -35,8 +32,8 @@ public class KanbanControllerTest extends UrutaUnitTest {
 
 		when(projectService.find(project.getId())).thenReturn(mock(Project.class));
 
-		KanbanController controller = new KanbanController(kanbanService, projectService, 
-				requirementService, result, messageHandler, errorHandler);
+		KanbanController controller = new KanbanController(kanbanService, projectService,
+				requirementService, result, flash);
 
 		controller.load(project);
 	}
@@ -51,13 +48,8 @@ public class KanbanControllerTest extends UrutaUnitTest {
 
 		when(requirementService.update(requirement)).thenReturn(requirement);
 
-		when(i18nCreator.create(ContextPlace.KANBAN, "successfully_moved_requirement"))
-				.thenReturn(mock(I18nMessage.class));
-
-		mockI18nMessages("successfully_moved_requirement", ContextPlace.KANBAN);
-
-		KanbanController controller = new KanbanController(kanbanService, projectService, 
-				requirementService, result, messageHandler, errorHandler);
+		KanbanController controller = new KanbanController(kanbanService, projectService,
+				requirementService, result, flash);
 
 		controller.move(STUB_LONG_NUMBER, STUB_LONG_NUMBER);
 	}
@@ -71,13 +63,8 @@ public class KanbanControllerTest extends UrutaUnitTest {
 
 		doThrow(IllegalArgumentException.class).when(requirementService).update(requirement);
 
-		when(i18nCreator.create(ContextPlace.ERROR, "invalid_request"))
-				.thenReturn(mock(I18nMessage.class));
-
-		mockI18nMessages("invalid_request", ContextPlace.ERROR);
-
-		KanbanController controller = new KanbanController(kanbanService, projectService, 
-				requirementService, result, messageHandler, errorHandler);
+		KanbanController controller = new KanbanController(kanbanService, projectService,
+				requirementService, result, flash);
 
 		controller.move(STUB_LONG_NUMBER, STUB_LONG_NUMBER);
 	}
@@ -94,8 +81,8 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		doNothing().when(kanbanService).create(mockLayer);
 		when(projectService.update(mockProject)).thenReturn(mockProject);
 
-		KanbanController controller = new KanbanController(kanbanService, projectService, 
-				requirementService, result, messageHandler, errorHandler);
+		KanbanController controller = new KanbanController(kanbanService, projectService,
+				requirementService, result, flash);
 
 		controller.createLayer(VALID_PROJECT_ID, mockLayer);
 	}
@@ -111,8 +98,8 @@ public class KanbanControllerTest extends UrutaUnitTest {
 
 		doThrow(SystemBreakException.class).when(kanbanService).create(mockLayer);
 
-		KanbanController controller = new KanbanController(kanbanService, projectService, 
-				requirementService, result, messageHandler, errorHandler);
+		KanbanController controller = new KanbanController(kanbanService, projectService,
+				requirementService, result, flash);
 
 		controller.createLayer(VALID_PROJECT_ID, mockLayer);
 

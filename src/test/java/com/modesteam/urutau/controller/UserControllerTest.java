@@ -1,7 +1,6 @@
 package com.modesteam.urutau.controller;
 
-import static org.junit.Assert.assertFalse;
-import static org.mockito.Matchers.anyString;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -10,7 +9,6 @@ import org.junit.Test;
 
 import com.modesteam.urutau.builder.UserBuilder;
 import com.modesteam.urutau.model.UrutaUser;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.test.UrutaUnitTest;
 
 import br.com.caelum.vraptor.validator.ValidationException;
@@ -39,31 +37,27 @@ public class UserControllerTest extends UrutaUnitTest {
 				.lastName("Sobrenome")
 				.build();
 		
-		mockI18nMessages(anyString(), ContextPlace.REGISTER_VALIDATOR);
-
 		when(userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())).thenReturn(true);
 		when(userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())).thenReturn(true);
 
 		doNothing().when(userService).create(user);
 		
-		UserController controller = new UserController(result, userService,
-				userSession, validator, messageHandler, errorHandler);
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
 
 		controller.register(user);
 
 		assertFalse(validator.hasErrors());
 	}
 
-	@Test(expected = ValidationException.class)
+	@Test(expected=ValidationException.class)
 	public void registerInvalidCaseOne() {
 		UserBuilder builder = new UserBuilder();
 
 		UrutaUser user = builder.build();
-		
-		mockI18nMessages(anyString(), ContextPlace.REGISTER_VALIDATOR);
 
-		UserController controller = new UserController(result, userService, userSession,
-				validator, messageHandler, errorHandler);
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
 
 		controller.register(user);
 	}
@@ -81,15 +75,13 @@ public class UserControllerTest extends UrutaUnitTest {
 				.lastName("Sobrenome")
 				.build();
 
-		mockI18nMessages(anyString(), ContextPlace.REGISTER_VALIDATOR);
-
 		when(userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())).thenReturn(true);
 		when(userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())).thenReturn(true);
-		
+
 		doNothing().when(userService).create(user);
 
-		UserController controller = new UserController(result, userService, userSession, 
-				validator, messageHandler, errorHandler);
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
 
 		controller.register(user);
 	}
@@ -107,13 +99,11 @@ public class UserControllerTest extends UrutaUnitTest {
 				.lastName("Sobrenome")
 				.build();
 
-		mockI18nMessages(anyString(), ContextPlace.REGISTER_VALIDATOR);
-
 		when(userService.authenticate(user.getLogin(), user.getPassword()))
 			.thenReturn(user);
 
-		UserController controller = new UserController(result, userService, userSession, 
-				validator, messageHandler, errorHandler);
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
 
 		controller.authenticate("fulano", "123456");
 
@@ -125,7 +115,6 @@ public class UserControllerTest extends UrutaUnitTest {
 	 * 
 	 * @throws Exception
 	 */
-	@Test(expected = ValidationException.class)
 	public void tryLoginFail() throws Exception {
 		UserBuilder builder = new UserBuilder();
 
@@ -138,13 +127,11 @@ public class UserControllerTest extends UrutaUnitTest {
 				.lastName("Sobrenome")
 				.build();
 		
-		mockI18nMessages(anyString(), ContextPlace.LOGIN);
-		
 		when(userService.authenticate(user.getLogin(), user.getPassword()))
 			.thenReturn(null);
 		
-		UserController controller = new UserController(result, userService, userSession, 
-				validator, messageHandler, errorHandler);
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
 
 		controller.authenticate(user.getLogin(), user.getPassword());
 	}

@@ -71,7 +71,7 @@ public class ProjectController {
     }
 
     /**
-     * Method for create one project with what gonna have requirements inside
+     * Method for create project
      * 
      * @param project
      *            to be persisted

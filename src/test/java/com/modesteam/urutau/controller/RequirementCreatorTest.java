@@ -18,14 +18,9 @@ import com.modesteam.urutau.model.Generic;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Storie;
 import com.modesteam.urutau.model.UseCase;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.test.UrutaUnitTest;
 
-import br.com.caelum.vraptor.validator.I18nMessage;
 import br.com.caelum.vraptor.validator.ValidationException;
-
-import static com.modesteam.urutau.model.system.ContextPlace.REQUIREMENT_CREATE;
-import static com.modesteam.urutau.model.system.ContextPlace.PROJECT_PANEL;
 
 public class RequirementCreatorTest extends UrutaUnitTest {
 
@@ -39,16 +34,6 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 		ownedProject = createMockProject();
 
 		formatter = new RequirementFormatter(userSession, projectService, kanbanService);
-
-		// Runs in all test
-		mockI18nMessages("needs_author", REQUIREMENT_CREATE);
-		mockI18nMessages("project_not_exist", REQUIREMENT_CREATE);
-		mockI18nMessages("requirement.title.empty", REQUIREMENT_CREATE);
-		mockI18nMessages("requirement.title.already_used", REQUIREMENT_CREATE);
-		// Success message
-		mockI18nMessages("requirement_add_with_success", PROJECT_PANEL);
-
-		mockI18nMessages("actor_is_required", REQUIREMENT_CREATE);
 	}
 
 	@Test
@@ -65,10 +50,9 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
 		doNothing().when(requirementService).save(feature);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		controllerMock.createFeature(feature);
-		assertTrue(result.included().containsKey(PROJECT_PANEL.toString()));
 	}
 
 	@Test
@@ -85,12 +69,10 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
 		doNothing().when(requirementService).save(generic);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 
 		controllerMock.createGeneric(generic);
-
-		assertTrue(result.included().containsKey(ContextPlace.PROJECT_PANEL.toString()));
 	}
 
 	@Test
@@ -104,19 +86,9 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 				.projectID(1L)
 				.buildEpic();
 
-		mockI18nMessages("requirement_add_with_success", ContextPlace.PROJECT_PANEL);
-		when(i18nCreator.create(ContextPlace.PROJECT_PANEL, "requirement_add_with_success"))
-		.thenReturn(mock(I18nMessage.class));
-
-		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
-		doNothing().when(requirementService).save(epic);
-		when(i18nCreator.translate("requirement_add_with_success")).thenReturn(i18nCreator);
-
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		controllerMock.createEpic(epic);
-
-		assertTrue(messageHandler.containsMessageOf(ContextPlace.PROJECT_PANEL));
 	}
 
 	@Test
@@ -130,16 +102,12 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 				.projectID(1L)
 				.buildStorie();
 
-		mockI18nMessages("requirement_add_with_success", ContextPlace.PROJECT_PANEL);
-
 		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
 		doNothing().when(requirementService).save(storie);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		controllerMock.createUserStory(storie);
-
-		assertTrue(result.included().containsKey(ContextPlace.PROJECT_PANEL.toString()));
 	}
 
 	@Test
@@ -154,18 +122,13 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 
 		useCase.setFakeActors("Customer");
 
-		mockI18nMessages("requirement_add_with_success", ContextPlace.PROJECT_PANEL);
-
-		when(i18nCreator.translate("requirement_add_with_success")).thenReturn(i18nCreator);
 		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
 		doNothing().when(requirementService).save(useCase);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 
 		controllerMock.createUseCase(useCase);
-
-		assertTrue(result.included().containsKey(ContextPlace.PROJECT_PANEL.toString()));
 	}
 
 	/**
@@ -189,12 +152,10 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
 		doNothing().when(requirementService).save(useCase);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 
 		controllerMock.createUseCase(useCase);
-		
-		assertTrue(validator.hasErrors());
 	}
 
 	/**
@@ -215,8 +176,8 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 		UserSession invalidSessionMock = createInvaliUserSession();
 		formatter = new RequirementFormatter(invalidSessionMock, projectService, kanbanService);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		controllerMock.createGeneric(generic);
 	}
 
@@ -234,10 +195,8 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 				.description("Unit")
 				.buildGeneric();
 
-		when(i18nCreator.translate("project_not_exist")).thenReturn(i18nCreator);
-
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		controllerMock.createGeneric(generic);
 	}
 
@@ -258,15 +217,15 @@ public class RequirementCreatorTest extends UrutaUnitTest {
 
 		when(projectService.find(ownedProject.getId())).thenReturn(ownedProject);
 
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		controllerMock.createGeneric(generic);
 	}
 
 	@Test
 	public void testViews() {
-		RequirementCreator controllerMock = new RequirementCreator(result, messageHandler,
-				errorHandler, requirementService, formatter);
+		RequirementCreator controllerMock = new RequirementCreator(result, flash, flashError,
+				requirementService, formatter);
 		String testValue = String.valueOf(7L);
 
 		controllerMock.generic(testValue);
