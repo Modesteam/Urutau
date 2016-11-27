@@ -38,7 +38,7 @@
 				<c:if test="${index_panel ne null}">
 					<div class="alert alert-success" role="alert">
 						${index_panel}
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+						<button type="button" class="close" onclick="close()">
 				          <span aria-hidden="true">&times;</span>
 				        </button>
 					</div>

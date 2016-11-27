@@ -18,7 +18,10 @@
 		
 		<!-- Bootstrap Core -->
 		<script src="<c:url value='/js/bootstrap.min.js'/>"></script>
-		
+
+		<!-- Interface -->
+		<script src="<c:url value='/js/interface.js'/>"></script>
+
 		<title>Urutau</title>
 	</head>
 	<body>
