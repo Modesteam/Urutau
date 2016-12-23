@@ -55,7 +55,7 @@
    		       		</div>
    		       	</c:if>
 			                 
-	           <form action="user/authenticate" class="form-signin" method="POST">
+	           <form action="<c:url value="user/authenticate"/>" class="form-signin" method="POST">
 					<input name="login" class="form-control" 
 						placeholder="<fmt:message key='user.login'/>" 
 						value="${login}" required autofocus>
