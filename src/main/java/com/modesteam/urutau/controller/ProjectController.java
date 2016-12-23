@@ -33,7 +33,7 @@ import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
-import br.com.caelum.vraptor.validator.Validator;
+import br.com.urutau.vraptor.handler.FlashError;
 import br.com.urutau.vraptor.handler.FlashMessage;
 
 @Controller
@@ -48,8 +48,7 @@ public class ProjectController {
     private final UserService userService;
     private final KanbanService kanbanService;
     private final FlashMessage flash;
-    private final Validator validator;
-
+    private final FlashError flashError;
     /**
      * @deprecated CDI eye only
      */
@@ -60,14 +59,23 @@ public class ProjectController {
     @Inject
     public ProjectController(Result result, UserSession userSession,
     		ProjectService projectService, UserService userService,
-    		KanbanService kanbanService, FlashMessage flash, Validator validator) {
+    		KanbanService kanbanService, FlashMessage flash, FlashError flashError) {
         this.result = result;
         this.userSession = userSession;
         this.userService = userService;
         this.projectService = projectService;
         this.kanbanService = kanbanService;
         this.flash = flash;
-        this.validator = validator;
+        this.flashError = flashError;
+    }
+    
+    /**
+     * Form to create project 
+     */
+    @Get
+    public void create() {
+        // Loads enum with metodology names to populate
+        loadProjectTypes();
     }
 
     /**
@@ -82,34 +90,30 @@ public class ProjectController {
      */
     @Post
     public void create(final @Valid Project project) {
-    	if(!projectService.titleAvaliable(project.getTitle())) {    		
-    		flash.use("modal_error")
-    		.toShow("title_already_in_used")
-    		.redirectTo(ProjectController.class)
-    		.index();
+    	flashError.validate("error");
+    	if(!projectService.titleAvaliable(project.getTitle())) {
+    		result.include("project", project);
+    		flashError.add("title_already_in_used").onErrorRedirectTo(this).create();
+    	} else {
+            try {
+                Project basicProject = retriveWithBasicInformation(project);
+
+                logger.info("Trying create a new project...");
+
+                projectService.save(basicProject);
+
+                // TODO Observe this
+                userSession.getUserLogged().addProject(basicProject);
+
+                flash.use("success").toShow("project_created")
+                	.redirectTo(ProjectController.class).show(basicProject);
+            } catch (CloneNotSupportedException exception) {
+                logger.error("When create a project", exception);
+
+                flashError.add("critical_error").onErrorRedirectTo(ApplicationController.class)
+                	.dificultError();
+            }
     	}
-
-        Project basicProject;
-
-        try {
-            basicProject = retriveWithBasicInformation(project);
-
-            logger.info("Trying create a new project...");
-
-            projectService.save(basicProject);
-
-            // TODO Observe this
-            userSession.getUserLogged().addProject(basicProject);
-
-            flash.use("success").toShow("project_created")
-            	.redirectTo(ProjectController.class).show(basicProject);
-        } catch (CloneNotSupportedException exception) {
-            logger.error("When create a project", exception);
-
-            flash.use("error").toShow("critical_error")
-            	.redirectTo(ApplicationController.class)
-            	.dificultError();
-        }
     }
 
     /**
@@ -172,8 +176,7 @@ public class ProjectController {
     public void update(Project project) {
         // It is needed when project title has change
         Project currentProject = projectService.find(project.getId());
-
-        validator.onErrorRedirectTo(ProjectController.class).edit(currentProject);
+        flashError.getValidator().onErrorRedirectTo(ProjectController.class).edit(currentProject);
 
         projectService.update(project);
 
@@ -242,9 +245,6 @@ public class ProjectController {
     @Get
     @Path(value = "/", priority = Path.HIGH)
     public void index() {
-        // Loads enum with metodology names to populate
-        loadProjectTypes();
-
         List<Project> projects = new ArrayList<Project>();
 
         for (Project project : userSession.getUserLogged().getProjects()) {
