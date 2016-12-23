@@ -95,8 +95,9 @@ public class ProjectController {
     		result.include("project", project);
     		flashError.add("title_already_in_used").onErrorRedirectTo(this).create();
     	} else {
+    		Project basicProject = null;
             try {
-                Project basicProject = retriveWithBasicInformation(project);
+                basicProject = retriveWithBasicInformation(project);
 
                 logger.info("Trying create a new project...");
 
@@ -176,12 +177,12 @@ public class ProjectController {
     public void update(Project project) {
         // It is needed when project title has change
         Project currentProject = projectService.find(project.getId());
+
         flashError.getValidator().onErrorRedirectTo(ProjectController.class).edit(currentProject);
 
         projectService.update(project);
 
-        flash.use("success").toShow("project_updated")
-        	.redirectTo(ProjectController.class).edit(project);
+        flash.use("success").toShow("project_updated").stay();
     }
 
     /**

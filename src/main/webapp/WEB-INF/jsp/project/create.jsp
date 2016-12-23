@@ -36,7 +36,7 @@
 		<input name="project.description" type="text" class="form-control"
 			placeholder="<fmt:message key="project.description"/>" value="${project.description}">
 		
-		<input type="submit" class="btn btn-success btn-group-justified form-control"
+		<input type="submit" class="btn btn-success pull-right"
 			value="<fmt:message key="add"/>" />
 	</form>
 </div>
