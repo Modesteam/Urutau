@@ -40,7 +40,7 @@ public class ReloaderInterceptor {
 	public void intercepts() {
 		manager = factory.createEntityManager();
 		EntityTransaction transaction = null;
-		
+
 		try {
 			transaction = manager.getTransaction();
 			transaction.begin();

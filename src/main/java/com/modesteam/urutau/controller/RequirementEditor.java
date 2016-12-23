@@ -57,7 +57,7 @@ public class RequirementEditor {
 	@Path("/{projectID}/edit/{requirementID}")
 	public void edit(Long projectID, Long requirementID) {
 
-		flashError.validate("project_panel");
+		flashError.validate("error");
 
 		logger.trace("Starting the function edit. Requirement id is " + requirementID);
 
@@ -152,7 +152,7 @@ public class RequirementEditor {
 	public void generic(Generic generic) {
 		Generic requirementManaged = (Generic) requirementService.update(generic);
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -160,7 +160,7 @@ public class RequirementEditor {
 		Feature requirementManaged = (Feature) requirementService.update(feature);
 		requirementManaged.setContent(feature.getContent());
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -168,7 +168,7 @@ public class RequirementEditor {
 		Storie requirementManaged = (Storie) requirementService.update(storie);
 		requirementManaged.setHistory(storie.getHistory());
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -176,7 +176,7 @@ public class RequirementEditor {
 		Epic requirementManaged = (Epic) requirementService.update(epic);
 		requirementManaged.setContent(epic.getContent());
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -184,7 +184,7 @@ public class RequirementEditor {
 		UseCase requirementManaged = (UseCase) requirementService.update(useCase);
 		// TODO specific update
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	/**
@@ -193,10 +193,10 @@ public class RequirementEditor {
 	 * @param requirement
 	 *            recently updated
 	 */
-	private void successfulUpdateOf(Requirement requirement) {
-		flash.use("success_message")
+	private void redirectToPageOf(Requirement requirement) {
+		flash.use("success")
 			.toShow("requirement_updated")
-			.redirectingTo(RequirementEditor.class)
+			.redirectTo(RequirementEditor.class)
 			.edit(requirement.getProject().getId(), requirement.getId());
 	}
 }

@@ -85,7 +85,7 @@ public class ProjectController {
     	if(!projectService.titleAvaliable(project.getTitle())) {    		
     		flash.use("modal_error")
     		.toShow("title_already_in_used")
-    		.redirectingTo(ProjectController.class)
+    		.redirectTo(ProjectController.class)
     		.index();
     	}
 
@@ -101,12 +101,13 @@ public class ProjectController {
             // TODO Observe this
             userSession.getUserLogged().addProject(basicProject);
 
-            result.redirectTo(this).show(basicProject);
+            flash.use("success").toShow("project_created")
+            	.redirectTo(ProjectController.class).show(basicProject);
         } catch (CloneNotSupportedException exception) {
             logger.error("When create a project", exception);
 
             flash.use("error").toShow("critical_error")
-            	.redirectingTo(ApplicationController.class)
+            	.redirectTo(ApplicationController.class)
             	.dificultError();
         }
     }
@@ -127,15 +128,15 @@ public class ProjectController {
         if (projectToDelete == null) {
             logger.debug("The project already deleted or inexistent!");
 
-            flash.use("index_panel").toShow("project_already_deleted");
+            flash.use("warning").toShow("project_already_deleted");
         } else {
         	logger.info("Deleting project name " + projectToDelete.getTitle());
 
             projectService.delete(projectToDelete);
         }
         
-        flash.use("index").toShow("project_deleted")
-        	.redirectingTo(ProjectController.class).index();
+        flash.use("warning").toShow("project_deleted")
+        	.redirectTo(ProjectController.class).index();
     }
 
     /**
@@ -177,7 +178,7 @@ public class ProjectController {
         projectService.update(project);
 
         flash.use("success").toShow("project_updated")
-        	.redirectingTo(ProjectController.class).edit(project);
+        	.redirectTo(ProjectController.class).edit(project);
     }
 
     /**
@@ -211,7 +212,7 @@ public class ProjectController {
 
         if((!targetProject.getId().equals(project.getId()))){
         	flash.use("error").toShow("invalid_link")
-        		.redirectingTo(ProjectController.class).index();
+        		.redirectTo(ProjectController.class).index();
         	return null;
         } else {        	
         	return targetProject;

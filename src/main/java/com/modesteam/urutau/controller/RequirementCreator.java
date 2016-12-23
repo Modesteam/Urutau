@@ -280,8 +280,8 @@ public class RequirementCreator {
 			}
 		}
 
-		flash.use("project_panel").toShow("requirement_add_with_success")
-				.redirectingTo(ProjectController.class).show(requirement.getProject());
+		flash.use("success").toShow("requirement_add_with_success")
+				.redirectTo(ProjectController.class).show(requirement.getProject());
 	}
 
 }

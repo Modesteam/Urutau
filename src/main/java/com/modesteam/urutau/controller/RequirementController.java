@@ -75,9 +75,9 @@ public class RequirementController {
 		Requirement requirement = requirementService.getBy(id, decodedTitle);
 
 		if(requirement == null) {
-			flash.use("project_panel")
+			flash.use("success")
 				.toShow("requirement_no_exist")
-				.redirectingTo(ApplicationController.class)
+				.redirectTo(ApplicationController.class)
 				.dificultError();
 		} else {			
 			result.include(requirement);
@@ -124,11 +124,11 @@ public class RequirementController {
 			exception.printStackTrace();
 			flash.use("error")
 				.toShow("operation_unsuccessful")
-				.redirectingTo(ProjectController.class).show(requirement.getProject().getId());
+				.redirectTo(ProjectController.class).show(requirement.getProject().getId());
 		}
 
-		flash.use("project_panel").toShow("requirement_deleted")
-			.redirectingTo(ProjectController.class)
+		flash.use("success").toShow("requirement_deleted")
+			.redirectTo(ProjectController.class)
 			.show(requirement.getProject().getId());
 	}
 

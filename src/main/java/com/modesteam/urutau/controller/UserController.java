@@ -128,7 +128,7 @@ public class UserController {
 		userSession.logout();
 
 		flash.use("success_message").toShow("user_logout")
-			.redirectingTo(IndexController.class).index();
+			.redirectTo(IndexController.class).index();
 	}
 
 	@View

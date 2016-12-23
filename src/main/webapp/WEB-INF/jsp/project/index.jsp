@@ -35,14 +35,7 @@
 			
 			<div class="col-md-8">
 				<%@ include file="/WEB-INF/layouts/errors.jsp"%>
-				<c:if test="${index_panel ne null}">
-					<div class="alert alert-success" role="alert">
-						${index_panel}
-						<button type="button" class="close" onclick="close()">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-					</div>
-				</c:if>
+				<%@ include file="/WEB-INF/layouts/success.jsp"%>
 			</div>
 		</div>
 

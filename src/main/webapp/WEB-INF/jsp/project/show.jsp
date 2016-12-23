@@ -98,11 +98,7 @@
 			</div>
 		</div>
 
-		<c:if test="${project_panel ne null}">
-			<div class="alert alert-success" role="alert">
-				${project_panel} <span class="close">x</span>
-			</div>
-		</c:if>
+		<%@ include file="/WEB-INF/layouts/success.jsp" %>
 
 		<div class="panel-target">
 			<div class="panel panel-default">
