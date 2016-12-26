@@ -23,3 +23,9 @@
 		</button>
 	</div>
 </c:if>
+
+<!--  JSON messages -->
+<div class="alert alert-json alert-success" role="alert">
+	<span class="message"></span>
+	<a href="#" class="close" onclick="closeAlert()" aria-label="close">x</a>
+</div>

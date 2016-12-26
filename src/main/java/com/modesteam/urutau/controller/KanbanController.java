@@ -47,8 +47,8 @@ public class KanbanController {
 		this.kanbanService = kanbanService;
 		this.projectService = projectService;
 		this.requirementService = requirementService;
-		this.result = result;
 		this.flashMessage = flashMessage;
+		this.result = result;
 	}
 
 	@Get
@@ -91,7 +91,7 @@ public class KanbanController {
 
 		// If not are used, shows success message 
 		if(!result.used()) {
-			flashMessage.use("kanban")
+			flashMessage.use("success")
 				.toShow("successfully_moved_requirement").sendJSON();
 		}
 	}
