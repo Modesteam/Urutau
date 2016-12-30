@@ -209,4 +209,8 @@ public class Project implements Cloneable {
 	public void setPublic(boolean isPublic) {
 		this.isPublic = isPublic;
 	}
+
+	public void loadRequirements() {
+		getRequirements().size();
+	}
 }

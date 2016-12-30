@@ -8,11 +8,20 @@
 		<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
 		</span>&nbsp;<fmt:message key="errors_on_submit"/>
 	</h3>
-	<ul class="alert alert-danger" role="alert">
-		<c:forEach var="error" items="${errors}">
-	    	<li class="error-message">${error.message}</li>
-		</c:forEach>
-	</ul>
+	
+	<c:forEach var="error" items="${errors}">
+		<c:if test="${error.category eq 'error'}">
+			<ul class="alert alert-danger" role="alert">
+				<li class="error-message">${error.message}</li>
+			</ul>
+		</c:if>
+		
+		<c:if test="${error.category eq 'warning'}">
+			<ul class="alert alert-warning" role="alert">
+				<li class="error-message">${error.message}</li>
+			</ul>
+		</c:if>
+	</c:forEach>
 </c:if>
 
 <c:if test="${success ne null}">

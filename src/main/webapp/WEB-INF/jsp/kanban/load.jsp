@@ -6,23 +6,34 @@
 <link href="<c:url value="/css/kanban.css"/>" rel="stylesheet">
 <!-- Specific JS functions for this kanban -->
 <script type="text/javascript" src="<c:url value="/js/kanban.js"/>"></script>
-	
+
+
 <div class="row">
-	<!--
-	
-	<form action='<c:url value="/kanban/createLayer"/>' method="POST">
-		<input type="hidden" name="projectID" value="${project.id}">
-		<input type="text" name="layer.name" placeholder="Layer name">
-		<input type="submit" value="Create layer">
-	</form>
-	-->
-
 	<h1>${project.title} Kanban</h1>
-	
-	<%@ include file="/WEB-INF/layouts/messages.jsp"%>
 
-	<section class="kanban">
+	<div class="col-md-9">
+		<%@ include file="/WEB-INF/layouts/messages.jsp"%>
+	</div>
 	
+	<div class="col-md-3">
+		<div class="btn-group">
+	    	<button type="button" class="btn btn-primary dropdown-toggle" 
+	    		data-toggle="dropdown">Add Label <span class="glyphicon glyphicon-plus"></span></button>
+	    	<div class="dropdown-menu" role="menu">
+    			<div class="form-group form-widget">
+			    	<form action="<c:url value="/kanban/createLayer"/>" method="POST">
+						<input type="hidden" name="projectID" value="${project.id}"/>
+						<input type="text" name="layer.name" placeholder="Layer name" class="form-control"/>
+						<input type="submit" value="Save"  class="form-control btn btn-success"/>
+					</form>
+				</div>
+	    	</div>
+		</div>
+	</div>
+</div>
+
+<section class="kanban">
+	<div class="row">
 		<c:forEach items="${project.layers}" var="layer">
 			<div class="layer" ondrop="drop(event, ${layer.layerID})"
 				ondragover="allowDrop(event)" id="div1">
@@ -43,6 +54,6 @@
 					</c:if>
 				</c:forEach>
 			</div>
-		</c:forEach>		
-	</section>
-</div>
+		</c:forEach>
+	</div>		
+</section>

@@ -2,6 +2,7 @@
 	min-height: 100%; /* Minimum height for modern browsers */
 	height: 80%; /* Minimum height for IE */
 	border-top: solid 1px #DCDCDC;
+	margin-top: 10px;
 }
 
 .layer {
@@ -25,4 +26,8 @@
 	margin-bottom: 5px;
 	min-width: 150px;
 	background-color: #F2F5A9;
+}
+
+.form-widget {
+	padding: 10px;
 }
