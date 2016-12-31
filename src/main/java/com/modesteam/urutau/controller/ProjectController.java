@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.ReloadUser;
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
@@ -73,6 +74,7 @@ public class ProjectController {
      * Form to create project 
      */
     @Get
+    @Restrict
     public void create() {
         // Loads enum with metodology names to populate
         loadProjectTypes();
@@ -89,6 +91,7 @@ public class ProjectController {
      * @throws CloneNotSupportedException
      */
     @Post
+    @Restrict
     public void create(final @Valid Project project) {
     	flashError.validate("error");
     	if(!projectService.titleAvaliable(project.getTitle())) {
@@ -125,6 +128,7 @@ public class ProjectController {
      */
     @ReloadUser
     @Delete("/project")
+    @Restrict
     public void delete(final Project project) {
         logger.info("The project with id " + project.getId() + " was solicitated for exclusion");
 
@@ -152,6 +156,7 @@ public class ProjectController {
      */
     @View
     @Get("/{project.title}/edit")
+    @Restrict
     public void edit(final Project project) {
         Project requestedProject = null;
 
@@ -174,6 +179,7 @@ public class ProjectController {
      */
     @ReloadUser
     @Put("/{project.id}/setting")
+    @Restrict
     public void update(Project project) {
         // It is needed when project title has change
         Project currentProject = projectService.find(project.getId());

@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Project;
@@ -72,6 +73,7 @@ public class KanbanController {
 	 * @param layerID identifier of layer target
 	 */
 	@Post("/kanban/move")
+	@Restrict
 	public void move(final Long requirementID, final Long layerID) throws Exception {
 
 		logger.info("Requesting the move of one requirement");
@@ -110,6 +112,7 @@ public class KanbanController {
 	 * @throws Exception
 	 */
 	@Post
+	@Restrict
 	public void createLayer(final Long projectID, final Layer layer) {
 		logger.info("Adding new column in kanban that have projectID " + projectID);
 
@@ -135,10 +138,12 @@ public class KanbanController {
 		flashMessage.use("success").toShow("column_added");
 	}
 
+	@Restrict
 	public void deleteLayer() {
 	    // TODO
 	}
 
+	@Restrict
 	public void updateLayer() {
 	    // TODO
 	}

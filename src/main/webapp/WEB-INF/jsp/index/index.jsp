@@ -41,21 +41,8 @@
 	            	</p>
             </div>
 			<div class="col-xs-6 col-md-3">
-				<c:forEach var="error" items="${errors}">
-	            	<c:if test="${error.category eq 'login'}">
-		            	<!-- Show only login errors -->
-		            	<div class="alert alert-danger text-center" role="alert">
-		            		${error.message}
-		            	</div>
-	            	</c:if>
-				</c:forEach>
-				<c:if test="${success_message ne null}">
-   		       		<div class="alert alert-success text-center" role="alert">
-   		       			${success_message}
-   		       		</div>
-   		       	</c:if>
-			                 
-	           <form action="<c:url value="user/authenticate"/>" class="form-signin" method="POST">
+				<%@ include file="/WEB-INF/layouts/success.jsp" %>
+				<form action="<c:url value="user/authenticate"/>" class="form-signin" method="POST">
 					<input name="login" class="form-control" 
 						placeholder="<fmt:message key='user.login'/>" 
 						value="${login}" required autofocus>

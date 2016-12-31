@@ -10,6 +10,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.service.RequirementService;
@@ -109,6 +110,7 @@ public class RequirementController {
 	 * This method is used to delete one requirement
 	 */
 	@Delete("/requirement")
+	@Restrict
 	public void delete(Long requirementID) {
 		logger.info("The artifact with the id " + requirementID + " is solicitated for exclusion");
 

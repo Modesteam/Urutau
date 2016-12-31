@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.formatter.RequirementFormatter;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
@@ -33,6 +34,7 @@ import br.com.urutau.vraptor.handler.FlashMessage;
  */
 @Controller
 @Path("/requirement")
+@Restrict
 public class RequirementCreator {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequirementCreator.class);

@@ -7,15 +7,15 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-				
+
 		<!-- Bootstrap min css -->
 		<link href="<c:url value='/css/bootstrap.min.css'/>" rel="stylesheet">
 
 		<link href="<c:url value='/css/stylesheet.css'/>" rel="stylesheet">
-		
+
 		<!-- jQuery -->
 		<script src="<c:url value='/js/jquery-2.2.2.min.js'/>"></script>
-		
+
 		<!-- Bootstrap Core -->
 		<script src="<c:url value='/js/bootstrap.min.js'/>"></script>
 
@@ -64,7 +64,7 @@
 											</li>
 							          		<li class="divider"></li>
 							          		<li>
-							          			<a href="<c:url value='${linkTo[IndexController].index}'/>">
+							          			<a href="<c:url value="/"/>">
 							          				<fmt:message key="sign_in"/>
 							          			</a>
 							          		</li>

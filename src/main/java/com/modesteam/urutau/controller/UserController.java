@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.UserSession;
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.service.UserService;
@@ -84,6 +85,7 @@ public class UserController {
 	 */
 	@Post
 	@Path("/administratorSettings")
+	@Restrict
 	public void administratorSettings(UrutaUser user) {
 		UrutaUser logged = userSession.getUserLogged();
 		logged.setLogin(user.getLogin());

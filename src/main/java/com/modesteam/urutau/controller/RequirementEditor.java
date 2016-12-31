@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Epic;
@@ -25,6 +26,7 @@ import br.com.urutau.vraptor.handler.FlashError;
 import br.com.urutau.vraptor.handler.FlashMessage;
 
 @Controller
+@Restrict
 public class RequirementEditor {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequirementCreator.class);

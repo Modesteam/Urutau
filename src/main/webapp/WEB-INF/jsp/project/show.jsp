@@ -32,9 +32,10 @@
 
 				<ul class="nav requirement-create-type" id="side-menu">
 					<li><a href="javascript:;" data-toggle="collapse"
-						data-target="#demo" class="default-option"><fmt:message
-								key="create_requirement" /></a>
-						<ul id="demo" class="collapse list-unstyled suboption">
+							data-target="#types" class="default-option">
+							<fmt:message key="create_requirement" />
+						</a>
+						<ul id="types" class="collapse list-unstyled suboption">
 							<c:if test="${project.isGeneric()}">
 								<li><a href="<c:url value="/requirement/generic/${project.id}"/>" id="generic">
 									Generic Requirement </a></li>
@@ -59,7 +60,8 @@
 								<li><a href="<c:url value="/requirement/useCase/${project.id}"/>">
 									Use Case </a></li>
 							</c:if>
-						</ul></li>
+						</ul>
+					</li>
 
 					<li id="link-show-kanban"><a
 						href="<c:url value='kanban/${project.id}'/>"
