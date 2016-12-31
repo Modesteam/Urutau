@@ -4,6 +4,10 @@
 
 <!--  Special Kanban stylesheet-->
 <link href="<c:url value="/css/kanban.css"/>" rel="stylesheet">
+
+<!--  CSS plugin to view horizon -->
+<link href="<c:url value="/css/bootstrap-horizon.css"/>" rel="stylesheet">
+
 <!-- Specific JS functions for this kanban -->
 <script type="text/javascript" src="<c:url value="/js/kanban.js"/>"></script>
 
@@ -33,9 +37,9 @@
 </div>
 
 <section class="kanban">
-	<div class="row">
+	<div class="row row-horizon">
 		<c:forEach items="${project.layers}" var="layer">
-			<div class="layer" ondrop="drop(event, ${layer.layerID})"
+			<div class="layer col-md-3" ondrop="drop(event, ${layer.layerID})"
 				ondragover="allowDrop(event)" id="div1">
 				<h2>${layer.name}</h2>
 				<c:forEach items="${project.requirements}" var="requirement">
@@ -55,5 +59,5 @@
 				</c:forEach>
 			</div>
 		</c:forEach>
-	</div>		
+	</div>
 </section>
