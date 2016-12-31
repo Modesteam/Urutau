@@ -43,7 +43,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		doNothing().when(projectService).save(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.create(project);
 	}
@@ -60,7 +60,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.titleAvaliable(SOME_STRING)).thenReturn(false);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.create(project);
 	}
@@ -74,7 +74,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		doNothing().when(projectService).delete(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.delete(project);
 	}
@@ -87,7 +87,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		doNothing().when(projectService).delete(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.delete(project);
 	}
@@ -104,7 +104,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(Searchable.TITLE, SOME_STRING)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.edit(project);
 	}
@@ -123,7 +123,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.update(project)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.update(project);
 	}
@@ -141,7 +141,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 				.thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		Assert.assertEquals(controllerMock.show(project), project);
 	}
@@ -158,7 +158,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(projectService.find(1L)).thenReturn(project);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.show(1L);
 	}
@@ -178,7 +178,7 @@ public class ProjectControllerTest extends UrutaUnitTest {
 		when(userSession.getUserLogged().getProjects()).thenReturn(projects);
 
 		ProjectController controllerMock = new ProjectController(result, userSession,
-				projectService, userService, kanbanService, flash, validator);
+				projectService, userService, kanbanService, flash, flashError);
 
 		controllerMock.index();
 	}

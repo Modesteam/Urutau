@@ -15,10 +15,9 @@ import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.test.UrutaUnitTest;
 
-public class KanbanControllerTest extends UrutaUnitTest {
+import br.com.caelum.vraptor.validator.ValidationException;
 
-	private static final Long STUB_LONG_NUMBER = 1L;
-	private static final Long VALID_PROJECT_ID = 1L;
+public class KanbanControllerTest extends UrutaUnitTest {
 
 	@Before
 	public void setUp() {
@@ -28,12 +27,12 @@ public class KanbanControllerTest extends UrutaUnitTest {
 	@Test
 	public void testLoadValid() throws Exception {
 		Project project = new Project();
-		project.setId(VALID_PROJECT_ID);
+		project.setId(1L);
 
 		when(projectService.find(project.getId())).thenReturn(mock(Project.class));
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash);
+				requirementService, result, flash, flashError);
 
 		controller.load(project);
 	}
@@ -42,66 +41,81 @@ public class KanbanControllerTest extends UrutaUnitTest {
 	public void testValidMove() throws Exception {
 		Requirement requirement = createAnMockRequirement();
 
-		when(requirementService.find(STUB_LONG_NUMBER)).thenReturn(requirement);
+		when(requirementService.find(1L)).thenReturn(requirement);
 
-		when(kanbanService.getLayerByID(STUB_LONG_NUMBER)).thenReturn(mock(Layer.class));
+		when(kanbanService.getLayerByID(1L)).thenReturn(mock(Layer.class));
 
 		when(requirementService.update(requirement)).thenReturn(requirement);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash);
+				requirementService, result, flash, flashError);
 
-		controller.move(STUB_LONG_NUMBER, STUB_LONG_NUMBER);
+		controller.move(1L, 1L);
 	}
 
 	@Test
 	public void testInvalidMove() throws Exception {
 		Requirement requirement = createAnMockRequirement();
 
-		when(requirementService.find(STUB_LONG_NUMBER)).thenReturn(requirement);
-		when(kanbanService.getLayerByID(STUB_LONG_NUMBER)).thenReturn(mock(Layer.class));
+		when(requirementService.find(1L)).thenReturn(requirement);
+		when(kanbanService.getLayerByID(1L)).thenReturn(mock(Layer.class));
 
 		doThrow(IllegalArgumentException.class).when(requirementService).update(requirement);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash);
+				requirementService, result, flash, flashError);
 
-		controller.move(STUB_LONG_NUMBER, STUB_LONG_NUMBER);
+		controller.move(1L, 1L);
 	}
 
 	@Test
 	public void testCreateValidLayer() throws Exception {
 		Layer mockLayer = mock(Layer.class);
-
+		when(mockLayer.getName()).thenReturn(SOME_STRING);
+		
 		Project mockProject = mock(Project.class);
 		mockProject.add(mockLayer);
 
-		when(projectService.find(VALID_PROJECT_ID)).thenReturn(mockProject);
+		when(projectService.find(1L)).thenReturn(mockProject);
 
 		doNothing().when(kanbanService).create(mockLayer);
 		when(projectService.update(mockProject)).thenReturn(mockProject);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash);
+				requirementService, result, flash, flashError);
 
-		controller.createLayer(VALID_PROJECT_ID, mockLayer);
+		controller.createLayer(1L, mockLayer);
 	}
 
-	@Test
-	public void testCreateInvalidLayer() {
+	@Test(expected=ValidationException.class)
+	public void testCreateInvalidLayerWithWrongData() {
 		Layer mockLayer = mock(Layer.class);
 
 		Project mockProject = mock(Project.class);
 		mockProject.add(mockLayer);
 
-		when(projectService.find(VALID_PROJECT_ID)).thenReturn(mockProject);
+		KanbanController controller = new KanbanController(kanbanService, projectService,
+				requirementService, result, flash, flashError);
+
+		controller.createLayer(-1L, mockLayer);
+	}
+	
+	@Test
+	public void testCreateInvalidLayer() {
+		Layer mockLayer = mock(Layer.class);
+		when(mockLayer.getName()).thenReturn(SOME_STRING);
+
+		Project mockProject = mock(Project.class);
+		mockProject.add(mockLayer);
+
+		when(projectService.find(1L)).thenReturn(mockProject);
 
 		doThrow(SystemBreakException.class).when(kanbanService).create(mockLayer);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash);
+				requirementService, result, flash, flashError);
 
-		controller.createLayer(VALID_PROJECT_ID, mockLayer);
+		controller.createLayer(1L, mockLayer);
 
 		Assert.assertTrue(result.used());
 	}
@@ -111,7 +125,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 
 		Project mockProject = mock(Project.class);
 
-		when(mockProject.getId()).thenReturn(STUB_LONG_NUMBER);
+		when(mockProject.getId()).thenReturn(1L);
 
 		when(requirement.getProject()).thenReturn(mock(Project.class));
 

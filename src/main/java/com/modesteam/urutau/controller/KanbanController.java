@@ -150,7 +150,7 @@ public class KanbanController {
 	private void validateLayer(Long projectID, Layer layer) {
 		flashError.validate("error");
 
-		if (projectID <=0) {
+		if (projectID <= 0) {
 			flashError.add("unsucessful_operation");
 		} else if(layer == null || layer.getName() == null) {
 			flashError.add("invalid_column");
