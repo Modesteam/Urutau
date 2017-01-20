@@ -24,13 +24,16 @@ public class LoginInterceptor implements Interceptor {
 	public LoginInterceptor() {
 		this(null, null);
 	}
-	
+
 	@Inject
 	public LoginInterceptor(FlashMessage flash, UserSession userSession) {
 		this.flash = flash;
 		this.userSession = userSession;
 	}
 
+	/**
+	 * When user is logged should proceed, if not redirects to login
+	 */
 	@Override
 	public void intercept(InterceptorStack stack, ControllerMethod method,
 			Object controllerInstance) throws InterceptionException {
@@ -42,6 +45,10 @@ public class LoginInterceptor implements Interceptor {
 			}
 	}
 
+	/**
+	 * See if method or controller class have {@link Restrict} annotation
+	 * to accepts this interception or not.
+	 */
 	@Override
 	public boolean accepts(ControllerMethod method) {
 		boolean isRestrict = method.containsAnnotation(Restrict.class);

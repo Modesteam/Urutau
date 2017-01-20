@@ -152,6 +152,7 @@ public class UserController {
 		if(registerValidator.hasNullField()) {
 			flashError.add("all_fields_required");
 		}
+
 		// Above error should redirect to index
 		flashError.getValidator().onErrorRedirectTo(IndexController.class).index();
 

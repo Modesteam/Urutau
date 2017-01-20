@@ -20,6 +20,15 @@ public class RegisterValidator {
 	public boolean validPasswordConfirmation() {
 		String original = user.getPassword();
 		String confirmation = user.getPasswordVerify();
-		return original == confirmation;
+
+		boolean isEquals = false;
+
+		try {
+			isEquals = original.equals(confirmation);
+		} catch(NullPointerException npe) {
+			isEquals = false;
+		}
+
+		return isEquals;
 	}
 }

@@ -1,5 +1,6 @@
 package com.modesteam.urutau.controller;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 
 import org.slf4j.Logger;
@@ -34,24 +35,26 @@ public class KanbanController {
 	private final Result result;
 	private final FlashMessage flashMessage;
 	private final FlashError flashError;
+	private final Event<Project> privacyEvent;
 	
 	/**
 	 * @deprecated CDI
 	 */
 	public KanbanController() {
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null);
 	}
 
 	@Inject
 	public KanbanController(KanbanService kanbanService, ProjectService projectService, 
 			RequirementService requirementService,  Result result,
-			FlashMessage flashMessage,  FlashError flashError) {
+			FlashMessage flashMessage,  FlashError flashError, Event<Project> privacyEvent) {
 		this.kanbanService = kanbanService;
 		this.projectService = projectService;
 		this.requirementService = requirementService;
 		this.flashMessage = flashMessage;
 		this.flashError = flashError;
 		this.result = result;
+		this.privacyEvent = privacyEvent;
 	}
 
 	@Get
@@ -59,7 +62,9 @@ public class KanbanController {
 	public void load(final Project project) {
 
 		Project currentProject = projectService.find(project.getId());
-		
+
+		privacyEvent.fire(project);
+
 		currentProject.loadRequirements();
 
 		// Put a current project as project in result

@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
@@ -50,17 +51,20 @@ public class ProjectController {
     private final KanbanService kanbanService;
     private final FlashMessage flash;
     private final FlashError flashError;
+    private final Event<Project> privacyEvent;
+
     /**
      * @deprecated CDI eye only
      */
     public ProjectController() {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     @Inject
     public ProjectController(Result result, UserSession userSession,
     		ProjectService projectService, UserService userService,
-    		KanbanService kanbanService, FlashMessage flash, FlashError flashError) {
+    		KanbanService kanbanService, FlashMessage flash, 
+    		FlashError flashError, Event<Project> event) {
         this.result = result;
         this.userSession = userSession;
         this.userService = userService;
@@ -68,6 +72,7 @@ public class ProjectController {
         this.kanbanService = kanbanService;
         this.flash = flash;
         this.flashError = flashError;
+        this.privacyEvent = event;
     }
     
     /**
@@ -94,6 +99,7 @@ public class ProjectController {
     @Restrict
     public void create(final @Valid Project project) {
     	flashError.validate("error");
+
     	if(!projectService.titleAvaliable(project.getTitle())) {
     		result.include("project", project);
     		flashError.add("title_already_in_used").onErrorRedirectTo(this).create();
@@ -208,6 +214,8 @@ public class ProjectController {
     @Path("/{project.id}-{project.title}")
     public Project show(Project project) {
         String titleDecoded = null;
+
+        privacyEvent.fire(project);        
 
         try {
             titleDecoded = URLDecoder.decode(project.getTitle(), StandardCharsets.UTF_8.name());

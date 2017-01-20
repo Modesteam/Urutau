@@ -152,4 +152,17 @@ public class UrutaUser {
     public void addProject(Project basicProject) {
         this.projects.add(basicProject);
     }
+
+	public boolean isMemberOf(Project project) {
+		boolean isMember = false;
+
+		for(Project p : projects) {
+			if(p.getId() == project.getId()) {
+				isMember = true;
+				break;
+			}
+		}
+
+		return isMember;
+	}
 }
