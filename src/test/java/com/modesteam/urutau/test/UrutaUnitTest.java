@@ -19,10 +19,10 @@ import com.modesteam.urutau.service.UserService;
 
 import br.com.caelum.vraptor.util.test.MockResult;
 import br.com.caelum.vraptor.util.test.MockValidator;
-import br.com.urutau.vraptor.handler.FlashError;
-import br.com.urutau.vraptor.handler.FlashMessage;
-import br.com.urutau.vraptor.test.MockFlash;
-import br.com.urutau.vraptor.test.MockFlashError;
+import io.github.projecturutau.vraptor.handler.FlashError;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
+import io.github.projecturutau.vraptor.test.MockFlash;
+import io.github.projecturutau.vraptor.test.MockFlashError;
 
 /**
  * Have some test methods reusable in many places

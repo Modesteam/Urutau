@@ -20,8 +20,9 @@ import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
-import br.com.urutau.vraptor.handler.FlashError;
-import br.com.urutau.vraptor.handler.FlashMessage;
+import io.github.projecturutau.vraptor.handler.FlashError;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
+
 
 /**
  * This controller have actions directly connect to user

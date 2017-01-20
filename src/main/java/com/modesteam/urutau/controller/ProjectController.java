@@ -35,8 +35,8 @@ import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
-import br.com.urutau.vraptor.handler.FlashError;
-import br.com.urutau.vraptor.handler.FlashMessage;
+import io.github.projecturutau.vraptor.handler.FlashError;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
 
 @Controller
 public class ProjectController {
