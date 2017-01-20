@@ -32,7 +32,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		when(projectService.find(project.getId())).thenReturn(mock(Project.class));
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash, flashError);
+				requirementService, result, flash, flashError, event);
 
 		controller.load(project);
 	}
@@ -48,7 +48,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		when(requirementService.update(requirement)).thenReturn(requirement);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash, flashError);
+				requirementService, result, flash, flashError, event);
 
 		controller.move(1L, 1L);
 	}
@@ -63,7 +63,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		doThrow(IllegalArgumentException.class).when(requirementService).update(requirement);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash, flashError);
+				requirementService, result, flash, flashError, event);
 
 		controller.move(1L, 1L);
 	}
@@ -82,7 +82,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		when(projectService.update(mockProject)).thenReturn(mockProject);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash, flashError);
+				requirementService, result, flash, flashError, event);
 
 		controller.createLayer(1L, mockLayer);
 	}
@@ -95,7 +95,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		mockProject.add(mockLayer);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash, flashError);
+				requirementService, result, flash, flashError, event);
 
 		controller.createLayer(-1L, mockLayer);
 	}
@@ -113,7 +113,7 @@ public class KanbanControllerTest extends UrutaUnitTest {
 		doThrow(SystemBreakException.class).when(kanbanService).create(mockLayer);
 
 		KanbanController controller = new KanbanController(kanbanService, projectService,
-				requirementService, result, flash, flashError);
+				requirementService, result, flash, flashError, event);
 
 		controller.createLayer(1L, mockLayer);
 

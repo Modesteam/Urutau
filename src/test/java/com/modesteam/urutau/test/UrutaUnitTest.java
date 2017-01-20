@@ -3,6 +3,8 @@ package com.modesteam.urutau.test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import javax.enterprise.event.Event;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.junit.Before;
@@ -43,6 +45,8 @@ public abstract class UrutaUnitTest {
 	protected RequirementFormatter formatter;
 	protected FlashMessage flash;
 	protected FlashError flashError;
+	// for some event needed
+	protected Event event;
 
 	/**
 	 * You need put {@link Before} annotation into setUp in child.
@@ -68,6 +72,8 @@ public abstract class UrutaUnitTest {
 		flashError = new MockFlashError();
 
 		formatter = new RequirementFormatter(userSession, projectService, kanbanService);
+
+		event = mock(Event.class);
 
 		// Session
 		UrutaUser userLogged = mock(UrutaUser.class);
