@@ -1,13 +1,13 @@
 package com.modesteam.urutau.controller;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.modesteam.urutau.builder.ArtifactBuilder;
-import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
 import com.modesteam.urutau.model.Generic;
@@ -16,7 +16,6 @@ import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.Storie;
 import com.modesteam.urutau.model.UseCase;
 import com.modesteam.urutau.model.system.ArtifactType;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.test.UrutaUnitTest;
 
 import br.com.caelum.vraptor.validator.ValidationException;
@@ -28,8 +27,6 @@ public class RequirementEditorTest extends UrutaUnitTest {
 	@Before
 	public void setUp() {
 		super.setup();
-
-		mockI18nMessages("requirement_updated", ContextPlace.SUCCESS_MESSAGE);
 	}
 
 	/**
@@ -50,8 +47,7 @@ public class RequirementEditorTest extends UrutaUnitTest {
 
 		when(requirementService.update(epic)).thenReturn(epic);
 
-		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+		RequirementEditor controller = new RequirementEditor(result, requirementService, flash, flashError);
 
 		controller.epic(epic);
 	}
@@ -72,8 +68,7 @@ public class RequirementEditorTest extends UrutaUnitTest {
 
 		when(requirementService.update(generic)).thenReturn(generic);
 
-		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+		RequirementEditor controller = new RequirementEditor(result, requirementService, flash, flashError);
 
 		controller.generic(generic);
 
@@ -96,7 +91,7 @@ public class RequirementEditorTest extends UrutaUnitTest {
 		when(requirementService.update(feature)).thenReturn(feature);
 
 		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+				flash, flashError);
 
 		controller.feature(feature);
 
@@ -119,7 +114,7 @@ public class RequirementEditorTest extends UrutaUnitTest {
 		when(requirementService.update(useCase)).thenReturn(useCase);
 
 		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+				flash, flashError);
 
 		controller.useCase(useCase);
 
@@ -142,7 +137,7 @@ public class RequirementEditorTest extends UrutaUnitTest {
 		when(requirementService.update(storie)).thenReturn(storie);
 
 		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+				flash, flashError);
 
 		controller.storie(storie);
 
@@ -153,10 +148,9 @@ public class RequirementEditorTest extends UrutaUnitTest {
 		Long requirementID = 1L;
 		when(requirementService.exists(requirementID)).thenReturn(false);
 
-		mockI18nMessages("requirement_inexistent", ContextPlace.PROJECT_PANEL);
-
 		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+				flash, flashError);
+
 		controller.edit(1L, requirementID);
 		
 		Assert.assertFalse(validator.getErrors().isEmpty());
@@ -178,7 +172,8 @@ public class RequirementEditorTest extends UrutaUnitTest {
 		when(requirementService.find(requirementID)).thenReturn(mockRequirement);
 
 		RequirementEditor controller = new RequirementEditor(result, requirementService,
-				messageHandler, errorHandler);
+				flash, flashError);
+
 		controller.edit(projectID, requirementID);
 	}
 
@@ -201,7 +196,8 @@ public class RequirementEditorTest extends UrutaUnitTest {
 			when(mockRequirement.getType()).thenReturn(types.name().toLowerCase());
 
 			RequirementEditor controller = new RequirementEditor(result, requirementService,
-					messageHandler, errorHandler);
+					flash, flashError);
+
 			controller.edit(projectID, requirementID);
 		}
 	}

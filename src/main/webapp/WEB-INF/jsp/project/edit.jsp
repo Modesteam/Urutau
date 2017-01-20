@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
+<%@ include file="/WEB-INF/layouts/messages.jsp"%>
+
 <div class="row">
 	<div class="col-md-6 col-md-offset-3 border-bottom">
 		<h1>${project.title} Settings</h1>

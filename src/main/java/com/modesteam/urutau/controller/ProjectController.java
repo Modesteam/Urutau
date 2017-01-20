@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
 import javax.validation.Valid;
 
@@ -16,13 +17,11 @@ import org.slf4j.LoggerFactory;
 
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.ReloadUser;
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Project.Searchable;
 import com.modesteam.urutau.model.UrutaUser;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.model.system.MetodologyEnum;
 import com.modesteam.urutau.service.KanbanService;
@@ -36,6 +35,8 @@ import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
+import io.github.projecturutau.vraptor.handler.FlashError;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
 
 @Controller
 public class ProjectController {
@@ -48,32 +49,44 @@ public class ProjectController {
     private final ProjectService projectService;
     private final UserService userService;
     private final KanbanService kanbanService;
-    private final ErrorMessageHandler errorHandler;
-    private final MessageHandler messageHandler;
+    private final FlashMessage flash;
+    private final FlashError flashError;
+    private final Event<Project> privacyEvent;
 
     /**
      * @deprecated CDI eye only
      */
     public ProjectController() {
-        this(null, null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null, null);
     }
 
     @Inject
     public ProjectController(Result result, UserSession userSession,
     		ProjectService projectService, UserService userService,
-    		KanbanService kanbanService,
-    		ErrorMessageHandler errorHandler, MessageHandler messageHandler) {
+    		KanbanService kanbanService, FlashMessage flash, 
+    		FlashError flashError, Event<Project> event) {
         this.result = result;
         this.userSession = userSession;
         this.userService = userService;
         this.projectService = projectService;
         this.kanbanService = kanbanService;
-        this.errorHandler = errorHandler;
-        this.messageHandler = messageHandler;
+        this.flash = flash;
+        this.flashError = flashError;
+        this.privacyEvent = event;
+    }
+    
+    /**
+     * Form to create project 
+     */
+    @Get
+    @Restrict
+    public void create() {
+        // Loads enum with metodology names to populate
+        loadProjectTypes();
     }
 
     /**
-     * Method for create one project with what gonna have requirements inside
+     * Method for create project
      * 
      * @param project
      *            to be persisted
@@ -83,35 +96,34 @@ public class ProjectController {
      * @throws CloneNotSupportedException
      */
     @Post
+    @Restrict
     public void create(final @Valid Project project) {
-    	errorHandler.validates(ContextPlace.MODAL_ERROR);
-    	errorHandler.when(!projectService.titleAvaliable(project.getTitle()))
-    		.show("title_already_in_used")
-    		.redirectingTo(ProjectController.class)
-    		.index();
+    	flashError.validate("error");
 
-        Project basicProject;
+    	if(!projectService.titleAvaliable(project.getTitle())) {
+    		result.include("project", project);
+    		flashError.add("title_already_in_used").onErrorRedirectTo(this).create();
+    	} else {
+    		Project basicProject = null;
+            try {
+                basicProject = retriveWithBasicInformation(project);
 
-        try {
-            basicProject = retriveWithBasicInformation(project);
+                logger.info("Trying create a new project...");
 
-            logger.info("Trying create a new project...");
+                projectService.save(basicProject);
 
-            projectService.save(basicProject);
+                // TODO Observe this
+                userSession.getUserLogged().addProject(basicProject);
 
-            // TODO Observe this
-            userSession.getUserLogged().addProject(basicProject);
+                flash.use("success").toShow("project_created")
+                	.redirectTo(ProjectController.class).show(basicProject);
+            } catch (CloneNotSupportedException exception) {
+                logger.error("When create a project", exception);
 
-            result.redirectTo(this).show(basicProject);
-        } catch (CloneNotSupportedException exception) {
-            logger.error("When create a project", exception);
-
-            errorHandler.validates(ContextPlace.ERROR);
-            errorHandler
-            	.add("critical_error")
-            	.redirectingTo((ApplicationController.class))
-            	.dificultError();
-        }
+                flashError.add("critical_error").onErrorRedirectTo(ApplicationController.class)
+                	.dificultError();
+            }
+    	}
     }
 
     /**
@@ -122,6 +134,7 @@ public class ProjectController {
      */
     @ReloadUser
     @Delete("/project")
+    @Restrict
     public void delete(final Project project) {
         logger.info("The project with id " + project.getId() + " was solicitated for exclusion");
 
@@ -130,18 +143,14 @@ public class ProjectController {
         if (projectToDelete == null) {
             logger.debug("The project already deleted or inexistent!");
 
-            errorHandler.validates(ContextPlace.INDEX_PANEL);
-            errorHandler.add("project_already_deleted");
+            flash.use("warning").toShow("project_already_deleted");
         } else {
         	logger.info("Deleting project name " + projectToDelete.getTitle());
 
             projectService.delete(projectToDelete);
         }
-
-        errorHandler.redirectingTo(ProjectController.class).index();
         
-        messageHandler.use(ContextPlace.INDEX_PANEL)
-        	.show("project_deleted")
+        flash.use("warning").toShow("project_deleted")
         	.redirectTo(ProjectController.class).index();
     }
 
@@ -153,6 +162,7 @@ public class ProjectController {
      */
     @View
     @Get("/{project.title}/edit")
+    @Restrict
     public void edit(final Project project) {
         Project requestedProject = null;
 
@@ -175,14 +185,16 @@ public class ProjectController {
      */
     @ReloadUser
     @Put("/{project.id}/setting")
+    @Restrict
     public void update(Project project) {
         // It is needed when project title has change
         Project currentProject = projectService.find(project.getId());
-        errorHandler.redirectingTo(ProjectController.class).edit(currentProject);
+
+        flashError.getValidator().onErrorRedirectTo(ProjectController.class).edit(currentProject);
 
         projectService.update(project);
 
-        result.redirectTo(this).edit(project);
+        flash.use("success").toShow("project_updated").stay();
     }
 
     /**
@@ -203,6 +215,8 @@ public class ProjectController {
     public Project show(Project project) {
         String titleDecoded = null;
 
+        privacyEvent.fire(project);        
+
         try {
             titleDecoded = URLDecoder.decode(project.getTitle(), StandardCharsets.UTF_8.name());
         } catch (UnsupportedEncodingException e) {
@@ -214,15 +228,13 @@ public class ProjectController {
 
         Project targetProject = projectService.find(Searchable.TITLE, titleDecoded);
 
-        // TODO rewrite this error message
-        errorHandler.validates(ContextPlace.ERROR);
-        errorHandler
-        	.when(!(targetProject.getId().equals(project.getId())))
-        	.show("invalid_link")
-        	.redirectingTo(ProjectController.class)
-        	.index();;
-
-        return targetProject;
+        if((!targetProject.getId().equals(project.getId()))){
+        	flash.use("error").toShow("invalid_link")
+        		.redirectTo(ProjectController.class).index();
+        	return null;
+        } else {        	
+        	return targetProject;
+        }
     }
 
     /**
@@ -248,9 +260,6 @@ public class ProjectController {
     @Get
     @Path(value = "/", priority = Path.HIGH)
     public void index() {
-        // Loads enum with metodology names to populate
-        loadProjectTypes();
-
         List<Project> projects = new ArrayList<Project>();
 
         for (Project project : userSession.getUserLogged().getProjects()) {

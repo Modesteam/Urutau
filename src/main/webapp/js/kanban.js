@@ -33,14 +33,16 @@ function drop(ev, layerID) {
 	  },
 	  dataType : "JSON",
 	  success : function(result) {
-	    $(".alert-message").html(result);
-		$(".alert").show();
+		  console.log(result[1]);
+		  $(".message").html(result[1]);
+		  // unique .alert div
+		  $(".alert-json").fadeIn( "slow" );  
 	  }
   });
 }
 
 function closeAlert() {
-  $(".alert").hide();
+  $(".alert-json").hide();
 }
 
 $(document).ready(function() {

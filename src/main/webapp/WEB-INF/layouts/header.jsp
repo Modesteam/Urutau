@@ -7,18 +7,21 @@
 <html>
 	<head>
 		<meta charset="UTF-8">
-				
+
 		<!-- Bootstrap min css -->
 		<link href="<c:url value='/css/bootstrap.min.css'/>" rel="stylesheet">
 
 		<link href="<c:url value='/css/stylesheet.css'/>" rel="stylesheet">
-		
+
 		<!-- jQuery -->
 		<script src="<c:url value='/js/jquery-2.2.2.min.js'/>"></script>
-		
+
 		<!-- Bootstrap Core -->
 		<script src="<c:url value='/js/bootstrap.min.js'/>"></script>
-		
+
+		<!-- Interface -->
+		<script src="<c:url value='/js/interface.js'/>"></script>
+
 		<title>Urutau</title>
 	</head>
 	<body>
@@ -51,7 +54,7 @@
 					            		</a>
 					            		<ul class="dropdown-menu" id="login-box">
 					            			<li>
-						              			<form action="user/authenticate" class="form-group login-form" method="POST"> 
+						              			<form action="<c:url value="/user/authenticate"/>" class="form-group login-form" method="POST"> 
 									                <input name="login" type="text" class="form-control" placeholder="Login or email"/>
 									                <input name="password" type="password" class="form-control" placeholder="Password">
 									                <button type="submit" class="btn btn-primary btn-group-justified">
@@ -61,7 +64,7 @@
 											</li>
 							          		<li class="divider"></li>
 							          		<li>
-							          			<a href="<c:url value='${linkTo[IndexController].index}'/>">
+							          			<a href="<c:url value="/"/>">
 							          				<fmt:message key="sign_in"/>
 							          			</a>
 							          		</li>

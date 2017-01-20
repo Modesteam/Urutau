@@ -16,8 +16,24 @@ public class DefaultLayerDAO extends GenericDAO<Layer> implements LayerDAO {
 	
 	private static Logger logger = LoggerFactory.getLogger(DefaultLayerDAO.class);
 	
+	private final EntityManager manager;
+
+	/**
+	 * @deprecated CDI only
+	 */
+	public DefaultLayerDAO() {
+	    this(null);
+    }
+
+	/**
+	 * To inject manager into GenericDAO is required {@link Inject} annotation
+	 */
 	@Inject
-	private EntityManager manager;
+	public DefaultLayerDAO(EntityManager manager) {
+	    this.manager = manager;
+	    // TODO Rethink this with liskov principle
+		super.setEntityManager(manager);
+	}
 	
 	@Override
 	public Layer find(Long id) {

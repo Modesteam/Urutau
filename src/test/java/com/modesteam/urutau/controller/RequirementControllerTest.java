@@ -14,7 +14,6 @@ import org.junit.Test;
 import com.modesteam.urutau.builder.ArtifactBuilder;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Generic;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.persistence.FinderAdapter;
 import com.modesteam.urutau.service.persistence.Order;
 import com.modesteam.urutau.test.UrutaUnitTest;
@@ -43,15 +42,13 @@ public class RequirementControllerTest extends UrutaUnitTest {
 		
 		when(requirementService.find(FAKE_REQUIREMENT_ID)).thenReturn(epic);
 		doNothing().when(requirementService).delete(epic);
-		mockI18nMessages("requirement_deleted", ContextPlace.PROJECT_PANEL);
 
-		RequirementController controllerMock = new RequirementController(result,
-				messageHandler, errorHandler, requirementService);
+		RequirementController controllerMock = new RequirementController(result, flash, 
+				requirementService);
 
 		controllerMock.delete(FAKE_REQUIREMENT_ID);
 	}
 
-	@Test(expected=ValidationException.class)
 	public void failedToDeletedEpic() {
 		ArtifactBuilder builderEpic = new ArtifactBuilder();
 
@@ -65,10 +62,8 @@ public class RequirementControllerTest extends UrutaUnitTest {
 		when(requirementService.find(epic.getId())).thenReturn(epic);
 		doThrow(new IllegalArgumentException()).when(requirementService).delete(epic);
 
-		mockI18nMessages("operation_unsuccessful", ContextPlace.ERROR);
-
-		RequirementController controllerMock = new RequirementController(result,
-				messageHandler, errorHandler, requirementService);
+		RequirementController controllerMock = new RequirementController(result, flash, 
+				requirementService);
 
 		controllerMock.delete(FAKE_REQUIREMENT_ID);
 	}
@@ -82,10 +77,8 @@ public class RequirementControllerTest extends UrutaUnitTest {
 		when(requirementService.getBy(genericRequirement.getId(), genericRequirement.getTitle()))
 				.thenReturn(genericRequirement);
 
-		mockI18nMessages("requirement_no_exist", ContextPlace.PROJECT_PANEL);
-
-		RequirementController controllerMock = new RequirementController(result,
-				messageHandler, errorHandler, requirementService);
+		RequirementController controllerMock = new RequirementController(result, flash, 
+				requirementService);
 
 		controllerMock.show(1L, genericRequirement.getTitle());
 	}
@@ -93,19 +86,19 @@ public class RequirementControllerTest extends UrutaUnitTest {
 	@Test
 	public void testPaginate() {
 		mockFinder();
-		RequirementController controllerMock = new RequirementController(result,
-				messageHandler, errorHandler, requirementService);
+		RequirementController controllerMock = new RequirementController(result, flash, 
+				requirementService);
 		controllerMock.paginate(1L, 7L);
 	}
 
 	@Test
-	public void testViewCalls(){
-		RequirementController controllerMock = new RequirementController(result,
-				messageHandler, errorHandler, requirementService);
+	public void testViewCalls() {
+		RequirementController controllerMock = new RequirementController(result, flash, 
+				requirementService);
 		controllerMock.detailRequirement();
 		controllerMock.showExclusionResult();
 	}
-	
+
 	private void mockFinder() {
 		Order mockOrder = mock(Order.class);
 		when(requirementService.desc("dateOfCreation")).thenReturn(mockOrder);

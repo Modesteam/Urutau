@@ -171,16 +171,16 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 	 */
 	public Project find(Searchable attributeName, String value) {
 		List<Project> result = projectDAO.get(attributeName.name().toLowerCase(), value);
-		
+
 		if (result.size() > 1) {
 			throw new SystemBreakException("More than one result when requested by an unitary field");
 		} else {
-			
+
 		}
-		
+
 		return result.get(FIRST);
 	}
-	
+
 	/**
 	 * This method is required to delete a project
 	 * 

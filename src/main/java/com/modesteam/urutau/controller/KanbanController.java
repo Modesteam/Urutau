@@ -1,19 +1,16 @@
 package com.modesteam.urutau.controller;
 
+import javax.enterprise.event.Event;
 import javax.inject.Inject;
-import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.exception.SystemBreakException;
-import com.modesteam.urutau.exception.UserActionException;
 import com.modesteam.urutau.model.Project;
 import com.modesteam.urutau.model.Requirement;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.service.KanbanService;
 import com.modesteam.urutau.service.ProjectService;
@@ -24,6 +21,9 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
+import br.com.caelum.vraptor.view.Results;
+import io.github.projecturutau.vraptor.handler.FlashError;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
 
 @Controller
 public class KanbanController {
@@ -33,26 +33,28 @@ public class KanbanController {
 	private final ProjectService projectService;
 	private final RequirementService requirementService;
 	private final Result result;
-	private final MessageHandler messageHandler;
-	private final ErrorMessageHandler errorHandler;
+	private final FlashMessage flashMessage;
+	private final FlashError flashError;
+	private final Event<Project> privacyEvent;
 	
 	/**
 	 * @deprecated CDI
 	 */
 	public KanbanController() {
-		this(null, null, null, null, null, null);
+		this(null, null, null, null, null, null, null);
 	}
 
 	@Inject
 	public KanbanController(KanbanService kanbanService, ProjectService projectService, 
-			RequirementService requirementService, Result result, 
-			MessageHandler messageHandler, ErrorMessageHandler errorHandler) {
+			RequirementService requirementService,  Result result,
+			FlashMessage flashMessage,  FlashError flashError, Event<Project> privacyEvent) {
 		this.kanbanService = kanbanService;
 		this.projectService = projectService;
 		this.requirementService = requirementService;
+		this.flashMessage = flashMessage;
+		this.flashError = flashError;
 		this.result = result;
-		this.messageHandler = messageHandler;
-		this.errorHandler = errorHandler;
+		this.privacyEvent = privacyEvent;
 	}
 
 	@Get
@@ -60,6 +62,10 @@ public class KanbanController {
 	public void load(final Project project) {
 
 		Project currentProject = projectService.find(project.getId());
+
+		privacyEvent.fire(project);
+
+		currentProject.loadRequirements();
 
 		// Put a current project as project in result
 		result.include(Project.class.getSimpleName().toLowerCase(), currentProject);
@@ -72,6 +78,7 @@ public class KanbanController {
 	 * @param layerID identifier of layer target
 	 */
 	@Post("/kanban/move")
+	@Restrict
 	public void move(final Long requirementID, final Long layerID) throws Exception {
 
 		logger.info("Requesting the move of one requirement");
@@ -90,14 +97,13 @@ public class KanbanController {
 
 		} catch (IllegalArgumentException exception) {
 			// Sends via JSON the current exception
-			messageHandler.use(ContextPlace.ERROR)
-				.sendViaJSON("invalid_request");
+			flashMessage.use("error").toShow("invalid_request").sendJSON();
 		}
 
 		// If not are used, shows success message 
 		if(!result.used()) {
-			messageHandler.use(ContextPlace.KANBAN)
-				.sendViaJSON("successfully_moved_requirement");
+			flashMessage.use("success")
+				.toShow("successfully_moved_requirement").sendJSON();
 		}
 	}
 
@@ -111,12 +117,15 @@ public class KanbanController {
 	 * @throws Exception
 	 */
 	@Post
-	public void createLayer(final @NotNull Long projectID, @NotNull Layer layer) {
-		// TODO more specific
-		result.on(UserActionException.class).redirectTo(ApplicationController.class)
-				.invalidRequest();
+	@Restrict
+	public void createLayer(final Long projectID, final Layer layer) {
+		logger.info("Adding new column in kanban that have projectID " + projectID);
 
-		Project currentProject = projectService.find(projectID);
+		validateLayer(projectID, layer);
+
+		logger.info("Layer name is " + layer.getName());
+
+		Project managedProject = projectService.find(projectID);
 
 		try {
 			kanbanService.create(layer);
@@ -127,23 +136,36 @@ public class KanbanController {
 			result.redirectTo(ApplicationController.class).dificultError();
 		}
 
-		currentProject.add(layer);
+		managedProject.add(layer);
 
-		projectService.update(currentProject);
+		projectService.update(managedProject);
 
-		result.redirectTo(this).load(currentProject);
+		flashMessage.use("success").toShow("column_added");
 	}
 
+	@Restrict
 	public void deleteLayer() {
-	    // TODO logo
+	    // TODO
 	}
 
+	@Restrict
 	public void updateLayer() {
-	    // TODO logo
+	    // TODO
 	}
 
 	@View
 	public void editLayer() {
 	}
 
+	private void validateLayer(Long projectID, Layer layer) {
+		flashError.validate("error");
+
+		if (projectID <= 0) {
+			flashError.add("unsucessful_operation");
+		} else if(layer == null || layer.getName() == null) {
+			flashError.add("invalid_column");
+		}
+
+		flashError.getValidator().onErrorUse(Results.referer()).redirect();
+	}
 }

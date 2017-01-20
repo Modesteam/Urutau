@@ -5,9 +5,8 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.exception.SystemBreakException;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Feature;
@@ -16,7 +15,6 @@ import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.Storie;
 import com.modesteam.urutau.model.UseCase;
 import com.modesteam.urutau.model.system.ArtifactType;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.RequirementService;
 
 import br.com.caelum.vraptor.Controller;
@@ -24,16 +22,19 @@ import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
+import io.github.projecturutau.vraptor.handler.FlashError;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
 
 @Controller
+@Restrict
 public class RequirementEditor {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequirementCreator.class);
 
 	private final Result result;
 	private final RequirementService requirementService;
-	private final MessageHandler messageHandler;
-	private final ErrorMessageHandler errorHandler;
+	private final FlashMessage flash;
+	private final FlashError flashError;
 
 	public RequirementEditor() {
 		this(null, null, null, null);
@@ -41,11 +42,11 @@ public class RequirementEditor {
 
 	@Inject
 	public RequirementEditor(Result result, RequirementService requirementService,
-			MessageHandler messageHandler, ErrorMessageHandler errorHandler) {
+			FlashMessage flash, FlashError flashError) {
 		this.result = result;
 		this.requirementService = requirementService;
-		this.messageHandler = messageHandler;
-		this.errorHandler = errorHandler;
+		this.flash = flash;
+		this.flashError = flashError;
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class RequirementEditor {
 	@Path("/{projectID}/edit/{requirementID}")
 	public void edit(Long projectID, Long requirementID) {
 
-		errorHandler.validates(ContextPlace.PROJECT_PANEL);
+		flashError.validate("error");
 
 		logger.trace("Starting the function edit. Requirement id is " + requirementID);
 
@@ -78,9 +79,8 @@ public class RequirementEditor {
 		} else {
 			logger.info("The requirement id informed is unknown.");
 
-			errorHandler.add("requirement_inexistent")
-				.redirectingTo(ProjectController.class)
-				.show(projectID);
+			flashError.add("requirement_inexistent")
+				.onErrorRedirectTo(ProjectController.class).show(projectID);
 		}
 	}
 
@@ -154,7 +154,7 @@ public class RequirementEditor {
 	public void generic(Generic generic) {
 		Generic requirementManaged = (Generic) requirementService.update(generic);
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -162,7 +162,7 @@ public class RequirementEditor {
 		Feature requirementManaged = (Feature) requirementService.update(feature);
 		requirementManaged.setContent(feature.getContent());
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -170,7 +170,7 @@ public class RequirementEditor {
 		Storie requirementManaged = (Storie) requirementService.update(storie);
 		requirementManaged.setHistory(storie.getHistory());
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -178,7 +178,7 @@ public class RequirementEditor {
 		Epic requirementManaged = (Epic) requirementService.update(epic);
 		requirementManaged.setContent(epic.getContent());
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	@Put
@@ -186,7 +186,7 @@ public class RequirementEditor {
 		UseCase requirementManaged = (UseCase) requirementService.update(useCase);
 		// TODO specific update
 
-		successfulUpdateOf(requirementManaged);
+		redirectToPageOf(requirementManaged);
 	}
 
 	/**
@@ -195,9 +195,9 @@ public class RequirementEditor {
 	 * @param requirement
 	 *            recently updated
 	 */
-	private void successfulUpdateOf(Requirement requirement) {
-		messageHandler.use(ContextPlace.SUCCESS_MESSAGE)
-			.show("requirement_updated")
+	private void redirectToPageOf(Requirement requirement) {
+		flash.use("success")
+			.toShow("requirement_updated")
 			.redirectTo(RequirementEditor.class)
 			.edit(requirement.getProject().getId(), requirement.getId());
 	}

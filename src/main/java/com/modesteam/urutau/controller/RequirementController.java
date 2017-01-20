@@ -10,11 +10,9 @@ import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
-import com.modesteam.urutau.controller.message.ErrorMessageHandler;
-import com.modesteam.urutau.controller.message.MessageHandler;
 import com.modesteam.urutau.model.Requirement;
-import com.modesteam.urutau.model.system.ContextPlace;
 import com.modesteam.urutau.service.RequirementService;
 
 import br.com.caelum.vraptor.Controller;
@@ -22,6 +20,7 @@ import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Result;
+import io.github.projecturutau.vraptor.handler.FlashMessage;
 
 /**
  * This class is responsible to manager simple operations of requirements! The
@@ -36,24 +35,21 @@ public class RequirementController {
 	private static final int DEFAULT_PAGINATION_SIZE = 5;
 
 	private final Result result;
-	private final MessageHandler messageHandler;
-	private final ErrorMessageHandler errorMessageHandler;
+	private final FlashMessage flash;
 	private final RequirementService requirementService;
 
 	/**
 	 * @deprecated CDI eyes only
 	 */
 	public RequirementController() {
-		this(null, null, null, null);
+		this(null, null, null);
 	}
 
 	@Inject
-	public RequirementController(Result result, MessageHandler messageHandler,
-			ErrorMessageHandler errorMessageHandler,
+	public RequirementController(Result result, FlashMessage flash,
 			RequirementService requirementService) {
+		this.flash = flash;
 		this.result = result;
-		this.messageHandler = messageHandler;
-		this.errorMessageHandler = errorMessageHandler;
 		this.requirementService = requirementService;
 	}
 
@@ -79,14 +75,14 @@ public class RequirementController {
 
 		Requirement requirement = requirementService.getBy(id, decodedTitle);
 
-		errorMessageHandler.validates(ContextPlace.PROJECT_PANEL);
-		
-		errorMessageHandler.when(requirement == null)
-			.show("requirement_no_exist")
-			.redirectingTo(ApplicationController.class)
-			.dificultError();
-
-		result.include(requirement);
+		if(requirement == null) {
+			flash.use("success")
+				.toShow("requirement_no_exist")
+				.redirectTo(ApplicationController.class)
+				.dificultError();
+		} else {			
+			result.include(requirement);
+		}
 	}
 
 	/**
@@ -114,6 +110,7 @@ public class RequirementController {
 	 * This method is used to delete one requirement
 	 */
 	@Delete("/requirement")
+	@Restrict
 	public void delete(Long requirementID) {
 		logger.info("The artifact with the id " + requirementID + " is solicitated for exclusion");
 
@@ -127,16 +124,14 @@ public class RequirementController {
 			}
 		} catch (Exception exception) {
 			exception.printStackTrace();
-			errorMessageHandler.validates(ContextPlace.ERROR);
-
-			errorMessageHandler
-				.add("operation_unsuccessful")
-				.redirectingTo(ProjectController.class).show(requirement.getProject().getId());
+			flash.use("error")
+				.toShow("operation_unsuccessful")
+				.redirectTo(ProjectController.class).show(requirement.getProject().getId());
 		}
-		
-		messageHandler.use(ContextPlace.PROJECT_PANEL)
-			.show("requirement_deleted")
-			.redirectTo(ProjectController.class).show(requirement.getProject().getId());;
+
+		flash.use("success").toShow("requirement_deleted")
+			.redirectTo(ProjectController.class)
+			.show(requirement.getProject().getId());
 	}
 
 	@View
