@@ -99,7 +99,7 @@ public class UserControllerTest extends UrutaUnitTest {
 				.lastName("Sobrenome")
 				.build();
 
-		when(userService.authenticate(user.getLogin(), user.getPassword()))
+		when(userService.authenticate(user.getLogin(), user.getPassword().getUserPasswordPassed()))
 			.thenReturn(user);
 
 		UserController controller = new UserController(result, userService, 
@@ -127,12 +127,12 @@ public class UserControllerTest extends UrutaUnitTest {
 				.lastName("Sobrenome")
 				.build();
 		
-		when(userService.authenticate(user.getLogin(), user.getPassword()))
+		when(userService.authenticate(user.getLogin(), user.getPassword().getUserPasswordPassed()))
 			.thenReturn(null);
 		
 		UserController controller = new UserController(result, userService, 
 				userSession, flash, flashError);
 
-		controller.authenticate(user.getLogin(), user.getPassword());
+		controller.authenticate(user.getLogin(), user.getPassword().getUserPasswordPassed());
 	}
 }

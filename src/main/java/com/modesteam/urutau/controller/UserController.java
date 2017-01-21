@@ -108,9 +108,9 @@ public class UserController {
 	@Post
 	public void authenticate(String login, String password) throws Exception {
 		UrutaUser user = userService.authenticate(login, password);
-		
+
 		boolean userFound = user != null;
-		
+
 		// If have any error, include parameters login and password
 		// to user try authenticate again
 		if(!userFound) {
@@ -121,7 +121,7 @@ public class UserController {
 		} else {			
 			// put in session
 			userSession.login(user);
-			
+
 			result.use(Results.referer()).redirect();
 		}
 	}

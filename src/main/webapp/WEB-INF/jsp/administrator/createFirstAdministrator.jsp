@@ -33,7 +33,7 @@
 						placeholder="Email: example@email.com" required>
 					<input name="administrator.login" type="text" class="form-control" 
 						placeholder="Login: (a..z + 1..9)" required/>
-					<input name="administrator.password" type="password" class="form-control"
+					<input name="administrator.password.userPasswordPassed" type="password" class="form-control"
 						placeholder="Password: minimum 6 length" required/>
 					<input name="administrator.name" type="text" class="form-control" 
 						placeholder="Name: Jhon"/>

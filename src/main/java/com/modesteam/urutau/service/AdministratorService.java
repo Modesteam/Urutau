@@ -11,21 +11,22 @@ import com.modesteam.urutau.model.Administrator;
 
 @RequestScoped
 public class AdministratorService {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(AdministratorService.class);
-	
+
 	private final UserDAO userDAO;
-	
+
 	public AdministratorService() {
 		this(null);
 	}
-	
+
 	@Inject
 	public AdministratorService(UserDAO userDAO) {
 		this.userDAO = userDAO;
 	}
-	
+
 	public void create(Administrator administrator) {
+		administrator.getPassword().generateHash();
 		userDAO.create(administrator);
 	}
 	

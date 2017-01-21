@@ -36,6 +36,7 @@ public class UserService implements Finder<UrutaUser> {
 	 * See {@link UserDAO#create(UrutaUser)}
 	 */
 	public void create(UrutaUser user) {
+		user.getPassword().generateHash();
 		userDAO.create(user);
 	}
 	
@@ -117,9 +118,12 @@ public class UserService implements Finder<UrutaUser> {
 				exception.printStackTrace();
 			}
 		}
-		
+
+		// Put password passed
+		user.getPassword().setUserPasswordPassed(password);
+
 		// Case exists, login is true and verifies password
-		if (user != null && !user.getPassword().equals(password)) {
+		if (user != null && !user.getPassword().authenticated()) {
 			// reset user
 			user = null;
 		} else {

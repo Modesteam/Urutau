@@ -18,7 +18,7 @@ public class RegisterValidator {
 	}
 
 	public boolean validPasswordConfirmation() {
-		String original = user.getPassword();
+		String original = user.getPassword().getUserPasswordPassed();
 		String confirmation = user.getPasswordVerify();
 
 		boolean isEquals = false;

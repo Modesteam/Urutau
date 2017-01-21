@@ -52,7 +52,6 @@ public class AdministratorController {
 		logger.debug(administrator.getEmail());
 		logger.debug(administrator.getLogin());
 		logger.debug(administrator.getLastName());
-		logger.debug(administrator.getPassword());
 
 		administratorService.create(administrator);
 

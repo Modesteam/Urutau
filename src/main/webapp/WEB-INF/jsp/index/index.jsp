@@ -91,7 +91,7 @@
 						
 					<input name="user.password" type="password" class="form-control" 
 						placeholder="<fmt:message key='user.password'/>" 
-						value="${user.password}" required>
+						value="${user.password.userPasswordPassed}" required>
 						
 					<input name="user.passwordVerify" type="password" class="form-control" 
 						placeholder="<fmt:message key='user.password_verify'/>" required>
