@@ -114,7 +114,7 @@ public class UserController {
 		// If have any error, include parameters login and password
 		// to user try authenticate again
 		if(!userFound) {
-			flash.use("login").toShow("invalid_authenticate");
+			flash.use("warning").toShow("invalid_authenticate");
 
 			result.include("login", login);
 			result.include("password", password);
