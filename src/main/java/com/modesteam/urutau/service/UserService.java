@@ -9,37 +9,56 @@ import javax.persistence.NonUniqueResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.dao.UserDAO;
 import com.modesteam.urutau.exception.DataBaseCorruptedException;
 import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.service.persistence.Finder;
+import com.modesteam.urutau.service.persistence.Persistence;
 
 @RequestScoped
-public class UserService implements Finder<UrutaUser> {
-	
+public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
+
 	private final static Logger logger = LoggerFactory.getLogger(UserService.class);
-	
+
 	private final UserDAO userDAO;
+	private final UserSession userSession;
 
 	/**
 	 * @deprecated only CDI eye
 	 */
 	public UserService() {
-		this(null);
+		this(null, null);
 	}
 	
 	@Inject
-	public UserService(UserDAO userDAO) {
+	public UserService(UserDAO userDAO, UserSession userSession) {
 		this.userDAO = userDAO;
+		this.userSession = userSession;
 	}
+
 	/**
 	 * See {@link UserDAO#create(UrutaUser)}
 	 */
-	public void create(UrutaUser user) {
+	@Override
+	public void save(UrutaUser user) {
 		user.getPassword().generateHash();
 		userDAO.create(user);
 	}
-	
+
+	@Override
+	public void reload(UrutaUser user) {
+		// TODO
+	}
+
+	/**
+	 * See {@link UserDAO#destroy(UrutauUser)}
+	 */
+	@Override
+	public void delete(UrutaUser user) {
+		userDAO.destroy(user);
+	}
+
 	/**
 	 * Method to verify if exist a user with same email or same login
 	 * 
@@ -47,7 +66,7 @@ public class UserService implements Finder<UrutaUser> {
 	 */
 	public boolean canBeUsed(final String attributeName, final Object value) {
 		boolean available = false;
-		
+
 		try{
 			// if not exist a user with this attribute
 			if(userDAO.get(attributeName, value).isEmpty()) {
@@ -67,12 +86,20 @@ public class UserService implements Finder<UrutaUser> {
 
 	
 	/**
+	 * TODO treat better this update
 	 * See {@link UserDAO#update(UrutaUser)}
 	 */
-	public void update(UrutaUser user) {
-		userDAO.create(user);
+	@Override
+	public UrutaUser update(UrutaUser user) {
+		UrutaUser userTarget = userDAO.find(userSession.getUserLogged().getUserID());
+		userTarget.setLogin(user.getLogin());
+		userTarget.setEmail(user.getEmail());
+		userTarget.setName(user.getName());
+		userTarget.setLastName(user.getLastName());
+		userSession.login(userTarget);
+		return userTarget;
 	}
-	
+
 	/**
 	 * See if an user exist
 	 * 
@@ -94,7 +121,7 @@ public class UserService implements Finder<UrutaUser> {
 		
 		return userExistence;
 	}
-	
+
 	/**
 	 * If returns null, user was not authenticate
 	 * 
@@ -114,13 +141,14 @@ public class UserService implements Finder<UrutaUser> {
 		} else {
 			try {
 				user = users.get(0);
+				// Put password passed
+				user.getPassword().setUserPasswordPassed(password);
 			} catch (IndexOutOfBoundsException exception) {
 				exception.printStackTrace();
+			} catch (NullPointerException nullPointerException) {
+				nullPointerException.printStackTrace();
 			}
 		}
-
-		// Put password passed
-		user.getPassword().setUserPasswordPassed(password);
 
 		// Case exists, login is true and verifies password
 		if (user != null && !user.getPassword().authenticated()) {

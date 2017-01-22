@@ -1,9 +1,10 @@
 package com.modesteam.urutau.controller;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -40,7 +41,7 @@ public class UserControllerTest extends UrutaUnitTest {
 		when(userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())).thenReturn(true);
 		when(userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())).thenReturn(true);
 
-		doNothing().when(userService).create(user);
+		doNothing().when(userService).save(user);
 		
 		UserController controller = new UserController(result, userService, 
 				userSession, flash, flashError);
@@ -78,7 +79,7 @@ public class UserControllerTest extends UrutaUnitTest {
 		when(userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())).thenReturn(true);
 		when(userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())).thenReturn(true);
 
-		doNothing().when(userService).create(user);
+		doNothing().when(userService).save(user);
 
 		UserController controller = new UserController(result, userService, 
 				userSession, flash, flashError);
@@ -134,5 +135,68 @@ public class UserControllerTest extends UrutaUnitTest {
 				userSession, flash, flashError);
 
 		controller.authenticate(user.getLogin(), user.getPassword().getUserPasswordPassed());
+	}
+
+	@Test
+	public void testEdit() {
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
+		controller.edit();
+	}
+
+	@Test
+	public void testUpdateBasic() {
+		UrutaUser user = new UrutaUser();
+
+		when(userService.update(user)).thenReturn(user);
+
+		UserController controller = new UserController(result, userService,
+				userSession, flash, flashError);
+		controller.updateBasic(user);
+	}
+
+	@Test
+	public void testUpdatePassword() {
+		UrutaUser user = new UrutaUser();
+		user.setUserID(1L);
+
+		user.setPassword(generatePassword("teste"));
+
+		when(userSession.getUserLogged()).thenReturn(user);
+
+		when(userService.find(user.getUserID())).thenReturn(user);
+
+		UserController controller = new UserController(result, userService,
+				userSession, flash, flashError);
+
+		controller.updatePassword("teste", "new_password", "new_password");
+
+		try {
+			controller.updatePassword("wrong", "new_password", "new_password");
+		} catch (ValidationException e) {
+			Assert.assertEquals(1, flashError.getValidator().getErrors().size());
+		}
+	}
+
+	@Test
+	public void testDelete() {
+		UrutaUser user = new UrutaUser();
+		user.setUserID(1L);
+
+		user.setPassword(generatePassword("teste"));
+
+		when(userSession.getUserLogged()).thenReturn(user);
+		when(userService.find(user.getUserID())).thenReturn(user);
+
+		UserController controller = new UserController(result, userService,
+				userSession, flash, flashError);
+
+		controller.delete("teste");
+
+		try {
+			controller.delete("wrong");
+		} catch (ValidationException e) {
+			Assert.assertEquals(1, flashError.getValidator().getErrors().size());
+		}
 	}
 }

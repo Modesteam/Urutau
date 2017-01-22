@@ -168,4 +168,32 @@ public class UrutaUser {
 
 		return isMember;
 	}
+
+	public boolean hasNullField() {
+		boolean hasNullField = this.getEmail() == null || this.getLogin() == null
+				|| this.getName() == null || this.getPasswordVerify() == null
+				|| this.getPassword() == null;
+
+		return hasNullField;
+	}
+
+	/**
+	 * Verify if password confirmation is right
+	 * 
+	 * @return true if equals to password
+	 */
+	public boolean isValidPasswordConfirmation() {
+		String original = this.getPassword().getUserPasswordPassed();
+		String confirmation = this.getPasswordVerify();
+
+		boolean isEquals = false;
+
+		try {
+			isEquals = original.equals(confirmation);
+		} catch(NullPointerException npe) {
+			isEquals = false;
+		}
+
+		return isEquals;
+	}
 }

@@ -10,13 +10,14 @@ import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.system.Password;
 import com.modesteam.urutau.service.UserService;
-import com.modesteam.urutau.service.validator.RegisterValidator;
 
 import br.com.caelum.vraptor.Controller;
+import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
-import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
+import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
 import br.com.caelum.vraptor.validator.Validator;
 import br.com.caelum.vraptor.view.Results;
@@ -62,8 +63,8 @@ public class UserController {
 	 * To register a new user instance
 	 * 
 	 * @param user
-	 *            have beans validations that say to {@link Validator} throws or
-	 *            not a error message
+	 *			  have beans validations that say to {@link Validator} throws or
+	 *			  not a error message
 	 */
 	@Post
 	public void register(final @Valid UrutaUser user) {
@@ -76,33 +77,18 @@ public class UserController {
 		// It makes bean validation and manual validations
 		validateBeforeCreate(user);
 
-		userService.create(user);
+		userService.save(user);
 
 		result.forwardTo(this).showSignInSucess();
-	}
-
-	/**
-	 * Set the new first administrator login and password
-	 */
-	@Post
-	@Path("/administratorSettings")
-	@Restrict
-	public void administratorSettings(UrutaUser user) {
-		UrutaUser logged = userSession.getUserLogged();
-		logged.setLogin(user.getLogin());
-		logged.setPassword(user.getPassword());
-		userSession.login(logged);
-		userService.update(logged);
-		result.redirectTo(AdministratorController.class).welcomeAdministrator();
 	}
 
 	/**
 	 * Authenticate user, putting him on session
 	 * 
 	 * @param login
-	 *            field of user
+	 *			  field of user
 	 * @param password
-	 *            secret word of user
+	 *			  secret word of user
 	 * @throws Exception
 	 */
 	@Post
@@ -130,15 +116,78 @@ public class UserController {
 	public void logout() {
 		userSession.logout();
 
-		flash.use("success_message").toShow("user_logout")
+		flash.use("success").toShow("user_logout")
 			.redirectTo(IndexController.class).index();
 	}
 
 	@View
-	public void showSignInSucess() {
+	@Get("/user/settings")
+	@Restrict
+	public void edit() {
+		UrutaUser user = userSession.getUserLogged();
 
+		result.include("user", user);
 	}
-	
+
+	@Put("/user/updateBasic")
+	@Restrict
+	public void updateBasic(UrutaUser user) {
+		userService.update(user);
+
+		flash.use("success").toShow("update_sucessful");
+	}
+
+	@Post("/user/updatePassword")
+	@Restrict
+	public void updatePassword(String oldPassword, String newPassword,
+			String confirmPassword) {
+		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
+		currentUser.getPassword().setUserPasswordPassed(oldPassword);
+
+		flashError.validate("error");
+
+		if(!currentUser.getPassword().authenticated()) {
+			flashError.add("invalid_password").onErrorRedirectTo(this).edit();
+		} else {
+			// Two trasient fields
+			currentUser.setPasswordVerify(confirmPassword);
+			currentUser.getPassword().setUserPasswordPassed(newPassword);
+
+			if(currentUser.isValidPasswordConfirmation()) {
+				Password password = currentUser.getPassword();
+				password.generateHash();
+				userSession.login(currentUser);
+
+				logger.info("Password updated");
+
+				flash.use("success").toShow("update_sucessful");
+			} else {
+				flashError.add("password_are_not_equals").onErrorRedirectTo(this).edit();
+			}
+		}
+	}
+
+	@Delete("/user")
+	@Restrict
+	public void delete(String password) {
+		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
+		currentUser.getPassword().setUserPasswordPassed(password);
+
+		if(!currentUser.getPassword().authenticated()) {
+			flashError.validate("error");
+			flashError.add("invalid_password").onErrorRedirectTo(this).edit();
+		} else {
+			userSession.logout();
+			userService.delete(currentUser);
+
+			flash.use("sucess").toShow("account_deleted_with_success")
+				.redirectTo(IndexController.class).index();
+		}
+	}
+
+	@View
+	public void showSignInSucess() {}
+
 	/**
 	 * TODO treat model validations
 	 * 
@@ -147,17 +196,15 @@ public class UserController {
 	 */
 	private void validateBeforeCreate(UrutaUser user) {
 		flashError.validate("register_validator");
-		
-		RegisterValidator registerValidator = new RegisterValidator(user);
 
-		if(registerValidator.hasNullField()) {
+		if(user.hasNullField()) {
 			flashError.add("all_fields_required");
 		}
 
 		// Above error should redirect to index
 		flashError.getValidator().onErrorRedirectTo(IndexController.class).index();
 
-		if(!registerValidator.validPasswordConfirmation()) {
+		if(!user.isValidPasswordConfirmation()) {
 			flashError.add("password_are_not_equals");
 		}
 
