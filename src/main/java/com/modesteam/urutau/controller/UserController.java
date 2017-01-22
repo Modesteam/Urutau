@@ -134,7 +134,16 @@ public class UserController {
 			.redirectTo(IndexController.class).index();
 	}
 
-	@View
+    @View
+    @Get("/user/settings")
+    @Restrict
+    public void edit() {
+        UrutaUser user = userSession.getUserLogged();
+
+        result.include("user", user);
+    }
+
+    @View
 	public void showSignInSucess() {
 
 	}
