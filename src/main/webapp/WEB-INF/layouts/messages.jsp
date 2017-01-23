@@ -4,14 +4,15 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
 <script type="text/javascript">
+
 /**
- * Fix for messages
+ * Fix for empty alerts
  */
 $(document).ready(function() {
 	var alertMessage = $(".alert-json").val();
 
 	if($("#message").text() == '') {
-		$(".alert-success").hide();
+		$(".alert-json").hide();
 	}
 });
 </script>

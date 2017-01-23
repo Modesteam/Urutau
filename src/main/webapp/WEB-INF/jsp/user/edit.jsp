@@ -16,7 +16,7 @@
 		 		<h3>Basic information</h3>
 		 	</div>
 		 	<div class="panel-body">
-				<form action="<c:url value="/${user.userID}/setting"/>" method="POST" class="form-group">
+				<form action="<c:url value="/user/updateBasic"/>" method="POST" class="form-group">
 					<label for="login">Login</label>
 					<input type="text" name="user.login" value="${user.login}"
 						class="form-control" placeholder="Your login" id="login">
@@ -26,10 +26,10 @@
 						class="form-control" placeholder="What email you want use"/>
 
 					<label for="desc">Name</label>
-					<input type="text" name="user.email" value="${user.name}"
+					<input type="text" name="user.name" value="${user.name}"
 						class="form-control" placeholder="First Name"/>
 					<label for="desc">Lastname</label>
-					<input type="text" name="user.email" value="${user.lastName}"
+					<input type="text" name="user.lastName" value="${user.lastName}"
 						class="form-control" placeholder="Last Name"/>
 
 					<button type="submit" name="_method" value="PUT" class="btn btn-success pull-right">Update</button>
@@ -46,13 +46,13 @@
 				<h3>Change password</h3>
 			</div>
 		 	<div class="panel-body">
-				<form>
+				<form action="<c:url value="/user/updatePassword"/>" method="POST" class="form-group">
 					<label>Old Password</label>
-					<input name="oldPassword" type="text" class="form-control" placeholder="Your current password"/>
+					<input name="oldPassword" type="password" class="form-control" placeholder="Your current password"/>
 					<label>New Password</label>
-					<input name="oldPassword" type="text" class="form-control" placeholder="New password"/>
+					<input name="newPassword" type="password" class="form-control" placeholder="New password"/>
 					<label>Confirm new Password</label>
-					<input name="oldPassword" type="text" class="form-control" placeholder="Confirm new password"/>
+					<input name="confirmPassword" type="password" class="form-control" placeholder="Confirm new password"/>
 					<button type="submit" class="btn btn-success pull-right">Change</button>
 				</form>
 			</div>

@@ -9,6 +9,7 @@ import javax.persistence.NonUniqueResultException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.dao.UserDAO;
 import com.modesteam.urutau.exception.DataBaseCorruptedException;
 import com.modesteam.urutau.model.UrutaUser;
@@ -20,17 +21,19 @@ public class UserService implements Finder<UrutaUser> {
 	private final static Logger logger = LoggerFactory.getLogger(UserService.class);
 	
 	private final UserDAO userDAO;
+	private final UserSession userSession;
 
 	/**
 	 * @deprecated only CDI eye
 	 */
 	public UserService() {
-		this(null);
+		this(null, null);
 	}
 	
 	@Inject
-	public UserService(UserDAO userDAO) {
+	public UserService(UserDAO userDAO, UserSession userSession) {
 		this.userDAO = userDAO;
+		this.userSession = userSession;
 	}
 	/**
 	 * See {@link UserDAO#create(UrutaUser)}
@@ -68,9 +71,15 @@ public class UserService implements Finder<UrutaUser> {
 	
 	/**
 	 * See {@link UserDAO#update(UrutaUser)}
+	 * 
 	 */
 	public void update(UrutaUser user) {
-		userDAO.create(user);
+		UrutaUser userTarget = userDAO.find(userSession.getUserLogged().getUserID());
+		userTarget.setLogin(user.getLogin());
+		userTarget.setEmail(user.getEmail());
+		userTarget.setName(user.getName());
+		userTarget.setLastName(user.getLastName());
+		userSession.login(userTarget);
 	}
 	
 	/**
@@ -114,13 +123,14 @@ public class UserService implements Finder<UrutaUser> {
 		} else {
 			try {
 				user = users.get(0);
+				// Put password passed
+				user.getPassword().setUserPasswordPassed(password);
 			} catch (IndexOutOfBoundsException exception) {
 				exception.printStackTrace();
+			} catch (NullPointerException nullPointerException) {
+				nullPointerException.printStackTrace();
 			}
 		}
-
-		// Put password passed
-		user.getPassword().setUserPasswordPassed(password);
 
 		// Case exists, login is true and verifies password
 		if (user != null && !user.getPassword().authenticated()) {
