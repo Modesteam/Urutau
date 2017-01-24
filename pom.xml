@@ -161,6 +161,14 @@
 				<groupId>org.apache.tomcat.maven</groupId>
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.1</version>
+				<configuration>
+					<!-- 
+						To deploy with maven see:
+						http://tomcat.apache.org/maven-plugin-2.1/tomcat7-maven-plugin/usage.html
+					-->
+					<server>my-tomcat</server>
+					<url>http://localhost:8080/manager/text</url>
+				</configuration>
 			</plugin>
 
 			<plugin>
@@ -182,57 +190,6 @@
 					<ajdtVersion>none</ajdtVersion>
 				</configuration>
 			</plugin>
-
-			<!-- plugin>
-				<artifactId>maven-antrun-plugin</artifactId>
-				<version>1.7</version>
-				<executions>
-					<execution>
-						<phase>prepare-package</phase>
-						<configuration>
-							<target>
-								<copy file="${basedir}/pom-dist.xml" todir="${project.build.directory}" />
-								<replace file="${project.build.directory}/pom-dist.xml"
-									token="VRAPTOR_VERSION_HERE" value="${project.version}" />
-							</target>
-						</configuration>
-						<goals>
-							<goal>run</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.3</version>
-				<executions>
-					<execution>
-						<id>distribution</id>
-						<phase>package</phase>
-						<configuration>
-							<descriptors>
-								<descriptor>assembly.xml</descriptor>
-							</descriptors>
-						</configuration>
-						<goals>
-							<goal>assembly</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>distribution-eclipse</id>
-						<phase>package</phase>
-						<configuration>
-							<descriptors>
-								<descriptor>assembly-eclipse.xml</descriptor>
-							</descriptors>
-						</configuration>
-						<goals>
-							<goal>assembly</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>-->
 		</plugins>
 	</build>
 
