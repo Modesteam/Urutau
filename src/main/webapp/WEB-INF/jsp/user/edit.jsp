@@ -68,8 +68,10 @@
 			</div>
 		 	<div class="panel-body">
 				<div class="col-xs-4">
-					<form action="<c:url value="/project"/>" method="POST">
-						<input name="project.id" value="${project.id}" type="hidden"/>
+					<form action="<c:url value="/user"/>" method="POST">
+						<input name="userId" value="${user.userID}" type="hidden"/>
+						<label>Your password</label>
+						<input name="password" type="password" class="form-control" placeholder="Your current password"/>
 						<button type="submit" class="btn btn-danger" name="_method" value="DELETE">Delete Account</button>
 					</form>
 				</div>
