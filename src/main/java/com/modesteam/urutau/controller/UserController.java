@@ -16,7 +16,6 @@ import com.modesteam.urutau.service.UserService;
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
-import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Put;
 import br.com.caelum.vraptor.Result;
@@ -81,21 +80,6 @@ public class UserController {
 		userService.save(user);
 
 		result.forwardTo(this).showSignInSucess();
-	}
-
-	/**
-	 * Set the new first administrator login and password
-	 */
-	@Post
-	@Path("/administratorSettings")
-	@Restrict
-	public void administratorSettings(UrutaUser user) {
-		UrutaUser logged = userSession.getUserLogged();
-		logged.setLogin(user.getLogin());
-		logged.setPassword(user.getPassword());
-		userSession.login(logged);
-		userService.update(logged);
-		result.redirectTo(AdministratorController.class).welcomeAdministrator();
 	}
 
 	/**
