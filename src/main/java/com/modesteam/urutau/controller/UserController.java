@@ -168,7 +168,7 @@ public class UserController {
 			currentUser.setPasswordVerify(confirmPassword);
  			currentUser.getPassword().setUserPasswordPassed(newPassword);
 
-			if(currentUser.validPasswordConfirmation()) {
+			if(currentUser.isValidPasswordConfirmation()) {
 				Password password = currentUser.getPassword();
 				password.generateHash();
 				userSession.login(currentUser);
@@ -218,7 +218,7 @@ public class UserController {
 		// Above error should redirect to index
 		flashError.getValidator().onErrorRedirectTo(IndexController.class).index();
 
-		if(!user.validPasswordConfirmation()) {
+		if(!user.isValidPasswordConfirmation()) {
 			flashError.add("password_are_not_equals");
 		}
 

@@ -89,7 +89,7 @@
 						placeholder="<fmt:message key='user.login'/>"
 						value="${user.login}" required>
 						
-					<input name="user.password" type="password" class="form-control" 
+					<input name="user.password.userPasswordPassed" type="password" class="form-control" 
 						placeholder="<fmt:message key='user.password'/>" 
 						value="${user.password.userPasswordPassed}" required>
 						

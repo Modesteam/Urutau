@@ -177,7 +177,12 @@ public class UrutaUser {
 		return hasNullField;
 	}
 
-	public boolean validPasswordConfirmation() {
+	/**
+	 * Verify if password confirmation is right
+	 * 
+	 * @return true if equals to password
+	 */
+	public boolean isValidPasswordConfirmation() {
 		String original = this.getPassword().getUserPasswordPassed();
 		String confirmation = this.getPasswordVerify();
 
