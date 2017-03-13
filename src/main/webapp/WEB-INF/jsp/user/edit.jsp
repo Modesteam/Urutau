@@ -76,14 +76,13 @@
                 <form action="<c:url value="/user"/>" method="POST" class="col-xs-12">
                     <div class="row row-eq-height">
                     <div class="col-xs-6">
-                        <input name="userId" value="${user.userID}" type="hidden"/>
                         <label>Your password</label>
                         <input name="password" type="password" class="form-control" 
                             placeholder="Your current password"/>
                     </div>
                     <div class="col-xs-6" style="margin-top: 20px">
-                         <button type="submit" style="vertical-align: bottom" class="btn btn-danger" name="_method" 
-                             value="DELETE">Delete Account</button>
+                         <button type="submit" style="vertical-align: bottom" 
+                         	class="btn btn-danger" name="_method" value="DELETE">Delete Account</button>
                     </div>
                     </div>
                 </form>

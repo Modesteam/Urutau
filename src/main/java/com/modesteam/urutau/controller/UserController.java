@@ -14,6 +14,7 @@ import com.modesteam.urutau.model.system.Password;
 import com.modesteam.urutau.service.UserService;
 
 import br.com.caelum.vraptor.Controller;
+import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Path;
 import br.com.caelum.vraptor.Post;
@@ -63,8 +64,8 @@ public class UserController {
 	 * To register a new user instance
 	 * 
 	 * @param user
-	 *            have beans validations that say to {@link Validator} throws or
-	 *            not a error message
+	 *			  have beans validations that say to {@link Validator} throws or
+	 *			  not a error message
 	 */
 	@Post
 	public void register(final @Valid UrutaUser user) {
@@ -101,9 +102,9 @@ public class UserController {
 	 * Authenticate user, putting him on session
 	 * 
 	 * @param login
-	 *            field of user
+	 *			  field of user
 	 * @param password
-	 *            secret word of user
+	 *			  secret word of user
 	 * @throws Exception
 	 */
 	@Post
@@ -135,26 +136,26 @@ public class UserController {
 			.redirectTo(IndexController.class).index();
 	}
 
-    @View
-    @Get("/user/settings")
-    @Restrict
-    public void edit() {
-        UrutaUser user = userSession.getUserLogged();
+	@View
+	@Get("/user/settings")
+	@Restrict
+	public void edit() {
+		UrutaUser user = userSession.getUserLogged();
 
-        result.include("user", user);
-    }
+		result.include("user", user);
+	}
 
-    @Put("/user/updateBasic")
-    @Restrict
-    public void updateBasic(UrutaUser user) {
-    	userService.update(user);
+	@Put("/user/updateBasic")
+	@Restrict
+	public void updateBasic(UrutaUser user) {
+		userService.update(user);
 
-    	flash.use("success").toShow("update_sucessful");
-    }
+		flash.use("success").toShow("update_sucessful");
+	}
 
-    @Post("/user/updatePassword")
-    @Restrict
-    public void updatePassword(String oldPassword, String newPassword,
+	@Post("/user/updatePassword")
+	@Restrict
+	public void updatePassword(String oldPassword, String newPassword,
 			String confirmPassword) {
 		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
 		currentUser.getPassword().setUserPasswordPassed(oldPassword);
@@ -166,7 +167,7 @@ public class UserController {
 		} else {
 			// Two trasient fields
 			currentUser.setPasswordVerify(confirmPassword);
- 			currentUser.getPassword().setUserPasswordPassed(newPassword);
+			currentUser.getPassword().setUserPasswordPassed(newPassword);
 
 			if(currentUser.isValidPasswordConfirmation()) {
 				Password password = currentUser.getPassword();
@@ -180,25 +181,27 @@ public class UserController {
 				flashError.add("password_are_not_equals").onErrorRedirectTo(this).edit();
 			}
 		}
-    }
+	}
 
+	@Restrict
+	@Delete("/user")
 	public void delete(String password) {
 		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
 		currentUser.getPassword().setUserPasswordPassed(password);
 
-		flashError.validate("error");
-
 		if(!currentUser.getPassword().authenticated()) {
-			flashError.add("invalid_password").onErrorRedirectTo(this).edit();
+			flash.use("warning").toShow("invalid_password")
+				.redirectTo(UserController.class).edit();
 		} else {
+			userSession.logout();
 			userService.delete(currentUser);
 
-			flash.use("sucess").toShow("Deleted with success")
+			flash.use("sucess").toShow("account_deleted_with_success")
 				.redirectTo(IndexController.class).index();
 		}
 	}
 
-    @View
+	@View
 	public void showSignInSucess() {}
 
 
