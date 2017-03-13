@@ -40,7 +40,7 @@ public class UserControllerTest extends UrutaUnitTest {
 		when(userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())).thenReturn(true);
 		when(userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())).thenReturn(true);
 
-		doNothing().when(userService).create(user);
+		doNothing().when(userService).save(user);
 		
 		UserController controller = new UserController(result, userService, 
 				userSession, flash, flashError);
@@ -78,7 +78,7 @@ public class UserControllerTest extends UrutaUnitTest {
 		when(userService.canBeUsed(LOGIN_ATTRIBUTE, user.getLogin())).thenReturn(true);
 		when(userService.canBeUsed(EMAIL_ATTRIBUTE, user.getEmail())).thenReturn(true);
 
-		doNothing().when(userService).create(user);
+		doNothing().when(userService).save(user);
 
 		UserController controller = new UserController(result, userService, 
 				userSession, flash, flashError);

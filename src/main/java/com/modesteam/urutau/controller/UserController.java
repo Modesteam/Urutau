@@ -77,7 +77,7 @@ public class UserController {
 		// It makes bean validation and manual validations
 		validateBeforeCreate(user);
 
-		userService.create(user);
+		userService.save(user);
 
 		result.forwardTo(this).showSignInSucess();
 	}
@@ -155,38 +155,53 @@ public class UserController {
     @Post("/user/updatePassword")
     @Restrict
     public void updatePassword(String oldPassword, String newPassword,
-    		String confirmPassword) {
-    	UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
-    	currentUser.getPassword().setUserPasswordPassed(oldPassword);
+			String confirmPassword) {
+		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
+		currentUser.getPassword().setUserPasswordPassed(oldPassword);
 
-    	flashError.validate("error");
+		flashError.validate("error");
 
-    	if(!currentUser.getPassword().authenticated()) {
-    		flashError.add("invalid_password").onErrorRedirectTo(this).edit();
-    	} else {    		
-    		// Two trasient fields
-    		currentUser.setPasswordVerify(confirmPassword);
-    		currentUser.getPassword().setUserPasswordPassed(newPassword);
-    		
-    		if(currentUser.validPasswordConfirmation()) {
-    			Password password = currentUser.getPassword();
-    			password.generateHash();
-    			userSession.login(currentUser);
+		if(!currentUser.getPassword().authenticated()) {
+			flashError.add("invalid_password").onErrorRedirectTo(this).edit();
+		} else {
+			// Two trasient fields
+			currentUser.setPasswordVerify(confirmPassword);
+ 			currentUser.getPassword().setUserPasswordPassed(newPassword);
 
-    			logger.info("Password updated");
+			if(currentUser.validPasswordConfirmation()) {
+				Password password = currentUser.getPassword();
+				password.generateHash();
+				userSession.login(currentUser);
 
-    			flash.use("success").toShow("update_sucessful");
-    		} else {
-    			flashError.add("password_are_not_equals").onErrorRedirectTo(this).edit();
-    		}
-    	}
+				logger.info("Password updated");
+
+				flash.use("success").toShow("update_sucessful");
+			} else {
+				flashError.add("password_are_not_equals").onErrorRedirectTo(this).edit();
+			}
+		}
     }
 
-    @View
-	public void showSignInSucess() {
+	public void delete(String password) {
+		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
+		currentUser.getPassword().setUserPasswordPassed(password);
 
+		flashError.validate("error");
+
+		if(!currentUser.getPassword().authenticated()) {
+			flashError.add("invalid_password").onErrorRedirectTo(this).edit();
+		} else {
+			userService.delete(currentUser);
+
+			flash.use("sucess").toShow("Deleted with success")
+				.redirectTo(IndexController.class).index();
+		}
 	}
-	
+
+    @View
+	public void showSignInSucess() {}
+
+
 	/**
 	 * TODO treat model validations
 	 * 
