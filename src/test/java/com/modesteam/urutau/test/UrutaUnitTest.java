@@ -10,8 +10,10 @@ import org.apache.log4j.Logger;
 import org.junit.Before;
 
 import com.modesteam.urutau.UserSession;
+import com.modesteam.urutau.dao.ApplicationSettingDAO;
 import com.modesteam.urutau.formatter.RequirementFormatter;
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.service.AdministratorService;
 import com.modesteam.urutau.service.KanbanService;
 import com.modesteam.urutau.service.ProjectService;
 import com.modesteam.urutau.service.RequirementService;
@@ -40,12 +42,16 @@ public abstract class UrutaUnitTest {
 	protected UserService userService;
 	protected KanbanService kanbanService;
 	protected RequirementService requirementService;
+	protected AdministratorService adminService;
+	protected ApplicationSettingDAO settingDAO;
 	
 	protected UserSession userSession;
 	protected RequirementFormatter formatter;
 	protected FlashMessage flash;
 	protected FlashError flashError;
+
 	// for some event needed
+	@SuppressWarnings("rawtypes")
 	protected Event event;
 
 	/**
@@ -64,7 +70,10 @@ public abstract class UrutaUnitTest {
 		projectService = mock(ProjectService.class);
 		kanbanService = mock(KanbanService.class);
 		userService = mock(UserService.class);
+		adminService = mock(AdministratorService.class);
 		requirementService = mock(RequirementService.class);
+
+		settingDAO = mock(ApplicationSettingDAO.class);
 
 		userSession = mock(UserSession.class);
 
@@ -78,6 +87,5 @@ public abstract class UrutaUnitTest {
 		// Session
 		UrutaUser userLogged = mock(UrutaUser.class);
 		when(userSession.getUserLogged()).thenReturn(userLogged);
-
 	}
 }
