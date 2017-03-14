@@ -86,8 +86,8 @@ public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
 
 	
 	/**
+	 * TODO treat better this update
 	 * See {@link UserDAO#update(UrutaUser)}
-	 *
 	 */
 	@Override
 	public UrutaUser update(UrutaUser user) {

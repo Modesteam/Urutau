@@ -1,6 +1,6 @@
 package com.modesteam.urutau.controller;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
@@ -134,5 +134,56 @@ public class UserControllerTest extends UrutaUnitTest {
 				userSession, flash, flashError);
 
 		controller.authenticate(user.getLogin(), user.getPassword().getUserPasswordPassed());
+	}
+
+	@Test
+	public void testEdit() {
+		UserController controller = new UserController(result, userService, 
+				userSession, flash, flashError);
+		controller.edit();
+	}
+
+	@Test
+	public void testUpdateBasic() {
+		UrutaUser user = new UrutaUser();
+
+		when(userService.update(user)).thenReturn(user);
+
+		UserController controller = new UserController(result, userService,
+				userSession, flash, flashError);
+		controller.updateBasic(user);
+	}
+
+	@Test
+	public void testUpdatePassword() {
+		UrutaUser user = new UrutaUser();
+		user.setUserID(1L);
+
+		user.setPassword(generatePassword("teste"));
+
+		when(userSession.getUserLogged()).thenReturn(user);
+
+		when(userService.find(user.getUserID())).thenReturn(user);
+
+		UserController controller = new UserController(result, userService,
+				userSession, flash, flashError);
+
+		controller.updatePassword("teste", "new_password", "new_password");
+	}
+
+	@Test
+	public void testDelete() {
+		UrutaUser user = new UrutaUser();
+		user.setUserID(1L);
+
+		user.setPassword(generatePassword("teste"));
+
+		when(userSession.getUserLogged()).thenReturn(user);
+		when(userService.find(user.getUserID())).thenReturn(user);
+
+		UserController controller = new UserController(result, userService,
+				userSession, flash, flashError);
+
+		controller.delete("teste");
 	}
 }

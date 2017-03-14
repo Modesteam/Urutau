@@ -13,6 +13,7 @@ import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.dao.ApplicationSettingDAO;
 import com.modesteam.urutau.formatter.RequirementFormatter;
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.system.Password;
 import com.modesteam.urutau.service.AdministratorService;
 import com.modesteam.urutau.service.KanbanService;
 import com.modesteam.urutau.service.ProjectService;
@@ -87,5 +88,13 @@ public abstract class UrutaUnitTest {
 		// Session
 		UrutaUser userLogged = mock(UrutaUser.class);
 		when(userSession.getUserLogged()).thenReturn(userLogged);
+	}
+
+	public Password generatePassword(String passwordPassed) {
+		Password password = new Password();
+		password.setUserPasswordPassed(passwordPassed);
+		password.generateHash();
+		
+		return password;
 	}
 }
