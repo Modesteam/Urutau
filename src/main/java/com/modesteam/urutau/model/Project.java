@@ -60,7 +60,7 @@ public class Project implements Cloneable {
 			inverseJoinColumns = @JoinColumn(name = "userID"))
 	private List<UrutaUser> members = new ArrayList<UrutaUser>();
 
-	/* Should be generate automatically */
+	/* Should be generate automatically when controller creates */
 	private Calendar dateOfCreation;
 
 	@ManyToMany(fetch = FetchType.EAGER)

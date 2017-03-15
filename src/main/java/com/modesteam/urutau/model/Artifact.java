@@ -14,6 +14,8 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import com.modesteam.urutau.model.system.Layer;
 
@@ -29,7 +31,7 @@ public abstract class Artifact {
     @JoinColumn(name = "user_id")
     private UrutaUser author;
 
-    // Project associated
+    /* Project associated */
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project project;
@@ -40,12 +42,17 @@ public abstract class Artifact {
     /* Should be generate automatically */
     private Calendar dateOfCreation;
 
+    /* This avoid artifacts hard to identify */
+    @NotNull
+    @Size(min = 4, max = 50, message = "{artifact.title.size}")
     private String title;
 
+    /* Generated from title */
     @Transient
-    // Generated from title
     private String encodedTitle;
 
+    /* It should be a simple description about artifact */
+    @Size(min = 5, max = 255, message = "{artifact.description.size}")
     private String description;
 
     @ManyToOne
