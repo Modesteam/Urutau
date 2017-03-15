@@ -43,13 +43,13 @@ public class UrutaUser {
     @Email(message = "{invalid_email}")
     private String email;
     @NotNull
-    @Size(min = 3, max = 20, message = "{user.name.size}")
+    @Size(min = 2, max = 50, message = "{user.name.size}")
     private String name;
     @NotNull
-    @Size(min = 3, max = 20, message = "{user.lastName.size}")
+    @Size(min = 2, max = 50, message = "{user.lastName.size}")
     private String lastName;
     @NotNull
-    @Size(min = 6, max = 20, message = "{user.login.size}")
+    @Size(min = 4, max = 20, message = "{user.login.size}")
     private String login;
     @OneToOne(cascade=CascadeType.ALL)
     private Password password;
