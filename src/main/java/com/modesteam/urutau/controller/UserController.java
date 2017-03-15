@@ -167,15 +167,15 @@ public class UserController {
 		}
 	}
 
-	@Restrict
 	@Delete("/user")
+	@Restrict
 	public void delete(String password) {
 		UrutaUser currentUser = userService.find(userSession.getUserLogged().getUserID());
 		currentUser.getPassword().setUserPasswordPassed(password);
 
 		if(!currentUser.getPassword().authenticated()) {
-			flash.use("warning").toShow("invalid_password")
-				.redirectTo(UserController.class).edit();
+			flashError.validate("error");
+			flashError.add("invalid_password").onErrorRedirectTo(this).edit();
 		} else {
 			userSession.logout();
 			userService.delete(currentUser);
@@ -187,7 +187,6 @@ public class UserController {
 
 	@View
 	public void showSignInSucess() {}
-
 
 	/**
 	 * TODO treat model validations

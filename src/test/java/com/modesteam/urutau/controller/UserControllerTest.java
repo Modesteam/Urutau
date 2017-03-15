@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -169,6 +170,12 @@ public class UserControllerTest extends UrutaUnitTest {
 				userSession, flash, flashError);
 
 		controller.updatePassword("teste", "new_password", "new_password");
+
+		try {
+			controller.updatePassword("wrong", "new_password", "new_password");
+		} catch (ValidationException e) {
+			Assert.assertEquals(1, flashError.getValidator().getErrors().size());
+		}
 	}
 
 	@Test
@@ -185,5 +192,11 @@ public class UserControllerTest extends UrutaUnitTest {
 				userSession, flash, flashError);
 
 		controller.delete("teste");
+
+		try {
+			controller.delete("wrong");
+		} catch (ValidationException e) {
+			Assert.assertEquals(1, flashError.getValidator().getErrors().size());
+		}
 	}
 }
