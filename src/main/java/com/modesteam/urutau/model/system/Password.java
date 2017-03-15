@@ -5,17 +5,30 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Arrays;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Transient;
+import javax.validation.constraints.Size;
+
 import org.postgresql.util.Base64;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Entity
 public class Password {
 	/*
 	 * Ordinary length of salt, it could be smaller
 	 */
 	private static final int SALT_LENGHT = 17;
 	private static final Logger logger = LoggerFactory.getLogger(Password.class);
-
+	
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
+	private Long id;
+	@Transient
+    @Size(min = 6, max = 20, message = "{user.password.size}")
 	private String userPasswordPassed;
 	private byte[] salt;
 	private byte[] hashPassword;

@@ -7,11 +7,11 @@
 	<div class="navbar-default sidebar" role="navigation">
 		<div class="col-md-4">
         	<div class="sidebar-nav">
-	        	<ul class="nav">                         
+	        	<ul class="nav">   
 		            	<li id="projects">
 		                	<div class="panel panel-default">
 		                		<div class="panel-heading">
-			                		<h4><fmt:message key="projects"/></h4>
+			                		<h3><fmt:message key="projects"/></h3>
 			                	</div>
 				                	<ul class="list-group text-left">
 				                 		<c:forEach items="${projects}" var="project">
@@ -25,12 +25,12 @@
 		                	</div>
 			             </li>
 			             <li>
-			             <h4>
-			             	<a href="<c:url value="project/create"/>" class="btn btn-success btn-group-justified">
-				            	<fmt:message key="create_project"/>
-				            </a>
-	   				     </h4>
-   				        </li>            
+			             	<h2>
+				             	<a href="<c:url value="project/create"/>" class="btn btn-success btn-group-justified">
+					            	<fmt:message key="create_project"/>
+					            </a>
+					        </h2>
+		   				</li>         
 			        </ul>
 			    </div>
 			</div>

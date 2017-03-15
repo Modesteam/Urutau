@@ -3,6 +3,7 @@ package com.modesteam.urutau.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.DiscriminatorColumn;
 import javax.persistence.DiscriminatorType;
 import javax.persistence.DiscriminatorValue;
@@ -14,12 +15,15 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.TableGenerator;
 import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Email;
+
+import com.modesteam.urutau.model.system.Password;
 
 /**
  * This class implements the generic user witch can be extended to an
@@ -47,9 +51,8 @@ public class UrutaUser {
     @NotNull
     @Size(min = 6, max = 20, message = "{user.login.size}")
     private String login;
-    @NotNull
-    @Size(min = 6, max = 20, message = "{user.password.size}")
-    private String password;
+    @OneToOne(cascade=CascadeType.ALL)
+    private Password password;
     @Transient
     private String passwordVerify;
     /*
@@ -77,7 +80,15 @@ public class UrutaUser {
         return confirmed == 1;
     }
 
-    public String getPasswordVerify() {
+    public Password getPassword() {
+		return password;
+	}
+
+	public void setPassword(Password password) {
+		this.password = password;
+	}
+
+	public String getPasswordVerify() {
         return passwordVerify;
     }
 
@@ -107,14 +118,6 @@ public class UrutaUser {
 
     public void setLogin(String login) {
         this.login = login;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 
     public String getEmail() {
@@ -164,5 +167,33 @@ public class UrutaUser {
 		}
 
 		return isMember;
+	}
+
+	public boolean hasNullField() {
+		boolean hasNullField = this.getEmail() == null || this.getLogin() == null
+				|| this.getName() == null || this.getPasswordVerify() == null
+				|| this.getPassword() == null;
+
+		return hasNullField;
+	}
+
+	/**
+	 * Verify if password confirmation is right
+	 * 
+	 * @return true if equals to password
+	 */
+	public boolean isValidPasswordConfirmation() {
+		String original = this.getPassword().getUserPasswordPassed();
+		String confirmation = this.getPasswordVerify();
+
+		boolean isEquals = false;
+
+		try {
+			isEquals = original.equals(confirmation);
+		} catch(NullPointerException npe) {
+			isEquals = false;
+		}
+
+		return isEquals;
 	}
 }

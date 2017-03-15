@@ -1,6 +1,7 @@
 package com.modesteam.urutau.builder;
 
 import com.modesteam.urutau.model.UrutaUser;
+import com.modesteam.urutau.model.system.Password;
 
 public class UserBuilder {
 	private String email;
@@ -53,7 +54,9 @@ public class UserBuilder {
 		user.setLogin(login);
 		user.setName(name);
 		user.setLastName(lastName);
-		user.setPassword(password);
+		Password p = new Password();
+		p.setUserPasswordPassed(password);
+		user.setPassword(p);
 		user.setPasswordVerify(passwordVerify);
 		return user;
 	}

@@ -14,10 +14,6 @@ h1 {
 	margin-bottom: 20px;
 }
 
-h4 {
-	font-size: 20px;
-}
-
 .alert {
 	font-size: 16px;
 }
@@ -131,14 +127,6 @@ footer .copyright {
 	
 }
 
-.panel {
-	text-align: center;
-}
-
-.panel table {
-	text-align: left;
-}
-
 .form-error {
 	display: none;
 }
@@ -178,4 +166,21 @@ footer .copyright {
 
 .invalid-request ul {
 	list-style: none;
+}
+
+.panel-heading h3 {
+	display: block;
+    margin:0px;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 17px;
+}
+
+.panel label {
+	font-weight: 700;
+	color: #696969;
+}
+
+.panel table {
+	text-align: left;
 }

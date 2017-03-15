@@ -6,23 +6,15 @@ import static org.mockito.Mockito.mock;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.modesteam.urutau.dao.ApplicationSettingDAO;
 import com.modesteam.urutau.model.Administrator;
 import com.modesteam.urutau.model.system.setting.ApplicationSetting;
-import com.modesteam.urutau.service.AdministratorService;
+import com.modesteam.urutau.test.UrutaUnitTest;
 
-import br.com.caelum.vraptor.util.test.MockResult;
-
-public class AdministratorControllerTest {
-	private MockResult result;
-	private AdministratorService adminService;
-	private ApplicationSettingDAO settingDAO;
+public class AdministratorControllerTest extends UrutaUnitTest {
 
 	@Before
 	public void setUp() {
-		result = new MockResult();
-		adminService = mock(AdministratorService.class);
-		settingDAO = mock(ApplicationSettingDAO.class);
+		super.setup();
 	}
 
 	@Test
@@ -33,7 +25,8 @@ public class AdministratorControllerTest {
 		doNothing().when(adminService).create(administrator);
 
 		AdministratorController mockController = 
-				new AdministratorController(result, adminService, settingDAO);
+				new AdministratorController(result, adminService, settingDAO, 
+						userSession, userService);
 
 		mockController.createFirstAdministrator(administrator);
 	}
@@ -45,7 +38,8 @@ public class AdministratorControllerTest {
 		doNothing().when(settingDAO).update(setting);
 
 		AdministratorController mockController = 
-				new AdministratorController(result, adminService, settingDAO);
+				new AdministratorController(result, adminService, settingDAO, 
+						userSession, userService);
 
 		mockController.changeSystemSettings(setting);
 	}

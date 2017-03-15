@@ -41,7 +41,7 @@
 								</a>
 								<ul class="dropdown-menu" id="top-menu-dropdown">
 									<li><a href="#"><fmt:message key="see_profile"/></a></li>
-									<li><a href="#"><fmt:message key="settings"/></a></li>
+									<li><a href="user/settings"><fmt:message key="settings"/></a></li>
 									<li class="divider"></li>
 									<li><a href="<c:url value='/logout'/>"> <fmt:message key="logout"/></a></li>
 								</ul>

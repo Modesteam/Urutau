@@ -3,6 +3,20 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
+<script type="text/javascript">
+
+/**
+ * Fix for empty alerts
+ */
+$(document).ready(function() {
+	var alertMessage = $(".alert-json").val();
+
+	if($("#message").text() == '') {
+		$(".alert-json").hide();
+	}
+});
+</script>
+
 <c:if test="${errors ne null}">
 	<h3 class="error">
 		<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true">
@@ -35,6 +49,6 @@
 
 <!--  JSON messages -->
 <div class="alert alert-json alert-success" role="alert">
-	<span class="message"></span>
+	<span id="message"></span>
 	<a href="#" class="close" onclick="closeAlert()" aria-label="close">x</a>
 </div>
