@@ -62,4 +62,11 @@ public class Requirement extends Artifact {
         return toString();
     }
 
+    public String getIdentifierCode() {
+    	String code = toString().substring(0, 2);
+    	code = code.concat(" ");
+    	code = code + Long.toString(getId()); 
+
+    	return code.toUpperCase();
+    }
 }

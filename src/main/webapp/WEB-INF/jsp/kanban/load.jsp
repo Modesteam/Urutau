@@ -46,7 +46,8 @@ pageEncoding="UTF-8"%>
 			<%@ include file="/WEB-INF/jsp/requirement/show.jspf" %>
 
 			<c:if test="${requirement.layer.layerID == layer.layerID}">
-			<div class="requirement ${requirement}" id="drag${requirement.id}" draggable="true" ondragstart="drag(event)">
+			<div class="requirement ${requirement} panel" id="drag${requirement.id}" draggable="true" ondragstart="drag(event)">
+				<div class="requirement-type">${requirement.identifierCode}</div>
 				<a href="<c:url value='/show/${requirement.id}/${requirement.encodedTitle}'/>" 
 	   					title="Show" data-toggle="modal" data-target="#modal-show-${requirement.id}">
 					${requirement.title}
