@@ -26,7 +26,7 @@ import io.github.projecturutau.vraptor.handler.FlashMessage;
 
 
 /**
- * This controller have actions directly connect to user
+ * This controller have business logic about users of system
  */
 @Controller
 public class UserController {

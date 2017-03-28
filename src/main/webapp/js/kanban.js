@@ -34,7 +34,7 @@ function drop(ev, layerID) {
 	  dataType : "JSON",
 	  success : function(result) {
 		  console.log(result[1]);
-		  $(".message").html(result[1]);
+		  $("#message").html(result[1]);
 		  // unique .alert div
 		  $(".alert-json").fadeIn( "slow" );  
 	  }
