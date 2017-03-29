@@ -9,6 +9,7 @@
 .kanban-inline {
 	white-space:nowrap;
 }
+
 .layer {
 	float: left;
 	padding: 10px;
@@ -26,11 +27,31 @@
 
 .requirement {
 	text-align: left;
-	padding: 10px;
+	padding: 20px;
 	border: 1px solid #D8D8D8;
 	margin-bottom: 5px;
 	min-width: 150px;
-	background-color: #F2F5A9;
+}
+
+.requirement a {
+	color: #FFF;
+}
+
+.requirement-type {
+	margin-top: -10px;
+	width: 50%;
+}
+
+.storie {
+	background-color: #FF0000;
+}
+
+.feature {
+	background-color: #00CD00;
+}
+
+.epic {
+	background-color: #4169E1;
 }
 
 .form-widget {
