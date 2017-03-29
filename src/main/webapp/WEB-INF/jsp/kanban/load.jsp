@@ -48,7 +48,7 @@ pageEncoding="UTF-8"%>
 			<c:if test="${requirement.layer.layerID == layer.layerID}">
 			<div class="requirement ${requirement} panel" id="drag${requirement.id}" draggable="true" ondragstart="drag(event)">
 				<div class="requirement-type">${requirement.identifierCode}</div>
-				<a href="<c:url value='/show/${requirement.id}/${requirement.encodedTitle}'/>" 
+				<a href="<c:url value='/show/${requirement.id}/${requirement.encodedTitle}'/>" class="requirement-link" 
 	   					title="Show" data-toggle="modal" data-target="#modal-show-${requirement.id}">
 					${requirement.title}
 				</a>

@@ -56,8 +56,16 @@ $(document).ready(function() {
 	    $(event.target).css('borderWidth', '3px');
 	  }
   });
+  
+  function activeRequirement(requirement) {
+    $(requirement).css('borderWidth', '3px');	  
+  }
 
   $(".requirement").click(function() {
-    $(this).css('borderWidth', '3px');
+	  activeRequirement(this);
+  });
+  
+  $(".requirement").dblclick(function() {
+	  $(this).children(".requirement-link").click();
   });
 });
