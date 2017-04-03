@@ -14,7 +14,7 @@ public interface UserDAO {
 	/**
 	 * Gets a object instance that have a field with certain value
 	 */
-	List<UrutaUser> get(String field, Object value) throws Exception;
+	List<UrutaUser> get(String field, Object value);
 
 	/**
 	 * Finds by id

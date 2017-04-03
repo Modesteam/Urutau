@@ -1,5 +1,6 @@
 package com.modesteam.urutau.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.dao.UserDAO;
 import com.modesteam.urutau.exception.DataBaseCorruptedException;
+import com.modesteam.urutau.exception.NotImplementedError;
 import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.service.persistence.Finder;
 import com.modesteam.urutau.service.persistence.Persistence;
@@ -163,7 +165,7 @@ public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
 
 	@Override
 	public boolean exists(Long id) {
-		return false;
+		throw new NotImplementedError();
 	}
 
 	@Override
@@ -173,13 +175,19 @@ public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
 
 	@Override
 	public List<UrutaUser> findBy(String field, Object value) {
-		// TODO Auto-generated method stub
-		return null;
+		List<UrutaUser> users = new ArrayList<>();
+
+		try {
+			users.addAll(userDAO.get(field, value));
+		} catch (IllegalArgumentException illegalArgumentException) {
+			logger.trace("findby receive a invalid argument");
+		}
+
+		return users;
 	}
 
 	@Override
 	public List<UrutaUser> where(String conditions) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedError();
 	}
 }
