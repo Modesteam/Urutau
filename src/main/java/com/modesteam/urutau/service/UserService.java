@@ -1,6 +1,5 @@
 package com.modesteam.urutau.service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.RequestScoped;
@@ -174,16 +173,16 @@ public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
 	}
 
 	@Override
-	public List<UrutaUser> findBy(String field, Object value) {
-		List<UrutaUser> users = new ArrayList<>();
+	public UrutaUser findBy(String field, Object value) {
+		UrutaUser user = null;
 
 		try {
-			users.addAll(userDAO.get(field, value));
+			user = userDAO.get(field, value).get(0);
 		} catch (IllegalArgumentException illegalArgumentException) {
 			logger.trace("findby receive a invalid argument");
 		}
 
-		return users;
+		return user;
 	}
 
 	@Override

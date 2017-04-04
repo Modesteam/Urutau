@@ -242,7 +242,7 @@ public class RequirementCreator {
 			flashError.add("requirement.title.empty");
 		}
 
-		if (!service.findBy("title", requirement.getTitle()).isEmpty()) {
+		if ((service.findBy("title", requirement.getTitle()) != null)) {
 			flashError.add("requirement.title.already_used");
 		}
 

@@ -1,6 +1,5 @@
 package com.modesteam.urutau.service;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -131,16 +130,16 @@ public class RequirementService
 	}
 
 	@Override
-	public List<Requirement> findBy(String field, Object value) {
-		List<Requirement> result = new ArrayList<>();
+	public Requirement findBy(String field, Object value) {
+		Requirement requirement = null;
 
 		try {
-			result.addAll(requirementDAO.get(field, value));
+			requirement = requirementDAO.get(field, value).get(0);
 		} catch (IllegalArgumentException illegalArgumentException) {
 			logger.trace("findby receive a invalid argument");
 		}
 
-		return result;
+		return requirement;
 	}
 
 	@Override

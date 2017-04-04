@@ -208,7 +208,7 @@ public class ProjectController {
 			flash.use("error").toShow("not_permitted").redirectTo(ApplicationController.class)
 					.invalidRequest();
 		} else {
-			UrutaUser userFoundByEmail = userService.findBy("email", member).get(0);
+			UrutaUser userFoundByEmail = userService.findBy("email", member);
 
 			if (userFoundByEmail != null) {
 				project.addMember(userFoundByEmail);

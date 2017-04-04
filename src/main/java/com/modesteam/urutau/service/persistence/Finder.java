@@ -27,7 +27,7 @@ public interface Finder<Entity> {
 	 * 
 	 * @return {@link List} with many Entities or empty
 	 */
-	public List<Entity> findBy(String field, Object value);
+	public Entity findBy(String field, Object value);
 
 	/**
 	 * Like {@link #findBy(String, Object)} but accept one or more parameter

@@ -148,7 +148,7 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 	}
 
 	@Override
-	public List<Project> findBy(String field, Object value) {
+	public Project findBy(String field, Object value) {
 		throw new NotImplementedError();
 	}
 
