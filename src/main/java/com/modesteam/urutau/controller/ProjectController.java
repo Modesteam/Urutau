@@ -195,30 +195,6 @@ public class ProjectController {
 		flash.use("success").toShow("project_updated").stay();
 	}
 
-	@Post("/project/addMember")
-	@Restrict
-	public void addMember(Long projectId, String member) {
-		Project project = projectService.find(projectId);
-
-		logger.info("Request to put new member to project " + project.getTitle());
-
-		// This only happens if the user enters the settings without being an
-		// administrator
-		if (!project.isAdministrator(userSession.getUserLogged())) {
-			flash.use("error").toShow("not_permitted").redirectTo(ApplicationController.class)
-					.invalidRequest();
-		} else {
-			UrutaUser userFoundByEmail = userService.findBy("email", member);
-
-			if (userFoundByEmail != null) {
-				project.addMember(userFoundByEmail);
-				flash.use("success").toShow("new_member_added").stay();
-			} else {
-				flash.use("error").toShow("non_existent_member").stay();
-			}
-		}
-	}
-
 	/**
 	 * Show the projects that has a certain id and title
 	 * 
