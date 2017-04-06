@@ -20,8 +20,7 @@ import com.modesteam.urutau.service.persistence.Finder;
 import com.modesteam.urutau.service.persistence.Persistence;
 import com.modesteam.urutau.service.persistence.SearchOptions;
 
-public class RequirementService
-		implements Persistence<Requirement>, Finder<Requirement> {
+public class RequirementService implements Persistence<Requirement>, Finder<Requirement> {
 	private static final Logger logger = LoggerFactory.getLogger(RequirementService.class);
 
 	private final RequirementDAO requirementDAO;
@@ -67,21 +66,21 @@ public class RequirementService
 
 	@Override
 	public Requirement update(Requirement entity) {
-        logger.info("Starting the function modifyRequirement");
-        
-        Requirement entityManaged = find(entity.getId());
+		logger.info("Starting the function modifyRequirement");
 
-        // Setting the current date to last modification
-        Calendar lastModificationDate = getCurrentDate();
-        entityManaged.setLastModificationDate(lastModificationDate);
+		Requirement entityManaged = find(entity.getId());
 
-        // Setting the last user to modify
-        UrutaUser loggedUser = userSession.getUserLogged();
-        entityManaged.setLastModificationAuthor(loggedUser);
-        
-        entityManaged.setTitle(entity.getTitle());
-        entityManaged.setDescription(entity.getDescription());
-        
+		// Setting the current date to last modification
+		Calendar lastModificationDate = getCurrentDate();
+		entityManaged.setLastModificationDate(lastModificationDate);
+
+		// Setting the last user to modify
+		UrutaUser loggedUser = userSession.getUserLogged();
+		entityManaged.setLastModificationAuthor(loggedUser);
+
+		entityManaged.setTitle(entity.getTitle());
+		entityManaged.setDescription(entity.getDescription());
+
 		return entityManaged;
 	}
 
@@ -129,7 +128,7 @@ public class RequirementService
 		Requirement requirement = null;
 
 		try {
-			if(!requirementDAO.get(field, value).isEmpty()) {
+			if (!requirementDAO.get(field, value).isEmpty()) {
 				requirement = requirementDAO.get(field, value).get(0);
 			}
 		} catch (IllegalArgumentException illegalArgumentException) {
@@ -154,23 +153,23 @@ public class RequirementService
 	}
 
 	/**
-     * Get an instance of current date through of {@link Calendar}
-     * 
-     * @return current date
-     */
-    private Calendar getCurrentDate() {
-        Date currentDate = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentDate);
+	 * Get an instance of current date through of {@link Calendar}
+	 * 
+	 * @return current date
+	 */
+	private Calendar getCurrentDate() {
+		Date currentDate = new Date();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(currentDate);
 
-        return calendar;
-    }
+		return calendar;
+	}
 
 	public Query searchBy(SearchOptions options) {
 		final String sql = "SELECT requirement FROM " + Requirement.class.getName()
 				+ " requirement WHERE"
 				+ " " + options.getAttribute() + "=" + options.getAttributeValue()
-				+ " ORDER BY " + options.getOrderAtribute() 
+				+ " ORDER BY " + options.getOrderAtribute()
 				+ " " + options.getOrder().toString();
 
 		logger.trace("SQL runned " + sql);
