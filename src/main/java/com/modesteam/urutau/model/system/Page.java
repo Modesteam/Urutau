@@ -1,14 +1,13 @@
 package com.modesteam.urutau.model.system;
 
 public class Page {
-	public static final int DEFAULT_NUMBER_OF_ELEMENTS = 3;
+	public static final int DEFAULT_NUMBER_OF_ELEMENTS = 5;
 
 	private Integer number = 0;
 	private Integer numberOfElements = 0;
 
-	public Page setNumber(Integer number) {
+	public void setNumber(Integer number) {
 		this.number = number;
-		return this;
 	}
 
 	public Integer getNumber() {
@@ -27,9 +26,14 @@ public class Page {
 		return this;
 	}
 
-	public Integer getLastIndexItem() {
+	public Integer getFirstPositionInPage() {
 		Integer lowerIndex = getNumber() * getElements();
-		Integer upperIndex = lowerIndex + getElements();
+
+		return lowerIndex;
+	}
+
+	public Integer getLastPositionInPage() {
+		Integer upperIndex = getFirstPositionInPage() + getElements();
 		return upperIndex;
 	}
 

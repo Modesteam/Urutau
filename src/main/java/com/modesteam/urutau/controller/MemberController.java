@@ -80,7 +80,7 @@ public class MemberController {
 		List<UrutaUser> members = new ArrayList<>();
 		
 		for(UrutaUser user : project.getMembers()) {
-			if(project.getMembers().indexOf(user) < page.getLastIndexItem()) {
+			if(project.getMembers().indexOf(user) < page.getLastPositionInPage()) {
 				members.add(user);
 			} else {
 				break;

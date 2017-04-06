@@ -97,14 +97,15 @@ public class RequirementController {
 	 */
 	@Get("{projectID}/paginate/{page.number}")
 	public void paginate(long projectID, Page page) {
-		logger.info("Paging " + page.getNumber() + " until " + page.getLastIndexItem());
+		logger.info("Paging " + page.getFirstPositionInPage() 
+			+ " until " + page.getLastPositionInPage());
 
 		List<Requirement> requirements = requirementService
 				.searchBy(
 						new SearchOptions("project_id", projectID, 
 								"dateOfCreation", OrderEnum.DESC))
-				.setFirstResult(page.getNumber())
-				.setMaxResults(page.getLastIndexItem())
+				.setFirstResult(page.getFirstPositionInPage())
+				.setMaxResults(page.getLastPositionInPage())
 				.getResultList();
 
 		logger.info("Getting " + requirements.size() + " items");
