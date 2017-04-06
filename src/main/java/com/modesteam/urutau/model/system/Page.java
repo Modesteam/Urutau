@@ -3,32 +3,34 @@ package com.modesteam.urutau.model.system;
 public class Page {
 	public static final int DEFAULT_NUMBER_OF_ELEMENTS = 3;
 
-	private int number;
-	private int numberOfElements;
+	private Integer number = 0;
+	private Integer numberOfElements = 0;
 
-	public Page setNumber(int pageNumber) {
-		this.number = pageNumber;
+	public Page setNumber(Integer number) {
+		this.number = number;
 		return this;
 	}
 
-	public Page setElements(int elements) {
-		this.numberOfElements = elements;
-		return this;
+	public Integer getNumber() {
+		return number;
 	}
 
-	public int getElements() {
-		if(numberOfElements <= 0) {
+	public Integer getElements() {
+		if(numberOfElements == null || numberOfElements <= 0) {
 			numberOfElements = DEFAULT_NUMBER_OF_ELEMENTS;
 		}
 		return numberOfElements;
 	}
 
-	public int getNumber() {
-		return number;
+	public Page setElements(Integer elements) {
+		this.numberOfElements = elements;
+		return this;
 	}
-	
-	public int getLastIndexItem() {
-		return number + getElements();
+
+	public Integer getLastIndexItem() {
+		Integer lowerIndex = getNumber() * getElements();
+		Integer upperIndex = lowerIndex + getElements();
+		return upperIndex;
 	}
 
 }

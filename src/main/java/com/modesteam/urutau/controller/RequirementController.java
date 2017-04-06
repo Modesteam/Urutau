@@ -13,7 +13,10 @@ import org.slf4j.LoggerFactory;
 import com.modesteam.urutau.annotation.Restrict;
 import com.modesteam.urutau.annotation.View;
 import com.modesteam.urutau.model.Requirement;
+import com.modesteam.urutau.model.system.Page;
 import com.modesteam.urutau.service.RequirementService;
+import com.modesteam.urutau.service.persistence.OrderEnum;
+import com.modesteam.urutau.service.persistence.SearchOptions;
 
 import br.com.caelum.vraptor.Controller;
 import br.com.caelum.vraptor.Delete;
@@ -31,8 +34,6 @@ import io.github.projecturutau.vraptor.handler.FlashMessage;
 public class RequirementController {
 
 	private static final Logger logger = LoggerFactory.getLogger(RequirementController.class);
-
-	private static final int DEFAULT_PAGINATION_SIZE = 5;
 
 	private final Result result;
 	private final FlashMessage flash;
@@ -94,16 +95,22 @@ public class RequirementController {
 	 * @return List of {@link Requirement} to be easy display into home page of a
 	 *         project
 	 */
-	@Get("{projectID}/paginate/{page}")
-	public void paginate(long projectID, long page) {
-		long upperLimit = page + DEFAULT_PAGINATION_SIZE;
+	@Get("{projectID}/paginate/{page.number}")
+	public void paginate(long projectID, Page page) {
+		logger.info("Paging " + page.getNumber() + " until " + page.getLastIndexItem());
+
 		List<Requirement> requirements = requirementService
-				.desc("dateOfCreation")
-				.between(page, upperLimit)
-				.find()
-				.where("project_id=" + projectID);
+				.searchBy(
+						new SearchOptions("project_id", projectID, 
+								"dateOfCreation", OrderEnum.DESC))
+				.setFirstResult(page.getNumber())
+				.setMaxResults(page.getLastIndexItem())
+				.getResultList();
+
+		logger.info("Getting " + requirements.size() + " items");
 
 		result.include("requirements", requirements);
+		result.include("page", page);
 	}
 
 	/**

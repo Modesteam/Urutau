@@ -15,12 +15,13 @@
 		projectID : currentProjectID,
 		number : 0
 	};
+
 	/*
 	 * Render paginate.jsp into div class requirements
 	 */
-	window.onload = function(event) {
+	$(document).ready(function() {
 		paginate();
-	}
+	});
 </script>
 
 <script src="<c:url value='/js/requirement.js'/>"></script>

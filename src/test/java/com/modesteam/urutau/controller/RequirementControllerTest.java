@@ -14,11 +14,10 @@ import org.junit.Test;
 import com.modesteam.urutau.builder.ArtifactBuilder;
 import com.modesteam.urutau.model.Epic;
 import com.modesteam.urutau.model.Generic;
+import com.modesteam.urutau.model.system.Page;
 import com.modesteam.urutau.service.persistence.FinderAdapter;
 import com.modesteam.urutau.service.persistence.Order;
 import com.modesteam.urutau.test.UrutaUnitTest;
-
-import br.com.caelum.vraptor.validator.ValidationException;
 
 public class RequirementControllerTest extends UrutaUnitTest {
 
@@ -85,10 +84,14 @@ public class RequirementControllerTest extends UrutaUnitTest {
 
 	@Test
 	public void testPaginate() {
-		mockFinder();
 		RequirementController controllerMock = new RequirementController(result, flash, 
 				requirementService);
-		controllerMock.paginate(1L, 7L);
+		Page page = new Page();
+		page.setNumber(7L);
+		
+		mockFinder(1L, page);
+
+		controllerMock.paginate(1L, page);
 	}
 
 	@Test
@@ -99,13 +102,16 @@ public class RequirementControllerTest extends UrutaUnitTest {
 		controllerMock.showExclusionResult();
 	}
 
-	private void mockFinder() {
+	private void mockFinder(Long projectId, Page page) {
 		Order mockOrder = mock(Order.class);
 		when(requirementService.desc("dateOfCreation")).thenReturn(mockOrder);
-		when(mockOrder.between(7L, 12L)).thenReturn(mockOrder);
+
+		when(mockOrder.between(page.getNumber(), page.getLastIndexItem())).thenReturn(mockOrder);
+
 		FinderAdapter finderMock = mock(FinderAdapter.class);
 		when(mockOrder.find()).thenReturn(finderMock);
+
 		List requirements = mock(List.class);
-		when(finderMock.where("project_id=" + 1L)).thenReturn(requirements);
+		when(finderMock.where("project_id=" + projectId)).thenReturn(requirements);
 	}
 }
