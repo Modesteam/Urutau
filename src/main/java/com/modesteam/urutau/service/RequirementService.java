@@ -152,6 +152,19 @@ public class RequirementService implements Persistence<Requirement>, Finder<Requ
 		throw new NotImplementedError();
 	}
 
+	@Override
+	public Query searchBy(SearchOptions options) {
+		final String sql = "SELECT requirement FROM " + Requirement.class.getName()
+				+ " requirement WHERE"
+				+ " " + options.getAttribute() + "=" + options.getAttributeValue()
+				+ " ORDER BY " + options.getOrderAtribute()
+				+ " " + options.getOrder().toString();
+
+		logger.trace("SQL runned " + sql);
+
+		return requirementDAO.createQuery(sql);
+	}
+
 	/**
 	 * Get an instance of current date through of {@link Calendar}
 	 * 
@@ -165,15 +178,4 @@ public class RequirementService implements Persistence<Requirement>, Finder<Requ
 		return calendar;
 	}
 
-	public Query searchBy(SearchOptions options) {
-		final String sql = "SELECT requirement FROM " + Requirement.class.getName()
-				+ " requirement WHERE"
-				+ " " + options.getAttribute() + "=" + options.getAttributeValue()
-				+ " ORDER BY " + options.getOrderAtribute()
-				+ " " + options.getOrder().toString();
-
-		logger.trace("SQL runned " + sql);
-
-		return requirementDAO.createQuery(sql);
-	}
 }
