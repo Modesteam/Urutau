@@ -57,14 +57,13 @@
 			</tbody>
 		</table>
 		<div class="text-center">
-			<button onclick="previous()">
+			<button onclick="previous()" class="btn btn-default">
 				<i class="glyphicon glyphicon-backward"></i>
 			</button>
-			<button onclick="next()">
+			<button onclick="next()" class="btn btn-default">
 				<i class="glyphicon glyphicon-forward"></i>
 			</button>
 		</div>
 	</div>
-	<script src="<c:url value='/js/requirement.js'/>"/></script>
 </body>
 </html>

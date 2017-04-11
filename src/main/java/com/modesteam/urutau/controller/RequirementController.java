@@ -100,6 +100,7 @@ public class RequirementController {
 		logger.info("Paging " + page.getFirstPositionInPage() 
 			+ " until " + page.getLastPositionInPage());
 
+		@SuppressWarnings("unchecked")
 		List<Requirement> requirements = requirementService
 				.searchBy(
 						new SearchOptions("project_id", projectID, 

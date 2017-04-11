@@ -17,6 +17,7 @@ import com.modesteam.urutau.service.ProjectService;
 import com.modesteam.urutau.service.UserService;
 
 import br.com.caelum.vraptor.Controller;
+import br.com.caelum.vraptor.Delete;
 import br.com.caelum.vraptor.Get;
 import br.com.caelum.vraptor.Post;
 import br.com.caelum.vraptor.Result;
@@ -40,8 +41,8 @@ public class MemberController {
 	}
 
 	@Inject
-	public MemberController(Result result, FlashMessage flash, 
-			ProjectService projectService, UserSession userSession, UserService userService) {
+	public MemberController(Result result, FlashMessage flash, ProjectService projectService,
+			UserSession userSession, UserService userService) {
 		this.flash = flash;
 		this.result = result;
 		this.userSession = userSession;
@@ -56,10 +57,9 @@ public class MemberController {
 
 		logger.info("Request to put new member to project " + project.getTitle());
 
-		// This only happens if the user enters the settings without being an administrator
 		if (!project.isAdministrator(userSession.getUserLogged())) {
-			flash.use("error").toShow("not_permitted").redirectTo(ApplicationController.class)
-					.invalidRequest();
+			flash.use("error").toShow("not_permitted")
+				.redirectTo(ApplicationController.class).invalidRequest();
 		} else {
 			UrutaUser userFoundByEmail = userService.findBy("email", member);
 
@@ -72,22 +72,45 @@ public class MemberController {
 		}
 	}
 
-	@Get("/project/{projectId}/members/{page.number}")
+	@Get("project/{projectId}/members/{page.number}")
+	@Restrict
 	public void showMembers(Long projectId, Page page) {
 		Project project = projectService.find(projectId);
 
 		logger.info("Show members of project " + project.getTitle());
+
 		List<UrutaUser> members = new ArrayList<>();
-		
-		for(UrutaUser user : project.getMembers()) {
-			if(project.getMembers().indexOf(user) < page.getLastPositionInPage()) {
+
+		// Lazy mode allows load each element when requested
+		for (UrutaUser user : project.getMembers()) {
+			if (project.getMembers().indexOf(user) < page.getLastPositionInPage()) {
 				members.add(user);
 			} else {
 				break;
 			}
 		}
 
+		result.include("projectID", projectId);
 		result.include("members", members);
 		result.include("page", page);
+	}
+
+	/**
+	 * Remove a member of project
+	 */
+	@Delete("project/removeMember")
+	@Restrict
+	public void removeMember(Long userID, Long projectID) {
+		Project project = projectService.find(projectID);
+
+		if (project.isAdministrator(userSession.getUserLogged())) {
+			UrutaUser user = userService.find(userID);
+			project.removeMember(user);
+
+			flash.use("success").toShow("member_deleted").stay();
+		} else {
+			flash.use("error").toShow("not_permitted")
+				.redirectTo(ApplicationController.class).invalidRequest();
+		}
 	}
 }

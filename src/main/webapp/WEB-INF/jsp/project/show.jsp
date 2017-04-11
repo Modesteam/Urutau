@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
+<script src="<c:url value='/js/paginate-control.js'/>"></script>
+
 <!-- Self page scripts -->
 <script type="text/javascript">
 	/*

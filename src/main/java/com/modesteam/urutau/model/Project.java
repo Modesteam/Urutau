@@ -227,6 +227,10 @@ public class Project implements Cloneable {
 		getMembers().add(user);
 	}
 
+	public void removeMember(UrutaUser user) {
+		getMembers().remove(user);
+	}
+
 	/**
 	 * Check if user is administrator of project
 	 * 
