@@ -78,7 +78,7 @@ public abstract class UrutaUnitTest {
 
 		userSession = mock(UserSession.class);
 
-		flash = new MockFlash();
+		flash = new MockFlash(result);
 		flashError = new MockFlashError();
 
 		formatter = new RequirementFormatter(userSession, projectService, kanbanService);
