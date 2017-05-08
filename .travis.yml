@@ -1,6 +1,6 @@
 language: java
 
-script: mvn package
+script: mvn package && mvn clean compile cobertura:cobertura
 
 env:
   global:
@@ -12,3 +12,6 @@ jdk:
 
 
 install: /bin/true
+
+after_success:
+    - bash <(curl -s https://codecov.io/bash)

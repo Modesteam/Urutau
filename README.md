@@ -1,6 +1,7 @@
 # Urutau
 
 [![Build Status](https://travis-ci.org/ProjectUrutau/Urutau.svg?branch=submaster)](https://travis-ci.org/ProjectUrutau/Urutau) 
+[![codecov](https://codecov.io/gh/ProjectUrutau/Urutau/branch/submaster/graph/badge.svg)](https://codecov.io/gh/ProjectUrutau/Urutau)
 
 ## Synopsis
 
