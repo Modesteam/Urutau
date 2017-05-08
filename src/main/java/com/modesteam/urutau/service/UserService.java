@@ -5,6 +5,7 @@ import java.util.List;
 import javax.enterprise.context.RequestScoped;
 import javax.inject.Inject;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import com.modesteam.urutau.UserSession;
 import com.modesteam.urutau.dao.UserDAO;
 import com.modesteam.urutau.exception.DataBaseCorruptedException;
+import com.modesteam.urutau.exception.NotImplementedError;
 import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.service.persistence.Finder;
 import com.modesteam.urutau.service.persistence.Persistence;
+import com.modesteam.urutau.service.persistence.SearchOptions;
 
 @RequestScoped
 public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
@@ -163,7 +166,7 @@ public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
 
 	@Override
 	public boolean exists(Long id) {
-		return false;
+		throw new NotImplementedError();
 	}
 
 	@Override
@@ -172,14 +175,25 @@ public class UserService implements Finder<UrutaUser>, Persistence<UrutaUser> {
 	}
 
 	@Override
-	public List<UrutaUser> findBy(String field, Object value) {
-		// TODO Auto-generated method stub
-		return null;
+	public UrutaUser findBy(String field, Object value) {
+		UrutaUser user = null;
+
+		try {
+			user = userDAO.get(field, value).get(0);
+		} catch (IllegalArgumentException illegalArgumentException) {
+			logger.trace("findby receive a invalid argument");
+		}
+
+		return user;
 	}
 
 	@Override
 	public List<UrutaUser> where(String conditions) {
-		// TODO Auto-generated method stub
-		return null;
+		throw new NotImplementedError();
+	}
+
+	@Override
+	public Query searchBy(SearchOptions options) {
+		throw new NotImplementedError();
 	}
 }

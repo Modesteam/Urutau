@@ -54,11 +54,17 @@ public class Project implements Cloneable {
 	@JoinColumn(name = "userID")
 	private UrutaUser author;
 
-	/* Artifact can be delegated to one or more persons */
+	/* Project have one or more persons */
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name = "User_Project", joinColumns = @JoinColumn(name = "projectID") ,
+	@JoinTable(name = "User_Project", joinColumns = @JoinColumn(name = "projectID"),
 			inverseJoinColumns = @JoinColumn(name = "userID"))
 	private List<UrutaUser> members = new ArrayList<UrutaUser>();
+
+	/* Project have one or more administrators */
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "Project_Admin", joinColumns = @JoinColumn(name = "projectID"),
+			inverseJoinColumns = @JoinColumn(name = "userID"))
+	private List<UrutaUser> admins = new ArrayList<UrutaUser>();
 
 	/* Should be generate automatically when controller creates */
 	private Calendar dateOfCreation;
@@ -212,5 +218,35 @@ public class Project implements Cloneable {
 
 	public void loadRequirements() {
 		getRequirements().size();
+	}
+
+	/**
+	 * Add new member of project
+	 */
+	public void addMember(UrutaUser user) {
+		getMembers().add(user);
+	}
+
+	public void removeMember(UrutaUser user) {
+		getMembers().remove(user);
+	}
+
+	/**
+	 * Check if user is administrator of project
+	 * 
+	 * @param user possible administrator
+	 * @return true if user is administrator
+	 */
+	public boolean isAdministrator(UrutaUser user) {
+		boolean isAdmin = false;
+
+		// If user is the author of project then he are one admin
+		if(author.getUserID() == user.getUserID()) {
+			isAdmin = true;
+		} else if(admins.contains(user)) {
+			isAdmin = true;
+		}
+
+		return isAdmin;
 	}
 }

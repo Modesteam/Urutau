@@ -2,6 +2,10 @@ package com.modesteam.urutau.service.persistence;
 
 import java.util.List;
 
+import javax.persistence.Query;
+
+import com.modesteam.urutau.controller.RequirementController;
+
 /**
  * Responsible to find Entities of many ways. It are not perform order, to this
  * you should use {@link Order}
@@ -27,7 +31,7 @@ public interface Finder<Entity> {
 	 * 
 	 * @return {@link List} with many Entities or empty
 	 */
-	public List<Entity> findBy(String field, Object value);
+	public Entity findBy(String field, Object value);
 
 	/**
 	 * Like {@link #findBy(String, Object)} but accept one or more parameter
@@ -41,4 +45,13 @@ public interface Finder<Entity> {
 	 * @return {@link List} with many Entities or empty
 	 */
 	public List<Entity> where(String conditions);
+
+	/**
+	 * Used to create customized searchs, commonly used in paginations
+	 * @see RequirementController#paginate(long, Page)
+	 * 
+	 * @param options customized params of search
+	 * @return JPA {@link Query}
+	 */
+	public Query searchBy(SearchOptions options);
 }

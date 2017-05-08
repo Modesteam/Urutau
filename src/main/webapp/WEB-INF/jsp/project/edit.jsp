@@ -5,6 +5,31 @@
 
 <%@ include file="/WEB-INF/layouts/messages.jsp"%>
 
+<script src="<c:url value='/js/paginate-control.js'/>"></script>
+
+<!-- Self page scripts -->
+<script type="text/javascript">
+	/*
+	 * The follow script file needs page variable to work.
+	 * The above variable project.id is a EL
+	 */
+	currentProjectID = ${project.id};
+
+	var page = {
+		projectID : currentProjectID,
+		number : 0
+	};
+
+	/*
+	 * Render paginate.jsp into div class requirements
+	 */
+	$(document).ready(function() {
+		paginate();
+	});
+</script>
+
+<script src="<c:url value='/js/member-paginate.js'/>"></script>
+
 <div class="row">	
 	<div class="col-md-6 col-md-offset-3">
 		<h1>${project.title} Settings</h1>
@@ -34,8 +59,33 @@
 					</div>
 					
 					<a href="<c:url value="/${project.id}-${project.title}"/>" class="btn btn-default">Cancel</a>
-					<button type="submit" name="_method" value="PUT" class="btn btn-success pull-right">Update</button>
+					<button type="submit" name="_method" value="PUT" class="btn btn-default pull-right">Update</button>
 				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row">
+	<div class="col-md-6 col-md-offset-3 boxed">
+		<div class="panel panel-default">
+	 		<div class="panel-heading">
+				<h3>New members</h3>
+			</div>
+			<div class="panel-body">
+				<label>Assign new member by email</label>
+				<form action="<c:url value="/project/addMember"/>" method="POST" class="input-group">
+					<input type="hidden" name="projectId" value="${project.id}">
+					<input type="text" name="member" class="form-control" id="member" placeholder="Email">
+					<span class="input-group-btn">
+						<button type="submit" class="btn btn-default" type="button">Add</button>
+					</span>
+   				</form>
+   				<br/>
+			    <p class="text-info">* When you add new members, they could see, edit, 
+			    put and delete artifacts into project</p>
+			    <div class="members">
+			   </div>
 			</div>
 		</div>
 	</div>

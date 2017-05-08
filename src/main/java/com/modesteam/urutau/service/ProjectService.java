@@ -5,6 +5,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.Query;
 
 import org.jboss.weld.exceptions.IllegalArgumentException;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ import com.modesteam.urutau.model.UrutaUser;
 import com.modesteam.urutau.model.system.Layer;
 import com.modesteam.urutau.service.persistence.Finder;
 import com.modesteam.urutau.service.persistence.Persistence;
+import com.modesteam.urutau.service.persistence.SearchOptions;
 
 public class ProjectService implements Persistence<Project>, Finder<Project> {
 
@@ -148,7 +150,7 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 	}
 
 	@Override
-	public List<Project> findBy(String field, Object value) {
+	public Project findBy(String field, Object value) {
 		throw new NotImplementedError();
 	}
 
@@ -174,11 +176,14 @@ public class ProjectService implements Persistence<Project>, Finder<Project> {
 
 		if (result.size() > 1) {
 			throw new SystemBreakException("More than one result when requested by an unitary field");
-		} else {
-
 		}
 
 		return result.get(FIRST);
+	}
+
+	@Override
+	public Query searchBy(SearchOptions options) {
+		throw new NotImplementedError();
 	}
 
 	/**

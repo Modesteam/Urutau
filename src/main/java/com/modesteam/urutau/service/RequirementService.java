@@ -1,11 +1,11 @@
 package com.modesteam.urutau.service;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import javax.inject.Inject;
+import javax.persistence.Query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,22 +16,15 @@ import com.modesteam.urutau.dao.impl.GenericDAO;
 import com.modesteam.urutau.exception.NotImplementedError;
 import com.modesteam.urutau.model.Requirement;
 import com.modesteam.urutau.model.UrutaUser;
-import com.modesteam.urutau.service.persistence.DuplicateSortException;
 import com.modesteam.urutau.service.persistence.Finder;
-import com.modesteam.urutau.service.persistence.FinderAdapter;
-import com.modesteam.urutau.service.persistence.Order;
-import com.modesteam.urutau.service.persistence.OrderEnum;
-import com.modesteam.urutau.service.persistence.OrderOption;
 import com.modesteam.urutau.service.persistence.Persistence;
+import com.modesteam.urutau.service.persistence.SearchOptions;
 
-public class RequirementService
-		implements Persistence<Requirement>, Finder<Requirement>, Order<Requirement> {
+public class RequirementService implements Persistence<Requirement>, Finder<Requirement> {
 	private static final Logger logger = LoggerFactory.getLogger(RequirementService.class);
 
 	private final RequirementDAO requirementDAO;
 	private final UserSession userSession;
-
-	private OrderOption orderOption;
 
 	/**
 	 * @deprecated CDI only
@@ -73,21 +66,21 @@ public class RequirementService
 
 	@Override
 	public Requirement update(Requirement entity) {
-        logger.info("Starting the function modifyRequirement");
-        
-        Requirement entityManaged = find(entity.getId());
+		logger.info("Starting the function modifyRequirement");
 
-        // Setting the current date to last modification
-        Calendar lastModificationDate = getCurrentDate();
-        entityManaged.setLastModificationDate(lastModificationDate);
+		Requirement entityManaged = find(entity.getId());
 
-        // Setting the last user to modify
-        UrutaUser loggedUser = userSession.getUserLogged();
-        entityManaged.setLastModificationAuthor(loggedUser);
-        
-        entityManaged.setTitle(entity.getTitle());
-        entityManaged.setDescription(entity.getDescription());
-        
+		// Setting the current date to last modification
+		Calendar lastModificationDate = getCurrentDate();
+		entityManaged.setLastModificationDate(lastModificationDate);
+
+		// Setting the last user to modify
+		UrutaUser loggedUser = userSession.getUserLogged();
+		entityManaged.setLastModificationAuthor(loggedUser);
+
+		entityManaged.setTitle(entity.getTitle());
+		entityManaged.setDescription(entity.getDescription());
+
 		return entityManaged;
 	}
 
@@ -131,20 +124,21 @@ public class RequirementService
 	}
 
 	@Override
-	public List<Requirement> findBy(String field, Object value) {
-		List<Requirement> result = new ArrayList<>();
+	public Requirement findBy(String field, Object value) {
+		Requirement requirement = null;
 
 		try {
-			result.addAll(requirementDAO.get(field, value));
+			if (!requirementDAO.get(field, value).isEmpty()) {
+				requirement = requirementDAO.get(field, value).get(0);
+			}
 		} catch (IllegalArgumentException illegalArgumentException) {
 			logger.trace("findby receive a invalid argument");
 		}
 
-		return result;
+		return requirement;
 	}
 
-	@Override
-	public List<Requirement> where(String conditions) {
+	public List<Requirement> search(String conditions) {
 		String sql = "SELECT requirement FROM " + Requirement.class.getName()
 				+ " requirement WHERE ";
 
@@ -154,55 +148,34 @@ public class RequirementService
 	}
 
 	@Override
-	public Order<Requirement> asc(String field) {
-		if (orderOption == null) {
-			this.orderOption = new OrderOption(OrderEnum.ASC, field);
-		} else {
-			throw new DuplicateSortException(
-					"Option sort should be configured one time, you probably is calling"
-							+ " something like desc(field).asc(field).");
-		}
-		return this;
+	public List<Requirement> where(String conditions) {
+		throw new NotImplementedError();
 	}
 
 	@Override
-	public Order<Requirement> desc(String field) {
-		if (orderOption == null) {
-			this.orderOption = new OrderOption(OrderEnum.DESC, field);
-		} else {
-			throw new DuplicateSortException(
-					"Option sort should be configured one time, you probably is calling"
-							+ " something like desc(field).asc(field).");
-		}
-		return this;
+	public Query searchBy(SearchOptions options) {
+		final String sql = "SELECT requirement FROM " + Requirement.class.getName()
+				+ " requirement WHERE"
+				+ " " + options.getAttribute() + "=" + options.getAttributeValue()
+				+ " ORDER BY " + options.getOrderAtribute()
+				+ " " + options.getOrder().toString();
+
+		logger.trace("SQL runned " + sql);
+
+		return requirementDAO.createQuery(sql);
 	}
 
-	@Override
-	public Order<Requirement> between(Long first, Long last) {
-		this.orderOption.setStart(first.toString());
-		this.orderOption.setEnd(last.toString());
-		return this;
+	/**
+	 * Get an instance of current date through of {@link Calendar}
+	 * 
+	 * @return current date
+	 */
+	private Calendar getCurrentDate() {
+		Date currentDate = new Date();
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(currentDate);
+
+		return calendar;
 	}
 
-	@Override
-	public FinderAdapter<Requirement> find() {
-		FinderAdapter<Requirement> adapter = new FinderAdapter<Requirement>(this, orderOption);
-		// clean orderOption to others
-		orderOption = null;
-
-		return adapter;
-	}
-
-    /**
-     * Get an instance of current date through of {@link Calendar}
-     * 
-     * @return current date
-     */
-    private Calendar getCurrentDate() {
-        Date currentDate = new Date();
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTime(currentDate);
-
-        return calendar;
-    }
 }

@@ -3,6 +3,8 @@
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt"%>
 
+<script src="<c:url value='/js/paginate-control.js'/>"></script>
+
 <!-- Self page scripts -->
 <script type="text/javascript">
 	/*
@@ -15,12 +17,13 @@
 		projectID : currentProjectID,
 		number : 0
 	};
+
 	/*
 	 * Render paginate.jsp into div class requirements
 	 */
-	window.onload = function(event) {
+	$(document).ready(function() {
 		paginate();
-	}
+	});
 </script>
 
 <script src="<c:url value='/js/requirement.js'/>"></script>
