@@ -61,10 +61,11 @@ public class MemberController {
 			flash.use("error").toShow("not_permitted")
 				.redirectTo(ApplicationController.class).invalidRequest();
 		} else {
-			UrutaUser userFoundByEmail = userService.findBy("email", member);
+			UrutaUser userFoundByEmail = getUserFoundByKeyword(member);
 
 			if (userFoundByEmail != null) {
 				project.addMember(userFoundByEmail);
+
 				flash.use("success").toShow("new_member_added").stay();
 			} else {
 				flash.use("error").toShow("non_existent_member").stay();
@@ -112,5 +113,47 @@ public class MemberController {
 			flash.use("error").toShow("not_permitted")
 				.redirectTo(ApplicationController.class).invalidRequest();
 		}
+	}
+
+	/**
+	 * Add new owner of project
+	 * 
+	 * @param userKeyword only email by now
+	 * @param projectID
+	 */
+	@Post("/project/makeAdmin")
+	@Restrict
+	public void makeAdmin(String userKeyword, Long projectID) {
+		Project project = projectService.find(projectID);
+
+		if (project.isAdministrator(userSession.getUserLogged())) {
+			UrutaUser user = getUserFoundByKeyword(userKeyword);
+
+			if(user != null) {
+				project.addAdmin(user);
+
+				flash.use("success").toShow("new_admin_added").stay();
+			} else {
+				flash.use("error").toShow("non_existent_member").stay();
+			}
+
+		} else {
+			flash.use("error").toShow("not_permitted")
+				.redirectTo(ApplicationController.class).invalidRequest();
+		}
+	}
+	
+	/**
+	 * TODO return List of users founded by email, name...
+	 * 
+	 * Supports only email by now.
+	 * 
+	 * @param memberKeyWord is some identifier of user like email, name
+	 * @return User found
+	 */
+	private UrutaUser getUserFoundByKeyword(String memberKeyWord) {
+		UrutaUser userFoundByEmail = userService.findBy("email", memberKeyWord);
+		
+		return userFoundByEmail;
 	}
 }

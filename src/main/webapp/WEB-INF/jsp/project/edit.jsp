@@ -98,9 +98,17 @@
 				<h3>Critical area</h3>
 			</div>
 		 	<div class="panel-body">
-				<form>
-					<label>Assign new owner</label>
-					<input type="text" class="form-control" placeholder="Add new owner"/>
+				<form action="<c:url value="/project/makeAdmin"/>" method="POST">
+					<label>Assign new administrators</label>
+
+					<input name="projectID" type="hidden" class="btn btn-secondary" value="${project.id}" />
+					<div class="input-group">
+						<input name="userKeyword" type="text" class="form-control" placeholder="admin@email.com"/>
+
+						<span class="input-group-btn">
+							<button type="submit" class="btn btn-warning">Add Admin</button>
+						</span>
+					</div>
 					<p class="text-info">* Grants privileges to another member of this project</p>
 				</form>
 				<br/>
