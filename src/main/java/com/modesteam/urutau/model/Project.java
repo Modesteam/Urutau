@@ -249,4 +249,8 @@ public class Project implements Cloneable {
 
 		return isAdmin;
 	}
+
+	public void addAdmin(UrutaUser user) {
+		this.admins.add(user);
+	}
 }
